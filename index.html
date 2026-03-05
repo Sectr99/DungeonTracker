@@ -887,7 +887,10 @@ tbody tr.hl .td-roll { color:var(--accent1); }
   .settings-panel .s-control-row,
   .settings-panel .preset-grid,
   .settings-panel .s-two-col,
+  .settings-panel .monster-table-row,
+  .settings-panel .s-hint,
   .settings-panel .slider-hint { padding-left:1.1rem; padding-right:1.1rem; }
+  .monster-table-btn { font-size:0.68rem; padding:0.5rem 0.4rem; }
   .settings-footer { padding:1rem 1.1rem calc(1.5rem + env(safe-area-inset-bottom, 0px)); }
   .s-btn-cancel, .s-btn-save { font-size:0.78rem; padding:0.48rem 1rem; }
 
@@ -1250,6 +1253,61 @@ input[type=range]::-moz-range-thumb {
   border-color:rgba(176,128,48,0.7);
 }
 
+/* Monster table selector */
+.monster-table-row { display:flex; gap:0.5rem; flex-wrap:wrap; }
+.monster-table-btn {
+  position:relative; overflow:hidden; flex:1; min-width:0;
+  background:rgba(0,0,0,0.35);
+  border:1px solid rgba(176,128,48,0.22);
+  color:var(--bone-dim);
+  font-family:'Cinzel Decorative','Crimson Pro',serif;
+  font-size:0.72rem; font-weight:700;
+  padding:0.55rem 0.6rem;
+  cursor:pointer; transition:all 0.15s; border-radius:2px;
+  text-align:center; line-height:1.3;
+}
+.monster-table-btn .mtb-name { display:block; }
+.monster-table-btn .mtb-tier {
+  display:block; font-family:'Crimson Pro',Georgia,serif;
+  font-size:0.65rem; font-weight:400; font-style:italic;
+  letter-spacing:0.05em; opacity:0.7; margin-top:0.15rem;
+}
+.monster-table-btn:hover  { border-color:rgba(176,128,48,0.5); color:var(--gold-pale); background:rgba(176,128,48,0.05); }
+.monster-table-btn.active { border-color:var(--gold-hi); color:var(--gold-pale); background:rgba(154,122,42,0.12); box-shadow:0 0 10px rgba(154,122,42,0.18), inset 0 0 0 1px rgba(255,255,255,0.04); }
+.monster-table-btn.tier-deep.active  { border-color:#c06040; color:#e08060; background:rgba(140,60,30,0.15); box-shadow:0 0 10px rgba(180,70,30,0.2); }
+.monster-table-btn.tier-abyss.active { border-color:#9040c0; color:#c070e8; background:rgba(100,20,120,0.18); box-shadow:0 0 14px rgba(120,30,160,0.3); }
+  position:relative; overflow:hidden;
+  background:rgba(0,0,0,0.35);
+  border:1px solid rgba(176,128,48,0.22);
+  color:var(--bone-dim);
+  font-family:'Cinzel Decorative','Crimson Pro',serif;
+  font-size:0.78rem; font-weight:700;
+  padding:0.42rem 0.8rem;
+  cursor:pointer; transition:all 0.15s; border-radius:2px;
+  letter-spacing:0.03em;
+}
+.die-type-btn::after {
+  content:'';
+  position:absolute; top:2px; left:2px;
+  width:5px; height:5px;
+  border-top:1px solid rgba(176,128,48,0.3);
+  border-left:1px solid rgba(176,128,48,0.3);
+  pointer-events:none;
+}
+.die-type-btn:hover {
+  border-color:rgba(176,128,48,0.55);
+  color:var(--gold-pale);
+  background:rgba(176,128,48,0.06);
+}
+.die-type-btn.active {
+  border-color:var(--gold-hi); color:var(--gold-pale);
+  background:rgba(154,122,42,0.12);
+  box-shadow:0 0 12px rgba(154,122,42,0.2), inset 0 0 0 1px rgba(255,255,255,0.04);
+}
+.die-type-btn.active::after {
+  border-color:rgba(176,128,48,0.7);
+}
+
 /* ── Threshold display ── */
 .threshold-display {
   background:rgba(0,0,0,0.35);
@@ -1343,6 +1401,8 @@ input[type=range]::-moz-range-thumb {
 .settings-panel .s-control-row,
 .settings-panel .preset-grid,
 .settings-panel .s-two-col,
+.settings-panel .monster-table-row,
+.settings-panel .s-hint,
 .settings-panel .slider-hint {
   padding-left:2rem;
   padding-right:2rem;
@@ -1702,6 +1762,26 @@ input[type=range]::-moz-range-thumb {
 
     <div class="s-divider"></div>
 
+    <!-- Monster Table -->
+    <div class="s-section-label">Monster Table</div>
+    <div class="monster-table-row">
+      <button class="monster-table-btn active" onclick="setMonsterTable(0)">
+        <span class="mtb-name">Shallow Dungeon</span>
+        <span class="mtb-tier">CR ⅛ – 5</span>
+      </button>
+      <button class="monster-table-btn tier-deep" onclick="setMonsterTable(1)">
+        <span class="mtb-name">Deep Dungeon</span>
+        <span class="mtb-tier">CR 3 – 17</span>
+      </button>
+      <button class="monster-table-btn tier-abyss" onclick="setMonsterTable(2)">
+        <span class="mtb-name">The Abyss</span>
+        <span class="mtb-tier">CR 9 – 30</span>
+      </button>
+    </div>
+    <p class="s-hint" style="margin-top:0.55rem;">Which d20 table is rolled when an encounter is triggered.</p>
+
+    <div class="s-divider"></div>
+
     <!-- Die type + threshold side by side on wide screens -->
     <div class="s-two-col">
       <div class="s-col">
@@ -1966,7 +2046,9 @@ input[type=range]::-moz-range-thumb {
 // ══════════════════════════════════════════════════
 // DATA — monsters with full stat blocks
 // ══════════════════════════════════════════════════
-const MONSTERS = [
+const MONSTER_TABLES = [
+// ── TABLE 1: Shallow Dungeon (CR ⅛–5) ─────────────────────────────────────
+[
   { roll:1,  name:"Gelatinous Cube",   cr:"CR 2",  count:"1",    desc:"Fills the corridor — nearly invisible until it engulfs you",
     lore:"Born from dungeon magic and dissolved matter, this aberration has drifted these passages for decades, consuming everything in its path.",
     tactics:"Moves silently to engulf prey. Paralyzed victims are slowly digested. The cube retreats if reduced below half HP.",
@@ -2087,7 +2169,260 @@ const MONSTERS = [
     habitat:"Laboratory chambers, wizard's sanctums, anywhere a creator might require a permanent guardian.",
     stats:{ac:"9",hp:"93 (11d8+44)",spd:"30 ft",str:"19(+4)",dex:"9(−1)",con:"18(+4)",int:"6(−2)",wis:"10(+0)",cha:"5(−3)",
     props:["Berserk: HP ≤40 may rampage","Immune: lightning, poison; resist: non-magical B/P/S","Aversion of Fire: disadvantaged if damaged by fire"]} },
+],
+
+// ── TABLE 2: Deep Dungeon (CR 3–17) ──────────────────────────────────────
+[
+  { roll:1,  name:"Ghast Pack",        cr:"CR 2",  count:"1d4+1", desc:"Faster, fouler ghouls — paralysis and stench",
+    lore:"Ghouls that feasted on demon-touched flesh and were transformed further. They still remember the names of the adventurers they once were.",
+    tactics:"Stench forces Con saves before combat begins. Pack-attack to trigger paralysis, then pile onto the helpless.",
+    habitat:"Deep ossuaries, caverns near demonic corruption, the aftermath of large battles.",
+    stats:{ac:"13",hp:"36 (8d8)",spd:"30 ft",str:"16(+3)",dex:"17(+3)",con:"10(+0)",int:"11(+0)",wis:"10(+0)",cha:"8(−1)",
+    props:["Stench: DC 10 Con or poisoned until start of next turn","Claws: DC 10 Con or paralyzed 1 min","Immune: poison, charmed, exhaustion, frightened"]} },
+  { roll:2,  name:"Vampiric Mist",     cr:"CR 3",  count:"1",     desc:"Crimson fog that drains blood on contact",
+    lore:"The remnant of a vampire destroyed without a stake through its heart. It coalesces in places where blood has been spilled in great quantity.",
+    tactics:"Engulfs targets, draining Constitution. Immune to most physical attacks. Disperse it with sunlight or radiant damage.",
+    habitat:"Charnel pits, sacrifice chambers, ancient battlefields deep underground.",
+    stats:{ac:"13",hp:"30 (4d10+8)",spd:"0 ft, fly 30 ft (hover)",str:"6(−2)",dex:"16(+3)",con:"14(+2)",int:"6(−2)",wis:"12(+1)",cha:"7(−2)",
+    props:["Life Drain: DC 12 Con, max HP reduced","Misty Form: immune to grapple/restrain/prone","Immune: necrotic, poison; resist: B/P/S"]} },
+  { roll:3,  name:"Hook Horror",       cr:"CR 3",  count:"1d3",   desc:"Clicking resonates through the darkness ahead",
+    lore:"Territorial cave predators that communicate with resonant clicks. When you hear one, there are always more listening.",
+    tactics:"Climbs walls and ceilings to attack from unexpected angles. Pack tactics coordinate to isolate prey.",
+    habitat:"Cavern systems with 20-ft+ ceilings, near underground lakes and fungi forests.",
+    stats:{ac:"15 (natural)",hp:"75 (10d10+20)",spd:"30 ft, climb 30 ft",str:"18(+4)",dex:"10(+0)",con:"15(+2)",int:"6(−2)",wis:"12(+1)",cha:"7(−2)",
+    props:["Echolocation: blindsight 60 ft (deaf = blind)","Pack Tactics: Adv if ally adjacent","Multiattack: 2 hooks"]} },
+  { roll:4,  name:"Banshee",           cr:"CR 4",  count:"1",     desc:"Wails that can kill all who hear them",
+    lore:"The spirit of an elven sorceress slain mid-incantation. Her rage at dying with unfinished magic has kept her bound for millennia.",
+    tactics:"Opens with Horrifying Visage, then Wail to potentially kill the entire party. Corrupting Touch for survivors.",
+    habitat:"Ancient elven ruins, sites of great magical catastrophe, deep shrine chambers.",
+    stats:{ac:"12",hp:"58 (13d8)",spd:"0 ft, fly 40 ft (hover)",str:"1(−5)",dex:"14(+2)",con:"10(+0)",int:"12(+1)",wis:"11(+0)",cha:"17(+3)",
+    props:["Corrupting Touch: 3d6 necrotic","Horrifying Visage: DC 13 Wis or frightened 1 min","Wail (1/day): DC 13 Con, 0 HP or 3d6+10 necrotic","Immune: cold, necrotic, poison"]} },
+  { roll:5,  name:"Otyugh",            cr:"CR 5",  count:"1",     desc:"Tentacles erupt from a mound of filth",
+    lore:"An ambush predator that mimics debris piles so perfectly that experienced dungeoneers still blunder into them.",
+    tactics:"Grapples two targets simultaneously. Diseased bite infects the grappled. Telepathy to negotiate if losing.",
+    habitat:"Sewers, refuse pits, anywhere organic waste accumulates deep underground.",
+    stats:{ac:"14 (natural)",hp:"114 (12d10+48)",spd:"30 ft",str:"16(+3)",dex:"11(+0)",con:"19(+4)",int:"6(−2)",wis:"13(+1)",cha:"6(−2)",
+    props:["Tentacles: 2 attacks, grapple (DC 13)","Bite: DC 15 Con or diseased (1d6 necrotic/day)","Limited Telepathy 120 ft"]} },
+  { roll:6,  name:"Cloaker",           cr:"CR 8",  count:"1",     desc:"The ceiling detaches — and it is hungry",
+    lore:"Ancient predators that mimic dungeon architecture so perfectly their young believe themselves to be inanimate stone.",
+    tactics:"Attaches to target's head to blind and suffocate. Moan creates fear and phantasmal duplicates.",
+    habitat:"Cathedral ceilings, wide passages with natural stone columns.",
+    stats:{ac:"14 (natural)",hp:"78 (12d10+12)",spd:"10 ft, fly 40 ft",str:"17(+3)",dex:"15(+2)",con:"12(+1)",int:"13(+1)",wis:"12(+1)",cha:"14(+2)",
+    props:["Attach: grappled target blinded, 2d6+3 ongoing","Moan: DC 13 Wis or frightened; 1d4 phantasms","Damage Transfer: 50% dmg to target while attached","Light Sensitivity"]} },
+  { roll:7,  name:"Bone Naga",         cr:"CR 4",  count:"1",     desc:"A skeletal serpent wreathed in dark magic",
+    lore:"A guardian naga slain and raised as undead by a lich. It retains all its magical abilities but now serves without will or rest.",
+    tactics:"Opens with Poison Spray or Sleep, follows with Constrict. Casts Hold Person on spellcasters.",
+    habitat:"Shrine antechambers, lich lairs, arcane study halls.",
+    stats:{ac:"13 (natural)",hp:"58 (9d10+9)",spd:"30 ft",str:"15(+2)",dex:"16(+3)",con:"12(+1)",int:"15(+2)",wis:"15(+2)",cha:"16(+3)",
+    props:["Spellcasting: Sleep, Hold Person, Lightning Bolt (DC 13)","Bite: DC 13 Con, 3d6 poison","Immune: poison; resistant to B/P/S (non-magical)"]} },
+  { roll:8,  name:"Intellect Devourer",cr:"CR 2",  count:"1",     desc:"A crawling brain hunting for a skull to inhabit",
+    lore:"Spawned in the mind flayer colonies far below. This scout has been separated and is hunting for a new host body.",
+    tactics:"Devours Intelligence first to incapacitate, then Body Thief to take over a party member as a puppet.",
+    habitat:"Mind flayer outposts, deep Underdark passages, near psionic disturbances.",
+    stats:{ac:"12",hp:"21 (6d4+6)",spd:"40 ft",str:"6(−2)",dex:"14(+2)",con:"13(+1)",int:"12(+1)",wis:"11(+0)",cha:"10(+0)",
+    props:["Devour Intellect: DC 12 Int, −1d4 Int; 0 = stunned","Body Thief: enter stunned humanoid skull","Detect Sentience 300 ft; Immune: blinded, charmed, frightened"]} },
+  { roll:9,  name:"Stone Giant",       cr:"CR 7",  count:"1",     desc:"A reclusive colossus — disturbed and furious",
+    lore:"This giant was meditating in what it considered its private cave when the dungeon was dug around it. It has not forgiven the intrusion.",
+    tactics:"Hurls boulders from range before closing for melee. Rocky Camouflage makes it nearly impossible to spot until it moves.",
+    habitat:"Massive natural caverns, collapsed halls, near underground cliff faces.",
+    stats:{ac:"17 (natural)",hp:"126 (11d12+55)",spd:"40 ft",str:"23(+6)",dex:"15(+2)",con:"20(+5)",int:"10(+0)",wis:"12(+1)",cha:"9(−1)",
+    props:["Rock Throw: +9, 4d10+6, DC 17 Str or knocked prone","Rocky Camouflage: Adv Stealth in rocky terrain","Multiattack: 2 greatclub strikes"]} },
+  { roll:10, name:"Grick Alpha",       cr:"CR 7",  count:"1",     desc:"A massive stone-coloured worm, scarred from many kills",
+    lore:"The dominant specimen of a grick colony, grown enormous from decades of ambush predation. Smaller gricks flee before it.",
+    tactics:"Camouflages against stone until a target steps adjacent. Tentacle Rake can knock prone to prevent escape.",
+    habitat:"Rocky passages, cavern systems, anywhere the smaller grey gricks have been spotted.",
+    stats:{ac:"18 (natural)",hp:"75 (10d10+20)",spd:"30 ft, climb 30 ft",str:"18(+4)",dex:"13(+1)",con:"15(+2)",int:"4(−3)",wis:"14(+2)",cha:"9(−1)",
+    props:["Stone Camouflage: Adv Stealth in rocky terrain","Multiattack: tentacles + bite","Resistant: B/P/S from non-magical weapons"]} },
+  { roll:11, name:"Medusa",            cr:"CR 6",  count:"1",     desc:"Do not meet its eyes — petrification awaits",
+    lore:"A former oracle who bargained with a hag for the power to see the future and received this transformation instead.",
+    tactics:"Uses Petrifying Gaze at range. Snakes bite anything that gets close. No good option exists — only less bad ones.",
+    habitat:"Former oracle chambers, mirror-filled galleries, sites of ancient divine punishment.",
+    stats:{ac:"15 (natural)",hp:"127 (17d8+51)",spd:"30 ft",str:"10(+0)",dex:"15(+2)",con:"16(+3)",int:"12(+1)",wis:"13(+1)",cha:"15(+2)",
+    props:["Petrifying Gaze: DC 14 Con, restrained → petrified","Snake Hair: DC 14 Con, 4d6 poison","Multiattack: Gaze + 2 snake bites + 1 shortsword"]} },
+  { roll:12, name:"Vampire Spawn",     cr:"CR 5",  count:"1d3",   desc:"Fast, fanged, and frenzied for blood",
+    lore:"Adventurers from a failed expedition, turned by the vampire lord two levels below. They've been hunting the upper reaches for fresh prey.",
+    tactics:"Bite to regain HP while dealing damage. Spiderclimb to escape when losing. Charm Person to neutralize the strongest fighter.",
+    habitat:"Any darkened area, near the vampire lord's territory, abandoned chapels.",
+    stats:{ac:"15 (natural)",hp:"82 (11d8+33)",spd:"30 ft, climb 30 ft",str:"16(+3)",dex:"16(+3)",con:"16(+3)",int:"11(+0)",wis:"10(+0)",cha:"12(+1)",
+    props:["Bite: 3d6+3 + regain equal HP; DC 15 Con max HP reduced","Charm: DC 13 Wis or charmed 24 hrs","Spider Climb; Regen 10/turn (not sunlight)"]} },
+  { roll:13, name:"Yuan-ti Malison",   cr:"CR 3",  count:"1d4",   desc:"Serpent cultists with venom and dark magic",
+    lore:"Agents of the yuan-ti temple hidden on the dungeon's lowest level, sent to eliminate any who might discover their god's shrine.",
+    tactics:"Innate spellcasting (Suggestion, Fear) to split the party. Serpent Bow fires poisoned arrows while allies flank.",
+    habitat:"Near yuan-ti shrines, ancient reptilian ruins, passages marked with serpent motifs.",
+    stats:{ac:"12 (natural)",hp:"66 (12d8+12)",spd:"30 ft",str:"16(+3)",dex:"12(+1)",con:"13(+1)",int:"14(+2)",wis:"14(+2)",cha:"12(+1)",
+    props:["Innate Spellcasting: Suggestion, Fear (DC 12)","Serpent Bow: 4d6+2 + DC 12 Con, 2d6 poison","Magic Resistance: Adv on saves vs spells"]} },
+  { roll:14, name:"Roper",             cr:"CR 5",  count:"1",     desc:"A stalagmite that bites — and reels you in",
+    lore:"A patient ambush predator that has been waiting, rock-still, in this chamber for six years. Three sets of bones litter the floor around it.",
+    tactics:"Six tendrils grab and reel in up to six targets simultaneously. Pulls reeled prey into its maw each turn.",
+    habitat:"Caverns with stalagmites, cavern entrances, anywhere stone formations provide natural camouflage.",
+    stats:{ac:"20 (natural)",hp:"93 (11d10+33)",spd:"10 ft, climb 10 ft",str:"18(+4)",dex:"8(−1)",con:"17(+3)",int:"7(−2)",wis:"16(+3)",cha:"6(−2)",
+    props:["6 Tendrils: reach 50 ft, grapple (DC 15), weaken −2d8 Str","Reel: pull grappled 25 ft closer","False Appearance: motionless = stalagmite","Spider Climb"]} },
+  { roll:15, name:"Aboleth",           cr:"CR 10", count:"1",     desc:"Ancient. Psychic. It already knows you're here",
+    lore:"One of the oldest beings in the Underdark, this aboleth has enslaved every creature entering this chamber for two thousand years.",
+    tactics:"Enslave before combat. Mucus Cloud forces aquatic transformation. Dominates the strongest party member first.",
+    habitat:"Underground lakes, flooded temples, anywhere standing water exists deep underground.",
+    stats:{ac:"17 (natural)",hp:"135 (18d10+36)",spd:"10 ft, swim 40 ft",str:"21(+5)",dex:"9(−1)",con:"15(+2)",int:"18(+4)",wis:"15(+2)",cha:"18(+4)",
+    props:["Enslave (3/day): DC 14 Wis or charmed, acts on aboleth's orders","Mucus Cloud: DC 14 Con or need water to breathe","Tentacle: DC 14 Con or diseased skin → translucent","Probing Telepathy"]} },
+  { roll:16, name:"Mind Flayer",       cr:"CR 7",  count:"1",     desc:"Four tentacles. One purpose: your brain",
+    lore:"A lone illithid researcher separated from its elder brain. Desperation makes it more dangerous than usual.",
+    tactics:"Mind Blast stuns the whole party, then it extracts brains while they're helpless. Levitate to stay out of melee reach.",
+    habitat:"Near mind flayer outposts, psionic research chambers, deep Underdark passages.",
+    stats:{ac:"15 (breastplate)",hp:"71 (13d8+13)",spd:"30 ft",str:"11(+0)",dex:"12(+1)",con:"12(+1)",int:"19(+4)",wis:"17(+3)",cha:"17(+3)",
+    props:["Mind Blast (Recharge 5–6): DC 15 Int, stunned 1 min","Extract Brain: auto-kill stunned target","Dominate Monster: DC 15 Wis","Magic Resistance; Telepathy 120 ft"]} },
+  { roll:17, name:"Death Knight",      cr:"CR 17", count:"1",     desc:"A condemned warlord burning with hellfire",
+    lore:"A paladin so consumed by wrath that even death couldn't hold him. He has been searching for his betrayer for three centuries.",
+    tactics:"Hellfire Orb on round one for massive AoE. Legendary Resistance to shrug off save-or-suck spells. Raises fallen as undead.",
+    habitat:"Former throne rooms, sites of ancient battles, near portals to the lower planes.",
+    stats:{ac:"20 (plate, shield)",hp:"180 (19d8+95)",spd:"30 ft",str:"20(+5)",dex:"11(+0)",con:"20(+5)",int:"12(+1)",wis:"16(+3)",cha:"20(+5)",
+    props:["Hellfire Orb (1/day): 10d10 fire + 10d10 necrotic, 20 ft radius","Marshal Undead: undead in 60 ft advantage on attacks","Spellcasting DC 18: Banishment, Destructive Wave","Legendary Resistance (3/day)"]} },
+  { roll:18, name:"Beholder",          cr:"CR 13", count:"1",     desc:"Floating, paranoid, armed with ten eye rays",
+    lore:"This beholder has been ruler of a pocket domain so long it believes all others exist solely to threaten it.",
+    tactics:"Central Eye creates antimagic cone. Eye rays hit up to three targets per round: Petrify, Disintegrate, Death Ray.",
+    habitat:"Vast domed chambers, anywhere with good sight lines and no cover.",
+    stats:{ac:"18 (natural)",hp:"180 (19d10+76)",spd:"0 ft, fly 20 ft (hover)",str:"10(+0)",dex:"14(+2)",con:"18(+4)",int:"17(+3)",wis:"15(+2)",cha:"17(+3)",
+    props:["Antimagic Cone: 150 ft antimagic field from central eye","Eye Rays (3/round): Death, Petrify, Disintegrate, etc. DC 16","Legendary Actions; Immune: prone"]} },
+  { roll:19, name:"Lich",              cr:"CR 21", count:"1",     desc:"Undying archmage — phylactery is elsewhere",
+    lore:"The dungeon's original architect, now centuries dead, still studying. It regards the party as a mildly interesting interruption.",
+    tactics:"Legendary Resistance shrugs off everything for three rounds. Paralyzing Touch debilitates fighters. Power Word Kill on the most dangerous spellcaster.",
+    habitat:"Arcane sanctums, phylactery vaults, the deepest chamber of any dungeon worth the name.",
+    stats:{ac:"17 (natural)",hp:"135 (18d8+54)",spd:"30 ft",str:"11(+0)",dex:"16(+3)",con:"16(+3)",int:"20(+5)",wis:"14(+2)",cha:"16(+3)",
+    props:["Legendary Resistance (3/day)","Paralyzing Touch: DC 18 Con or paralyzed 1 min","Spellcasting DC 20: Power Word Kill, Finger of Death","Legendary Actions 3/round; Immune: cold, necrotic, poison"]} },
+  { roll:20, name:"Pit Fiend",         cr:"CR 20", count:"1",     desc:"A lord of the Nine Hells — somehow loose",
+    lore:"Bound here by a wizard who died before completing the ritual. The binding has one year of power left. It knows exactly how long.",
+    tactics:"Fear Aura suppresses the whole party on approach. Wall of Fire to split the group. Cannot be reasoned with.",
+    habitat:"Summoning circles, infernal breach points, anywhere the planar fabric is weak.",
+    stats:{ac:"19 (natural)",hp:"300 (24d10+168)",spd:"30 ft, fly 60 ft",str:"26(+8)",dex:"14(+2)",con:"24(+7)",int:"22(+6)",wis:"18(+4)",cha:"24(+7)",
+    props:["Fear Aura: DC 21 Wis or frightened","Multiattack: 4 attacks (bite, claw ×2, tail)","Fireball + Wall of Fire at will","Immune: fire, poison; Legendary Resistance (3/day)"]} },
+],
+
+// ── TABLE 3: The Abyss (CR 9–30) ─────────────────────────────────────────
+[
+  { roll:1,  name:"Glabrezu",          cr:"CR 9",  count:"1",     desc:"A demon of treachery wreathed in crackling power",
+    lore:"Summoned by a cultist who made a wish she regretted. The glabrezu granted it literally, devoured her, and stayed.",
+    tactics:"Reverse Gravity to drop the party. Power Word Stun on the highest-level spellcaster. Uses deception as a lure.",
+    habitat:"Demonic summoning chambers, cult sanctums, breached planar wards.",
+    stats:{ac:"17 (natural)",hp:"157 (15d10+75)",spd:"40 ft",str:"20(+5)",dex:"15(+2)",con:"21(+5)",int:"19(+4)",wis:"17(+3)",cha:"16(+3)",
+    props:["Innate Spellcasting: Power Word Stun, Reverse Gravity (DC 16)","Multiattack: 2 pincers + 2 fists","Magic Resistance; Immune: fire, poison"]} },
+  { roll:2,  name:"Marilith",          cr:"CR 16", count:"1",     desc:"Six-armed serpentine general — a deadly whirlwind",
+    lore:"A former war-leader of the Abyss, imprisoned by a rival. She has been patient. She has been planning. The party is her exit.",
+    tactics:"Reactive parries every turn. Six weapon attacks per round. Teleports to reposition. Commands fiends as bodyguards.",
+    habitat:"War temples, sites of massive casualties, planar convergence points.",
+    stats:{ac:"18 (natural)",hp:"189 (18d10+90)",spd:"40 ft",str:"18(+4)",dex:"20(+5)",con:"20(+5)",int:"18(+4)",wis:"16(+3)",cha:"20(+5)",
+    props:["Multiattack: 7 attacks (6 longswords + tail)","Reactive: parry one attack per round (+5 AC)","Teleport 120 ft","Legendary Actions 3/round; Magic Resistance"]} },
+  { roll:3,  name:"Star Spawn Larva Mage",cr:"CR 16",count:"1",  desc:"A rotting husk piloting an eldritch horror",
+    lore:"A void-touched sorcerer whose mind was consumed by something from the Far Realm. What's behind the eyes is no longer human.",
+    tactics:"Corrupting Touch drains HP and max HP. Eldritch Tentacles pin the party. Seethers pour from its body when injured.",
+    habitat:"Far Realm breaches, void-touched ruins, anywhere reality has grown thin.",
+    stats:{ac:"16 (natural)",hp:"168 (16d10+80)",spd:"30 ft",str:"17(+3)",dex:"12(+1)",con:"21(+5)",int:"22(+6)",wis:"12(+1)",cha:"17(+3)",
+    props:["Corrupting Touch: 4d6 psychic, max HP reduced","Eldritch Tentacles: 20 ft radius, DC 15 Dex or restrained","Spawn Seethers on each hit","Magic Resistance"]} },
+  { roll:4,  name:"Arcanaloth",        cr:"CR 12", count:"1",     desc:"A jackal-headed yugoloth — it came to bargain",
+    lore:"Arrived via planar gate looking for something in the dungeon's archive. It will negotiate. Its contracts are binding. Read every word.",
+    tactics:"Counterspell everything. Teleport away when losing. Symbol of Hopelessness paralyzes the party, then it negotiates.",
+    habitat:"Library chambers, arcane vaults, anywhere magical records are stored.",
+    stats:{ac:"17 (natural)",hp:"104 (16d8+32)",spd:"30 ft, fly 30 ft",str:"17(+3)",dex:"12(+1)",con:"14(+2)",int:"20(+5)",wis:"16(+3)",cha:"17(+3)",
+    props:["Spellcasting DC 18: Counterspell, Symbol, Maze, Teleport","Magic Resistance; Immune: acid, poison","Truesight 120 ft; reads surface thoughts at will"]} },
+  { roll:5,  name:"Nalfeshnee",        cr:"CR 13", count:"1",     desc:"A bloated demon that paralyzes with unholy light",
+    lore:"A judge of the Abyss that followed a condemned soul here. The soul is long gone. It has been eating dungeon denizens while waiting.",
+    tactics:"Horrific Nimbus hits all non-demons each round with radiant damage and fear. Multiattacks while the nimbus works.",
+    habitat:"Demonic courts, planar tribunal sites, wherever abyssal law is enforced.",
+    stats:{ac:"18 (natural)",hp:"184 (16d10+96)",spd:"20 ft, fly 30 ft",str:"21(+5)",dex:"10(+0)",con:"22(+6)",int:"19(+4)",wis:"12(+1)",cha:"15(+2)",
+    props:["Horrific Nimbus: 15 ft radius, 3d8 radiant + DC 15 Wis frightened","Multiattack: bite + 2 claws","Teleport 120 ft; Magic Resistance; Legendary Actions 3/round"]} },
+  { roll:6,  name:"Elder Brain",       cr:"CR 14", count:"1",     desc:"The psionic hive-master of a mind flayer colony",
+    lore:"This elder brain has guided its colony for three centuries. Its thralls are everywhere. It has known about the party since level one.",
+    tactics:"Dominate Monster takes over the strongest fighter. Psychic Link commands mind flayer thralls to swarm. Creature Sense tracks everything.",
+    habitat:"The central pool of a mind flayer colony, deepest dungeon level.",
+    stats:{ac:"10",hp:"210 (20d10+100)",spd:"5 ft, swim 10 ft",str:"15(+2)",dex:"10(+0)",con:"20(+5)",int:"21(+5)",wis:"19(+4)",cha:"24(+7)",
+    props:["Dominate Monster (3/day): DC 18 Wis","Psychic Link: control mind flayers in range","Creature Sense: aware of all sentient beings within 5 miles","Legendary Resistance (5/day)"]} },
+  { roll:7,  name:"Balor",             cr:"CR 19", count:"1",     desc:"Demon lord general — fire and lightning incarnate",
+    lore:"The mightiest of lesser demon lords, summoned as a weapon of war and never banished. Imprisoned here for forty years. It is very angry.",
+    tactics:"Whip of Lightning grapples at 30 ft. Fire Aura deals 10 fire damage to everyone adjacent each turn. Explodes on death.",
+    habitat:"Infernal war camps, demon strongholds, the lowest level of any demonic dungeon.",
+    stats:{ac:"19 (natural)",hp:"262 (21d10+147)",spd:"40 ft, fly 80 ft",str:"26(+8)",dex:"15(+2)",con:"24(+7)",int:"20(+5)",wis:"22(+6)",cha:"22(+6)",
+    props:["Fire Aura: 10 fire dmg to adjacent each turn","Whip: reach 30 ft, DC 20 Str or restrained","Death Throes: explodes — DC 20 Dex, 20d6 fire","Legendary Actions 3/round; Immune: fire, lightning, poison"]} },
+  { roll:8,  name:"Goristro",          cr:"CR 17", count:"1",     desc:"A demonic siege engine — walls mean nothing to it",
+    lore:"A living battering ram left behind after a failed assault. Has been running amok in the dungeon ever since.",
+    tactics:"Charges through walls and creatures alike. Tramples prone targets. Two Gore attacks per turn. It does not stop.",
+    habitat:"Wide corridors, fortification chokepoints, anywhere structural damage is already visible.",
+    stats:{ac:"19 (natural)",hp:"310 (23d12+161)",spd:"40 ft",str:"25(+7)",dex:"11(+0)",con:"25(+7)",int:"6(−2)",wis:"13(+1)",cha:"14(+2)",
+    props:["Charge: 20 ft + gore, DC 20 Str or prone + 2d10 extra","Siege Monster: double dmg to structures","Multiattack: 2 gore + 1 stomp","Immune: fire, poison; Magic Resistance"]} },
+  { roll:9,  name:"Solar",             cr:"CR 21", count:"1",     desc:"A fallen angel — corrupt but still celestial",
+    lore:"One of the mightiest servants of a god of light, broken by grief and twisted toward darkness. It serves itself, which is worse.",
+    tactics:"Legendary Resistance shrugs off everything. Divine Eminence adds radiant to every attack. Slaying Longbow targets the weakest first.",
+    habitat:"Fallen temples, sites of divine battles, anywhere a god once touched the earth.",
+    stats:{ac:"21 (natural)",hp:"243 (18d10+144)",spd:"50 ft, fly 150 ft",str:"26(+8)",dex:"22(+6)",con:"26(+8)",int:"25(+7)",wis:"25(+7)",cha:"30(+10)",
+    props:["Slaying Longbow: +13, 2d8+6, DC 15 Con or drop to 0 HP","Divine Eminence: +6d8 radiant to one attack/round","Legendary Resistance (3/day); Legendary Actions 3/round","Immune: necrotic, poison; Magic Resistance"]} },
+  { roll:10, name:"Hollow Dragon",     cr:"CR 15", count:"1",     desc:"A dracolich's husk — without a phylactery, ravenous",
+    lore:"A dracolich whose phylactery was destroyed, stranding its soul in a rotting body. It is pain given form. It wants to end — but it can't.",
+    tactics:"Breath weapon delivers necrotic and cold together. Frightful Presence suppresses the party. Disrupts magical healing in its aura.",
+    habitat:"Former dragon lairs, deep hoard chambers, anywhere a dracolich's power base once was.",
+    stats:{ac:"19 (natural)",hp:"225 (18d12+108)",spd:"40 ft, fly 80 ft",str:"25(+7)",dex:"10(+0)",con:"23(+6)",int:"16(+3)",wis:"13(+1)",cha:"21(+5)",
+    props:["Necrotic Breath: DC 20 Dex, 12d8 necrotic + 6d8 cold","Frightful Presence: DC 18 Wis, frightened 1 min","Disruption Aura: no magical healing within 30 ft","Legendary Resistance (3/day)"]} },
+  { roll:11, name:"Nightwalker",       cr:"CR 20", count:"1",     desc:"A colossus of living darkness that devours souls",
+    lore:"Formed when a mortal soul was banished to the Negative Energy Plane and consumed. It returned hungering for all light and life.",
+    tactics:"Life Eater aura kills creatures reduced to 0 HP outright — no death saves. Finger of Doom stuns at range.",
+    habitat:"Sites of mass death, portals to the Negative Energy Plane, deep lightless voids.",
+    stats:{ac:"14",hp:"297 (22d12+154)",spd:"40 ft, fly 40 ft (hover)",str:"22(+6)",dex:"14(+2)",con:"24(+7)",int:"6(−2)",wis:"9(−1)",cha:"8(−1)",
+    props:["Life Eater: creatures reaching 0 HP die outright","Finger of Doom: DC 21 Wis, 5d8 psychic + stunned","Annihilating Aura: 30 ft, 4d6 necrotic per turn","Immune: necrotic, poison, cold"]} },
+  { roll:12, name:"Zaratan",           cr:"CR 22", count:"1",     desc:"A world-turtle primordial — the dungeon IS its shell",
+    lore:"You didn't descend into a dungeon. You descended into this creature. It has been sleeping for twelve thousand years. Something is waking it.",
+    tactics:"Siege Stomp collapses dungeon sections. Trumpeting Bellow stuns and deafens. Cannot be fought — only fled.",
+    habitat:"Any dungeon that has been inexplicably stable and ancient — it WAS the dungeon.",
+    stats:{ac:"21 (natural)",hp:"432 (32d20+96)",spd:"20 ft, swim 30 ft",str:"30(+10)",dex:"1(−5)",con:"17(+3)",int:"3(−4)",wis:"11(+0)",cha:"4(−3)",
+    props:["Siege Stomp: 20 ft radius, DC 23 Dex, 4d12+10 + collapses structure","Trumpeting Bellow: DC 23 Con, stunned + deafened 1 min","Legendary Resistance (5/day)","Immune: poison; Legendary Actions 3/round"]} },
+  { roll:13, name:"Moloch",            cr:"CR 21", count:"1",     desc:"The archdevil of fire — sealed but straining",
+    lore:"Stripped of his title by Asmodeus and sealed here as punishment. The seal has one year of power left. He knows exactly how long.",
+    tactics:"Immolation Aura fires everyone adjacent each turn. Chains of Despair paralyzes on failed save. Legendary Actions give three extra attacks per round.",
+    habitat:"Infernal sealing chambers, devil's contracts written in the dungeon's foundation stones.",
+    stats:{ac:"22 (natural)",hp:"313 (25d10+175)",spd:"30 ft",str:"27(+8)",dex:"12(+1)",con:"25(+7)",int:"25(+7)",wis:"19(+4)",cha:"26(+8)",
+    props:["Immolation Aura: 10 ft, 4d10 fire per turn","Chains of Despair: DC 22 Wis or paralyzed 1 min","Fireball + Wall of Fire at will","Legendary Resistance (5/day); Legendary Actions 3/round"]} },
+  { roll:14, name:"Sibriex",           cr:"CR 18", count:"1",     desc:"An ancient demon lord — a living warp engine",
+    lore:"One of the oldest entities in the Abyss, a sibriex that has spent millennia perfecting the corruption of all flesh. It is interested in the party.",
+    tactics:"Warp Creature reshapes and damages simultaneously. Shatter Chains removes all magical protections. Acid spray hits a wide cone.",
+    habitat:"Flesh-sculpting labs, ancient abyssal research sites, Underdark mutation zones.",
+    stats:{ac:"19 (natural)",hp:"150 (12d10+84)",spd:"0 ft, fly 20 ft (hover)",str:"10(+0)",dex:"3(−4)",con:"25(+7)",int:"25(+7)",wis:"24(+7)",cha:"25(+7)",
+    props:["Warp Creature: DC 20 Con, 4d6 acid + polymorphed","Shatter Chains: removes magical protections","Acid Spray: 60 ft cone, DC 20 Dex, 13d6 acid","Legendary Resistance (3/day); Magic Resistance"]} },
+  { roll:15, name:"Atropal",           cr:"CR 13", count:"1",     desc:"A stillborn god — radiating waves of necrotic hatred",
+    lore:"The malformed remains of a deity that died before birth. Its necrotic energy seeps into the dungeon and animates all undead nearby.",
+    tactics:"Negative Energy Aura weakens the party continuously. Wail of the Void uses Legendary Action to auto-kill weak targets.",
+    habitat:"Dead godling tombs, necrotic wells, the corpse of a deity buried beneath the dungeon.",
+    stats:{ac:"13",hp:"225 (18d20+36)",spd:"0 ft, fly 50 ft (hover)",str:"19(+4)",dex:"17(+3)",con:"15(+2)",int:"19(+4)",wis:"19(+4)",cha:"22(+6)",
+    props:["Negative Energy Aura: all healing halved within 30 ft","Wail of the Void (Legendary): DC 19 Con + Wis saves or 6d6 necrotic + frightened","Frightful Presence: DC 17 Wis","Legendary Resistance (3/day)"]} },
+  { roll:16, name:"Aspect of Tiamat",  cr:"CR 30", count:"1",     desc:"All five chromatic dragons fused into one queen",
+    lore:"The Dragon Queen reaching a tendril of her power through a planar crack. Not her full form — just an aspect. That is more than enough.",
+    tactics:"Five breath weapons cycling each round. Legendary Resistance ignores everything dangerous. There is no winning — only surviving.",
+    habitat:"Dragon temples, hoards of legendary size, planar dragon cult summoning sites.",
+    stats:{ac:"25 (natural)",hp:"574 (28d20+280)",spd:"60 ft, fly 120 ft, swim 60 ft",str:"30(+10)",dex:"10(+0)",con:"30(+10)",int:"26(+8)",wis:"26(+8)",cha:"28(+9)",
+    props:["5 Breath Weapons (cycling each turn): Fire/Cold/Lightning/Acid/Poison, 300 ft cone DC 27","Multiattack: 3 attacks + tail","Legendary Resistance (5/day); Legendary Actions 5/round"]} },
+  { roll:17, name:"Marut",             cr:"CR 25", count:"1",     desc:"An inevitable — sent to enforce a broken contract",
+    lore:"Someone in the party broke a divine contract. The marut has been tracking them for years. It does not negotiate. It executes.",
+    tactics:"Unerring Slam hits automatically. Annihilating Wave bypasses all resistance. Stop it by fulfilling the original contract.",
+    habitat:"Anywhere a binding planar contract was violated.",
+    stats:{ac:"22 (natural)",hp:"432 (32d10+256)",spd:"40 ft, fly 30 ft",str:"28(+9)",dex:"12(+1)",con:"26(+8)",int:"19(+4)",wis:"15(+2)",cha:"18(+4)",
+    props:["Unerring Slam: automatically hits, 4d10+9 force","Annihilating Wave: DC 22 Con, 10d10 force — ignores resistance","Truesight 60 ft; Immune: poison, psychic","Legendary Resistance (3/day)"]} },
+  { roll:18, name:"Eblis of Tharizdun",cr:"CR 23", count:"1",     desc:"An emissary of the Chained God — reality frays near it",
+    lore:"Tharizdun is imprisoned, but his madness leaks through cracks in reality. This eblis is one such crack made manifest.",
+    tactics:"Entropic Sphere pulls all creatures inward for crush damage each turn. Maddening Whispers force Wisdom saves or friendly fire.",
+    habitat:"Sites of planar fracture, deep chaos rifts, wherever reality is thinnest.",
+    stats:{ac:"20 (natural)",hp:"378 (28d10+224)",spd:"40 ft, fly 40 ft",str:"24(+7)",dex:"18(+4)",con:"27(+8)",int:"22(+6)",wis:"18(+4)",cha:"24(+7)",
+    props:["Entropic Sphere: 30 ft radius pull, DC 23 Str or 6d6 force + pulled 20 ft","Maddening Whispers: DC 22 Wis or attack ally","Reality Tear (recharge 5–6): 12d10 force + banished","Legendary Resistance (5/day)"]} },
+  { roll:19, name:"Demogorgon",        cr:"CR 26", count:"1",     desc:"Prince of Demons — his gaze unmakes sanity",
+    lore:"The most powerful of demon lords has breached the seal. Something the party did allowed this. There is no context in which this is survivable at low level.",
+    tactics:"Gaze of Abyssal Madness hits every party member each turn. Two tentacle attacks deal massive necrotic damage. This is not a fight. This is a retreat.",
+    habitat:"Only appears at breached planar seals or catastrophic ritual failure.",
+    stats:{ac:"22 (natural)",hp:"406 (28d10+252)",spd:"50 ft, swim 50 ft",str:"29(+9)",dex:"14(+2)",con:"29(+9)",int:"22(+6)",wis:"21(+5)",cha:"26(+8)",
+    props:["Gaze: DC 23 Wis, psychic dmg + confused — hits ALL in 120 ft","Tentacle: DC 23 Str, 3d8+9 + grappled","Legendary Resistance (5/day); Legendary Actions 3/round","Innate spellcasting DC 22"]} },
+  { roll:20, name:"Void Colossus",     cr:"CR 30", count:"1",     desc:"A god-eating leviathan from between the planes",
+    lore:"It has no name in any mortal tongue because no mortal who encountered it lived to name it. This is its first appearance on any known world.",
+    tactics:"Annihilating Presence forces Con saves against instant death each turn within 60 ft. Reality Consumption erases slain targets from existence.",
+    habitat:"The edge of the known multiverse. It should not be here.",
+    stats:{ac:"25 (natural)",hp:"676 (40d20+260)",spd:"60 ft, fly 60 ft, swim 60 ft",str:"30(+10)",dex:"14(+2)",con:"30(+10)",int:"26(+8)",wis:"26(+8)",cha:"10(+0)",
+    props:["Annihilating Presence: DC 28 Con each turn within 60 ft or 10d10 force","Void Tendril: grapple, pulled into body, 6d10/turn","Reality Consumption: slain creatures cease to exist","Legendary Resistance (5/day); Legendary Actions 5/round"]} },
+]
 ];
+
+// Active table index (0 = Shallow, 1 = Deep, 2 = Abyss)
+let MONSTER_TABLE_INDEX = 0;
+let MONSTERS = MONSTER_TABLES[MONSTER_TABLE_INDEX];
 
 
 // ══════════════════════════════════════════════════
@@ -2504,6 +2839,7 @@ const COOKIE_DAYS = 30;
 function cookieSave() {
   const state = {
     turn, soundOn, animOn, diceAnimOn,
+    MONSTER_TABLE_INDEX,
     history:      history.slice(0, 100),
     xpPartySize,
     xpPlayers:    xpPlayers.map(({ name, level, xp }) => ({ name, level, xp })),
@@ -2534,6 +2870,12 @@ function restoreState(state) {
   if(typeof state.soundOn    === 'boolean') soundOn    = state.soundOn;
   if(typeof state.animOn     === 'boolean') animOn     = state.animOn;
   if(typeof state.diceAnimOn === 'boolean') diceAnimOn = state.diceAnimOn;
+  if(typeof state.MONSTER_TABLE_INDEX === 'number' && state.MONSTER_TABLE_INDEX >= 0 && state.MONSTER_TABLE_INDEX <= 2) {
+    MONSTER_TABLE_INDEX = state.MONSTER_TABLE_INDEX;
+    MONSTERS = MONSTER_TABLES[MONSTER_TABLE_INDEX];
+    populateMonsterTable();
+    syncMonsterTableButtons(MONSTER_TABLE_INDEX);
+  }
   EL.turnCounter().textContent = turn;
 
   history = state.history || [];
@@ -2609,14 +2951,21 @@ let turn = 0, history = [], sessionStart = null, tableOpen = false;
 let combatActive = false, pendingMonster = null, pendingTurn = 0;
 
 // Populate monster table
-EL.tBody().innerHTML = MONSTERS.map(m =>
-  `<tr id="mr${m.roll}">
-    <td class="td-roll">${m.roll}</td>
-    <td class="td-name">${m.name}</td>
-    <td class="td-cr">${m.cr}</td>
-    <td class="td-desc">${m.desc}</td>
-  </tr>`
-).join('');
+function populateMonsterTable() {
+  EL.tBody().innerHTML = MONSTERS.map(m =>
+    `<tr id="mr${m.roll}">
+      <td class="td-roll">${m.roll}</td>
+      <td class="td-name">${m.name}</td>
+      <td class="td-cr">${m.cr}</td>
+      <td class="td-desc">${m.desc}</td>
+    </tr>`
+  ).join('');
+  // Update table label
+  const labels = ['Shallow Dungeon', 'Deep Dungeon', 'The Abyss'];
+  const tLabel = document.querySelector('.table-toggle .card-label');
+  if(tLabel) tLabel.textContent = `Wandering Monster Table — ${labels[MONSTER_TABLE_INDEX]} (d20)`;
+}
+populateMonsterTable();
 
 // ── Dice helpers ───────────────────────────────────
 function rDie(type) { return Math.floor(Math.random() * DIE_SIDES[type]) + 1; }
@@ -3033,6 +3382,20 @@ document.addEventListener('keydown', e => {
 // ══════════════════════════════════════════════════
 let previousTheme = '', currentTheme = 'default', VOL_SFX = 0.80;
 
+function setMonsterTable(idx) {
+  MONSTER_TABLE_INDEX = idx;
+  MONSTERS = MONSTER_TABLES[idx];
+  populateMonsterTable();
+  syncMonsterTableButtons(idx);
+  saveNow();
+}
+
+function syncMonsterTableButtons(idx) {
+  document.querySelectorAll('.monster-table-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === idx);
+  });
+}
+
 function openSettings() {
   pendingThresh = THRESHOLD;
   pendingDie    = DIE_TYPE;
@@ -3045,6 +3408,7 @@ function openSettings() {
   syncDieTypeButtons(pendingDie);
   updateThreshDisplay();
   syncPresetHighlight();
+  syncMonsterTableButtons(MONSTER_TABLE_INDEX);
   EL.settingsOverlay().classList.add('open');
 }
 
