@@ -876,7 +876,7 @@ tbody tr.hl .td-roll { color:var(--accent1); }
 
   /* Settings — bottom sheet on small phones */
   .settings-overlay { padding:0; align-items:flex-end; }
-  .settings-panel { max-width:100%; max-height:92vh; border-radius:14px 14px 0 0; overflow-y:auto; }
+  .settings-panel { max-width:100%; border-radius:14px 14px 0 0; }
   .sp-header { padding:1.25rem 1.25rem 1rem; }
   .sp-title { font-size:1.05rem; }
   .theme-grid { grid-template-columns:repeat(3,1fr) !important; }
@@ -924,7 +924,7 @@ tbody tr.hl .td-roll { color:var(--accent1); }
 
   /* Settings — bottom sheet on mid phones */
   .settings-overlay { padding:0; align-items:flex-end; }
-  .settings-panel { max-width:100%; max-height:90vh; border-radius:14px 14px 0 0; overflow-y:auto; }
+  .settings-panel { max-width:100%; border-radius:14px 14px 0 0; }
   .theme-grid { grid-template-columns:repeat(3,1fr); }
   .s-two-col { gap:1rem; }
 
@@ -981,7 +981,8 @@ tbody tr.hl .td-roll { color:var(--accent1); }
   box-shadow:0 32px 80px rgba(0,0,0,0.95), 0 0 0 1px rgba(0,0,0,0.6);
   transform:translateY(-16px);
   transition:transform 0.3s cubic-bezier(0.22,1,0.36,1);
-  overflow:hidden;
+  display:flex; flex-direction:column;
+  max-height:90vh;
 }
 .settings-overlay.open .settings-panel { transform:translateY(0); }
 
@@ -1028,6 +1029,9 @@ tbody tr.hl .td-roll { color:var(--accent1); }
 /* ── Panel body padding ── */
 .settings-panel .s-body {
   padding:1.5rem 2rem;
+  overflow-y:auto;
+  flex:1;
+  min-height:0;
 }
 /* wrap all body content */
 .s-section-label {
@@ -1280,6 +1284,7 @@ input[type=range]::-moz-range-thumb {
   padding:1.1rem 2rem 1.5rem;
   border-top:1px solid rgba(176,128,48,0.15);
   background:linear-gradient(0deg,rgba(0,0,0,0.2) 0%,transparent 100%);
+  flex-shrink:0;
 }
 .s-btn-cancel, .s-btn-save {
   position:relative; overflow:hidden;
