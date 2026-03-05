@@ -360,6 +360,129 @@ tbody tr.hl .td-roll { color:var(--accent1); }
 ::-webkit-scrollbar { width:5px; }
 ::-webkit-scrollbar-track { background:var(--abyss); }
 ::-webkit-scrollbar-thumb { background:var(--bone-faint); border-radius:2px; }
+
+/* ── XP TRACKER ── */
+.xp-section { display:flex; flex-direction:column; gap:1rem; }
+.xp-party-row { display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; }
+.xp-party-label { font-family:'Cinzel',serif; font-size:0.65rem; letter-spacing:0.2em; color:var(--bone-dim); text-transform:uppercase; white-space:nowrap; }
+.xp-party-btns  { display:flex; gap:0.4rem; }
+.xp-count-btn { background:transparent; border:1px solid var(--bone-faint); color:var(--bone-dim); font-family:'Cinzel',serif; font-size:0.7rem; font-weight:700; width:26px; height:26px; display:flex; align-items:center; justify-content:center; cursor:pointer; border-radius:1px; transition:all 0.12s; flex-shrink:0; }
+.xp-count-btn:hover { border-color:var(--gold-hi); color:var(--gold-pale); }
+.xp-player-count { font-family:'Cinzel',serif; font-weight:900; font-size:1.1rem; color:var(--bone); min-width:1.2rem; text-align:center; }
+.xp-level-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:0.4rem; }
+.xp-player-card { background:rgba(0,0,0,0.35); border:1px solid var(--bone-faint); border-radius:1px; padding:0.5rem 0.4rem; text-align:center; position:relative; cursor:pointer; transition:border-color 0.15s; }
+.xp-player-card:hover { border-color:var(--bone-dim); }
+.xp-player-card.active { border-color:var(--gold-hi); }
+.xp-player-name { font-family:'Cinzel',serif; font-size:0.58rem; letter-spacing:0.1em; color:var(--bone-dim); margin-bottom:0.3rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.xp-player-level { font-family:'Cinzel',serif; font-weight:900; font-size:1.5rem; color:var(--bone); line-height:1; }
+.xp-player-xp { font-family:'Cinzel',serif; font-size:0.58rem; color:var(--bone-faint); margin-top:0.15rem; }
+.xp-player-bar-wrap { height:3px; background:var(--bone-faint); border-radius:1px; margin-top:0.35rem; overflow:hidden; }
+.xp-player-bar { height:100%; background:var(--gold-hi); border-radius:1px; transition:width 0.4s ease; }
+.xp-level-up-flash { position:absolute; inset:0; background:rgba(196,160,64,0.25); border:1px solid var(--gold-hi); border-radius:1px; pointer-events:none; opacity:0; animation:lvlFlash 1.2s ease-out forwards; }
+@keyframes lvlFlash { 0%{opacity:1;} 100%{opacity:0;} }
+.xp-summary { background:rgba(0,0,0,0.3); border:1px solid var(--bone-faint); border-radius:1px; padding:0.65rem 0.9rem; }
+.xp-summary-row { display:flex; justify-content:space-between; align-items:baseline; gap:0.5rem; flex-wrap:wrap; }
+.xp-summary-label { font-family:'Cinzel',serif; font-size:0.6rem; letter-spacing:0.2em; color:var(--bone-dim); text-transform:uppercase; }
+.xp-summary-val   { font-family:'Cinzel',serif; font-weight:700; font-size:1rem; color:var(--gold-pale); }
+.xp-summary-sub   { font-size:0.72rem; font-style:italic; color:var(--bone-faint); margin-top:0.15rem; }
+.xp-enc-log { margin-top:0.75rem; max-height:160px; overflow-y:auto; display:flex; flex-direction:column; gap:0.25rem; }
+.xp-enc-row { display:grid; grid-template-columns:34px 1fr auto; gap:0.4rem; align-items:center; padding:0.25rem 0.5rem; border-left:2px solid var(--gold); background:rgba(154,122,42,0.07); font-size:0.76rem; animation:logIn 0.2s ease-out; }
+.xp-enc-turn { font-family:'Cinzel',serif; font-size:0.65rem; color:var(--bone-dim); }
+.xp-enc-name { color:var(--bone); font-style:italic; }
+.xp-enc-xp   { font-family:'Cinzel',serif; font-size:0.7rem; color:var(--gold-hi); white-space:nowrap; }
+.xp-empty { text-align:center; font-style:italic; color:var(--bone-faint); padding:1rem; font-size:0.82rem; }
+.xp-reset-btn { background:transparent; color:var(--bone-faint); font-family:'Cinzel',serif; font-size:0.58rem; letter-spacing:0.15em; text-transform:uppercase; padding:0.28rem 0.7rem; border:1px solid var(--bone-faint); border-radius:1px; cursor:pointer; transition:all 0.15s; }
+.xp-reset-btn:hover { border-color:var(--accent1); color:var(--accent1); }
+.xp-player-edit { position:absolute; top:2px; right:3px; font-size:0.55rem; color:var(--bone-faint); opacity:0; transition:opacity 0.15s; background:none; border:none; cursor:pointer; padding:0; }
+.xp-player-card:hover .xp-player-edit { opacity:1; }
+.xp-name-input { font-family:'Cinzel',serif; font-size:0.58rem; letter-spacing:0.1em; background:rgba(0,0,0,0.5); border:1px solid var(--gold-hi); color:var(--bone); border-radius:1px; padding:0.1rem 0.2rem; width:100%; text-align:center; outline:none; }
+
+/* ── LEVEL-UP OVERLAY ── */
+#lvlup-overlay {
+  position:fixed; inset:0; z-index:500; pointer-events:none;
+  display:flex; align-items:center; justify-content:center;
+  opacity:0;
+}
+#lvlup-overlay.active { pointer-events:all; }
+@keyframes lvlupIn  { 0%{opacity:0;transform:scale(0.7);} 15%{opacity:1;transform:scale(1.06);} 25%{transform:scale(1);} 80%{opacity:1;} 100%{opacity:0;transform:scale(1.04);} }
+@keyframes lvlupBg  { 0%{opacity:0;} 10%{opacity:1;} 80%{opacity:1;} 100%{opacity:0;} }
+@keyframes starBurst{ 0%{transform:translate(-50%,-50%) scale(0) rotate(0deg);opacity:1;} 100%{transform:translate(-50%,-50%) scale(1) rotate(30deg);opacity:0;} }
+@keyframes particleFly { 0%{transform:translate(0,0) scale(1);opacity:1;} 100%{transform:translate(var(--px),var(--py)) scale(0.2);opacity:0;} }
+@keyframes lvlNumPop { 0%{transform:scale(0.3);opacity:0;} 40%{transform:scale(1.2);opacity:1;} 60%{transform:scale(0.95);} 80%{transform:scale(1.05);} 100%{transform:scale(1);opacity:1;} }
+#lvlup-bg {
+  position:absolute; inset:0;
+  background:radial-gradient(ellipse at 50% 50%, rgba(196,160,64,0.35) 0%, rgba(10,5,15,0.92) 70%);
+  animation:lvlupBg 3.2s ease-out forwards;
+}
+#lvlup-content {
+  position:relative; z-index:2; text-align:center;
+  animation:lvlupIn 3.2s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+#lvlup-title {
+  font-family:'Cinzel',serif; font-size:clamp(1rem,4vw,1.4rem);
+  letter-spacing:0.5em; text-transform:uppercase;
+  color:var(--gold-pale); text-shadow:0 0 30px var(--gold-hi), 0 0 60px rgba(196,160,64,0.4);
+  margin-bottom:0.5rem;
+}
+#lvlup-name {
+  font-family:'Cinzel',serif; font-size:clamp(1.6rem,6vw,2.8rem); font-weight:900;
+  color:#fff; text-shadow:0 0 20px var(--gold-hi), 0 4px 12px rgba(0,0,0,0.8);
+  letter-spacing:0.1em; margin-bottom:0.3rem;
+}
+#lvlup-num {
+  font-family:'Cinzel',serif; font-size:clamp(4rem,18vw,9rem); font-weight:900; line-height:1;
+  color:var(--gold-pale); text-shadow:0 0 40px var(--gold-hi), 0 0 80px rgba(196,160,64,0.5);
+  animation:lvlNumPop 3.2s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+#lvlup-sub {
+  font-family:'Crimson Pro',serif; font-size:clamp(0.9rem,2.5vw,1.2rem); font-style:italic;
+  color:var(--gold-pale); opacity:0.8; margin-top:0.4rem; letter-spacing:0.05em;
+}
+.lvlup-star {
+  position:absolute; top:50%; left:50%;
+  width:min(70vw,70vh); height:min(70vw,70vh);
+  border:2px solid rgba(196,160,64,0.3);
+  border-radius:50%;
+  animation:starBurst 3.2s cubic-bezier(0.22,1,0.36,1) forwards;
+  pointer-events:none;
+}
+.lvlup-star:nth-child(2){ width:min(50vw,50vh); height:min(50vw,50vh); animation-delay:0.08s; border-color:rgba(196,160,64,0.2); }
+.lvlup-star:nth-child(3){ width:min(35vw,35vh); height:min(35vw,35vh); animation-delay:0.16s; border-color:rgba(196,160,64,0.15); }
+.lvlup-particle {
+  position:absolute; top:50%; left:50%;
+  width:6px; height:6px; border-radius:50%;
+  background:var(--gold-hi);
+  animation:particleFly 1.4s ease-out forwards;
+  animation-delay:var(--pd);
+}
+
+/* ── MONSTER DEFEATED BUTTON ── */
+.defeat-btn-wrap { margin-top:1rem; text-align:center; }
+.defeat-btn {
+  font-family:'Cinzel',serif; font-size:0.78rem; font-weight:700;
+  letter-spacing:0.25em; text-transform:uppercase;
+  padding:0.65rem 2rem; border-radius:1px; cursor:pointer;
+  background:linear-gradient(180deg,#2a5a1a 0%,#163010 100%);
+  color:#a8e880; border:1px solid #4a9a2a;
+  box-shadow:0 0 18px rgba(74,154,42,0.35);
+  transition:all 0.15s; width:100%;
+}
+.defeat-btn:hover { filter:brightness(1.25); box-shadow:0 0 28px rgba(74,154,42,0.6); }
+.defeat-btn:active { transform:scale(0.97); }
+@keyframes defeatPulse { 0%,100%{box-shadow:0 0 18px rgba(74,154,42,0.35);} 50%{box-shadow:0 0 32px rgba(74,154,42,0.7);} }
+.defeat-btn { animation:defeatPulse 1.8s ease-in-out infinite; }
+
+/* Combat lock — dims Advance Turn btn */
+.advance-btn-wrap { position:relative; }
+#advBtn.combat-locked {
+  opacity:0.35; cursor:not-allowed; pointer-events:none;
+}
+.combat-locked-label {
+  display:none; font-family:'Cinzel',serif; font-size:0.6rem;
+  letter-spacing:0.2em; text-transform:uppercase; color:var(--accent1);
+  text-align:center; margin-top:0.35rem;
+}
+.combat-locked-label.visible { display:block; }
 </style>
 </head>
 <body>
@@ -375,6 +498,18 @@ tbody tr.hl .td-roll { color:var(--accent1); }
 
 <!-- Encounter flash overlay -->
 <div id="enc-flash"></div>
+<div id="lvlup-overlay">
+  <div id="lvlup-bg"></div>
+  <div class="lvlup-star"></div>
+  <div class="lvlup-star"></div>
+  <div class="lvlup-star"></div>
+  <div id="lvlup-content">
+    <div id="lvlup-title">Level Up!</div>
+    <div id="lvlup-name"></div>
+    <div id="lvlup-num">2</div>
+    <div id="lvlup-sub">A new power awakens in the darkness.</div>
+  </div>
+</div>
 <!-- Particle container -->
 <div id="particles"></div>
 
@@ -492,7 +627,6 @@ tbody tr.hl .td-roll { color:var(--accent1); }
 </header>
 
 <div class="main-panel">
-
   <!-- Turn Counter -->
   <div class="card turn-section">
     <svg class="oc tl" style="color:var(--accent1);opacity:0.5;"><use href="#sk"/></svg>
@@ -524,6 +658,7 @@ tbody tr.hl .td-roll { color:var(--accent1); }
       </div>
     </div>
     <button class="advance-btn" id="advBtn" onclick="advanceTurn()">⚔ Advance Turn</button>
+    <div class="combat-locked-label" id="combatLockedLabel">⚔ Defeat the monster first</div>
     <br>
     <div class="freq-badge">Encounter on <strong id="freqThresh">35</strong> or below on a <strong id="freqDie">d100</strong> &nbsp;·&nbsp; <strong id="freqPct">35%</strong> chance per turn</div>
     <br>
@@ -567,10 +702,56 @@ tbody tr.hl .td-roll { color:var(--accent1); }
         </div>
       </div>
       <div class="stat-block" id="statBlock"></div>
+      <div class="defeat-btn-wrap" id="defeatWrap" style="display:none;">
+        <button class="defeat-btn" onclick="monsterDefeated()">⚔ Monster Defeated</button>
+      </div>
     </div>
   </div>
 
-  <!-- Monster Table -->
+  <!-- XP Tracker -->
+  <div class="card" id="xpCard">
+    <svg class="oc tl" style="color:var(--gold);opacity:0.4;"><use href="#sk"/></svg>
+    <svg class="oc tr" style="color:var(--gold);opacity:0.4;"><use href="#sk"/></svg>
+    <svg class="oc bl" style="color:var(--gold);opacity:0.4;"><use href="#sk"/></svg>
+    <svg class="oc br" style="color:var(--gold);opacity:0.4;"><use href="#sk"/></svg>
+    <div class="card-label">⚔ Experience Tracker</div>
+    <div class="xp-section">
+
+      <!-- Party size + level controls -->
+      <div class="xp-party-row">
+        <span class="xp-party-label">Players</span>
+        <div class="xp-party-btns">
+          <button class="xp-count-btn" onclick="xpChangeParty(-1)">−</button>
+          <span class="xp-player-count" id="xpPartyCount">4</span>
+          <button class="xp-count-btn" onclick="xpChangeParty(1)">+</button>
+        </div>
+        <div style="flex:1"></div>
+        <button class="xp-reset-btn" onclick="xpReset()">Reset XP</button>
+      </div>
+
+      <!-- Per-player cards -->
+      <div class="xp-level-grid" id="xpPlayerGrid"></div>
+
+      <!-- Session summary -->
+      <div class="xp-summary" id="xpSummary">
+        <div class="xp-summary-row">
+          <span class="xp-summary-label">Session XP Earned</span>
+          <span class="xp-summary-val" id="xpTotal">0 XP</span>
+        </div>
+        <div class="xp-summary-row" style="margin-top:0.35rem;">
+          <span class="xp-summary-label">XP per Player</span>
+          <span class="xp-summary-val" id="xpPerPlayer">0 XP</span>
+        </div>
+        <div class="xp-summary-sub" id="xpNextNote"></div>
+      </div>
+
+      <!-- Encounter XP log -->
+      <div class="xp-enc-log" id="xpEncLog">
+        <div class="xp-empty">No encounters yet — XP will appear here.</div>
+      </div>
+
+    </div>
+  </div>  <!-- Monster Table -->
   <div class="card">
     <svg class="oc tl" style="color:var(--bone-dim);opacity:0.4;"><use href="#sk"/></svg>
     <svg class="oc tr" style="color:var(--bone-dim);opacity:0.4;"><use href="#sk"/></svg>
@@ -600,6 +781,9 @@ tbody tr.hl .td-roll { color:var(--accent1); }
     <div class="log-wrap"><div class="log-entries" id="logEntries"><div class="log-empty">The dungeon awaits... no turns have passed.</div></div></div>
     <div class="foot-note" id="footNote">Each turn = 10 minutes &nbsp;·&nbsp; Roll ≤35 on d100 triggers a wandering monster &nbsp;·&nbsp; Roll d20 on the table above</div>
   </div>
+
+
+
 
 </div>
 
@@ -915,7 +1099,114 @@ function initDice(){
   checkDie  =new Die3D(document.getElementById('checkDieWrap'),  'check');
   monsterDie=new Die3D(document.getElementById('monsterDieWrap'),'monster');
 }
-window.addEventListener('load',initDice);
+
+// ══════════════════════════════════════════════════
+// PERSISTENCE — cookie save/restore
+// ══════════════════════════════════════════════════
+const COOKIE_KEY = 'dungeonTracker_v1';
+const COOKIE_DAYS = 30;
+
+function cookieSave(){
+  const state = {
+    turn,
+    history: history.slice(0, 100),   // cap to last 100 entries
+    xpPartySize,
+    xpPlayers: xpPlayers.map(p=>({name:p.name, level:p.level, xp:p.xp})),
+    xpSessionLog: xpSessionLog.slice(0, 100),
+    savedAt: Date.now()
+  };
+  const json = JSON.stringify(state);
+  const expires = new Date(Date.now() + COOKIE_DAYS * 864e5).toUTCString();
+  // Cookies have a ~4KB limit; compress by encoding
+  try {
+    document.cookie = `${COOKIE_KEY}=${encodeURIComponent(json)};expires=${expires};path=/;SameSite=Lax`;
+  } catch(e){ console.warn('Cookie save failed:', e); }
+}
+
+function cookieLoad(){
+  const match = document.cookie.split(';').map(c=>c.trim()).find(c=>c.startsWith(COOKIE_KEY+'='));
+  if(!match) return null;
+  try {
+    return JSON.parse(decodeURIComponent(match.slice(COOKIE_KEY.length + 1)));
+  } catch(e){ return null; }
+}
+
+function cookieClear(){
+  document.cookie = `${COOKIE_KEY}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
+}
+
+function restoreState(state){
+  if(!state) return;
+  // Turn counter
+  turn = state.turn || 0;
+  document.getElementById('turnCounter').textContent = turn || 0;
+
+  // History log
+  history = state.history || [];
+  renderLog();
+
+  // XP players
+  if(state.xpPartySize) xpPartySize = state.xpPartySize;
+  document.getElementById('xpPartyCount').textContent = xpPartySize;
+
+  if(Array.isArray(state.xpPlayers)){
+    state.xpPlayers.forEach((saved, i)=>{
+      if(!xpPlayers[i]) xpPlayers[i] = {name:'Player '+(i+1), level:1, xp:0};
+      xpPlayers[i].name  = saved.name  || xpPlayers[i].name;
+      xpPlayers[i].level = saved.level || 1;
+      xpPlayers[i].xp    = saved.xp    || 0;
+    });
+    // Trim to saved party size
+    while(xpPlayers.length < xpPartySize)
+      xpPlayers.push({name:'Player '+(xpPlayers.length+1), level:1, xp:0});
+  }
+
+  if(Array.isArray(state.xpSessionLog)) xpSessionLog = state.xpSessionLog;
+
+  xpRenderAll();
+  showSaveIndicator('Session restored');
+}
+
+// ── Auto-save indicator ────────────────────────────
+function showSaveIndicator(msg){
+  let ind = document.getElementById('saveIndicator');
+  if(!ind){
+    ind = document.createElement('div');
+    ind.id = 'saveIndicator';
+    ind.style.cssText = `position:fixed;bottom:1.2rem;right:1.2rem;z-index:300;
+      font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.2em;
+      text-transform:uppercase;color:var(--gold-hi);
+      background:rgba(7,5,10,0.88);border:1px solid var(--bone-faint);
+      padding:0.35rem 0.8rem;border-radius:1px;pointer-events:none;
+      opacity:0;transition:opacity 0.3s;`;
+    document.body.appendChild(ind);
+  }
+  ind.textContent = msg || '✦ Saved';
+  ind.style.opacity = '1';
+  clearTimeout(ind._t);
+  ind._t = setTimeout(()=>{ ind.style.opacity='0'; }, 2000);
+}
+
+// ── Periodic auto-save every 30 s + save on key events ────────────────
+let _autoSaveInterval = null;
+function startAutoSave(){
+  if(_autoSaveInterval) clearInterval(_autoSaveInterval);
+  _autoSaveInterval = setInterval(()=>{
+    cookieSave();
+    showSaveIndicator('✦ Auto-saved');
+  }, 30000);
+}
+
+// Save immediately on these events too
+function saveNow(){ cookieSave(); showSaveIndicator('✦ Saved'); }
+
+window.addEventListener('load',()=>{
+  initDice();
+  // Restore persisted state if available
+  const saved = cookieLoad();
+  if(saved) restoreState(saved);
+  startAutoSave();
+});
 
 // ══════════════════════════════════════════════════
 // GAME STATE
@@ -1004,9 +1295,53 @@ function triggerEncounterFX(){
 }
 
 // ── ADVANCE TURN ─────────────────────────────────
+
+// ── COMBAT STATE ──────────────────────────────────
+let combatActive = false;
+let pendingMonster = null;
+let pendingTurn = 0;
+
+function setCombatActive(active, monster, turnNum){
+  combatActive = active;
+  pendingMonster = monster || null;
+  pendingTurn    = turnNum || 0;
+
+  const advBtn   = document.getElementById('advBtn');
+  const lockLabel= document.getElementById('combatLockedLabel');
+  const defeatWrap = document.getElementById('defeatWrap');
+
+  if(active){
+    advBtn.classList.add('combat-locked');
+    lockLabel.classList.add('visible');
+    defeatWrap.style.display = 'block';
+  } else {
+    advBtn.classList.remove('combat-locked');
+    lockLabel.classList.remove('visible');
+    defeatWrap.style.display = 'none';
+  }
+}
+
+function monsterDefeated(){
+  if(!combatActive || !pendingMonster) return;
+
+  // Award XP now that monster is confirmed defeated
+  xpAwardEncounter(pendingMonster, pendingTurn);
+
+  // Visual: flash the encounter card green briefly
+  const card = document.getElementById('encCard');
+  const orig = card.style.borderColor;
+  card.style.transition = 'border-color 0.15s';
+  card.style.borderColor = '#4a9a2a';
+  setTimeout(()=>{ card.style.borderColor = orig; }, 600);
+
+  // Unlock
+  setCombatActive(false, null, 0);
+  saveNow();
+}
 function advanceTurn(){
   const btn=document.getElementById('advBtn');
   if(btn.classList.contains('rolling'))return;
+  if(combatActive) return; // blocked until monster is defeated
   btn.classList.add('rolling');
   if(soundOn)playDiceRattle();
 
@@ -1041,6 +1376,8 @@ function advanceTurn(){
         document.getElementById('encCR').textContent=monster.cr;
         document.getElementById('encDesc').textContent=monster.desc;
         document.getElementById('statBlock').innerHTML=renderStatBlock(monster);
+        // Lock turn advancing until monster is defeated
+        setCombatActive(true, monster, turn);
 
         if(!tableOpen)toggleTable();
         setTimeout(()=>hlRow(mroll),350);
@@ -1367,6 +1704,416 @@ function toggleSound(){
   btn.textContent=soundOn?'🔊 Sound On':'🔇 Sound Off';
   btn.classList.toggle('on',soundOn);
 }
+
+// ══════════════════════════════════════════════════
+// XP TRACKER — D&D 5E standard XP rules
+// ══════════════════════════════════════════════════
+
+// XP thresholds per level (index = level, value = XP to reach that level)
+const XP_THRESHOLDS = [
+  0,       // level 0 placeholder
+  0,       // level 1
+  300,     // level 2
+  900,     // level 3
+  2700,    // level 4
+  6500,    // level 5
+  14000,   // level 6
+  23000,   // level 7
+  34000,   // level 8
+  48000,   // level 9
+  64000,   // level 10
+  85000,   // level 11
+  100000,  // level 12
+  120000,  // level 13
+  140000,  // level 14
+  165000,  // level 15
+  195000,  // level 16
+  225000,  // level 17
+  265000,  // level 18
+  305000,  // level 19
+  355000,  // level 20
+];
+
+// XP values by CR
+const CR_XP = {
+  '0':25,'1/8':25,'⅛':25,'1/4':50,'¼':50,'1/2':100,'½':100,
+  '1':200,'2':450,'3':700,'4':1100,'5':1800,'6':2300,'7':2900,
+  '8':3900,'9':5000,'10':5900,'11':7200,'12':8400,'13':10000,
+  '14':11500,'15':13000,'16':15000,'17':18000,'18':20000,
+  '19':22000,'20':25000,'21':33000,'22':41000,'23':50000,
+  '24':62000,'25':75000,'26':90000,'27':105000,'28':120000,
+  '29':135000,'30':155000,
+};
+
+// Encounter multipliers based on monster count vs. party size
+function getEncounterMultiplier(monsterCount, partySize){
+  let m;
+  if(monsterCount === 1)       m = 1;
+  else if(monsterCount === 2)  m = 1.5;
+  else if(monsterCount <= 6)   m = 2;
+  else if(monsterCount <= 10)  m = 2.5;
+  else if(monsterCount <= 14)  m = 3;
+  else                         m = 4;
+  // Adjust for small/large parties
+  if(partySize <= 2) m = Math.min(m * 1.5, 4);
+  if(partySize >= 6) m = Math.max(m * 0.5, 0.5);
+  return m;
+}
+
+// Parse CR string like "CR 3", "CR ¼×1d4", "CR ½×1d4+2" etc.
+// Returns [base_cr_string, avg_count]
+function parseCR(crStr){
+  // e.g. "CR ½×1d4+2" → base "½", count ~4
+  const m = crStr.match(/CR\s*([\d\/½¼⅛]+)\s*×?\s*([\d]+)?d?([\d]+)?(?:\+([\d]+))?/);
+  if(!m) return ['0', 1];
+  const base = m[1] || '0';
+  // If there's a count expression like 1d4+2, compute average
+  let count = 1;
+  if(m[3]){
+    const dice = parseInt(m[2]||1);
+    const sides = parseInt(m[3]);
+    const bonus = parseInt(m[4]||0);
+    count = Math.round(dice * (sides/2+0.5) + bonus);
+  }
+  return [base, count];
+}
+
+function crToXP(crStr){
+  const [base, count] = parseCR(crStr);
+  const singleXP = CR_XP[base] || 0;
+  return singleXP * count;
+}
+
+// XP state
+let xpPartySize = 4;
+let xpPlayers = [
+  {name:'Player 1', level:1, xp:0},
+  {name:'Player 2', level:1, xp:0},
+  {name:'Player 3', level:1, xp:0},
+  {name:'Player 4', level:1, xp:0},
+];
+let xpSessionLog = []; // {turn, monsterName, cr, rawXP, adjustedXP, perPlayer}
+
+function xpForLevel(lvl){ return XP_THRESHOLDS[Math.min(lvl,20)] || 0; }
+function xpToNextLevel(lvl){
+  if(lvl >= 20) return null;
+  return XP_THRESHOLDS[lvl+1];
+}
+
+function xpAwardEncounter(monster, turnNum){
+  const rawXP = crToXP(monster.cr);
+  if(rawXP === 0) return;
+
+  // Count monsters in this encounter (from CR expression)
+  const [, count] = parseCR(monster.cr);
+  const mult = getEncounterMultiplier(count, xpPartySize);
+  const adjustedXP = Math.round(rawXP * mult);
+  const perPlayer  = Math.floor(adjustedXP / xpPartySize);
+
+  xpSessionLog.unshift({turn:turnNum, monsterName:monster.name, cr:monster.cr, rawXP, adjustedXP, perPlayer});
+
+  // Award XP and check level-ups
+  const levelUps = [];
+  xpPlayers.forEach((p,i) => {
+    if(p.level >= 20) return;
+    const oldLevel = p.level;
+    p.xp += perPlayer;
+    while(p.level < 20 && p.xp >= xpToNextLevel(p.level)){
+      p.level++;
+      levelUps.push(i);
+    }
+  });
+
+  xpRenderAll();
+  if(levelUps.length) xpFlashLevelUp(levelUps);
+}
+
+function xpFlashLevelUp(playerIndexes){
+  playLevelUpFanfare();
+  // Card flash on each levelled player
+  playerIndexes.forEach(i => {
+    const card = document.getElementById('xpPCard'+i);
+    if(card){
+      const flash = document.createElement('div');
+      flash.className = 'xp-level-up-flash';
+      card.appendChild(flash);
+      setTimeout(()=>flash.remove(), 1300);
+    }
+  });
+  // Full-screen overlay — show for the first player who levelled up
+  const first = playerIndexes[0];
+  const p = xpPlayers[first];
+  showLevelUpOverlay(p.name, p.level);
+}
+
+function showLevelUpOverlay(playerName, newLevel){
+  const overlay = document.getElementById('lvlup-overlay');
+  document.getElementById('lvlup-name').textContent = playerName;
+  document.getElementById('lvlup-num').textContent   = newLevel;
+
+  // Sub-flavour based on level milestone
+  const flavour = {
+    2:'A spark of potential ignites.',
+    3:'The dungeon begins to fear you.',
+    4:'Your name is whispered in the dark.',
+    5:'Power flows through you like blood.',
+    6:'Monsters hesitate before charging.',
+    7:'You have walked where others fled.',
+    8:'The shadows show you respect.',
+    9:'Legends are forged in moments like this.',
+    10:"Half the world's horrors cannot touch you.",
+    11:'You stand apart from common warriors.',
+    12:'The dungeon shifts to account for you.',
+    13:'Death has looked you in the eye and blinked.',
+    14:'Your deeds echo through these stone halls.',
+    15:'Even warlords speak your name carefully.',
+    16:'You are becoming something beyond mortal.',
+    17:'The gods have noticed.',
+    18:'Few in history have stood where you stand.',
+    19:'One final threshold remains.',
+    20:'You have reached the apex of mortal power.'
+  };
+  document.getElementById('lvlup-sub').textContent = flavour[newLevel] || 'A new power awakens in the darkness.';
+
+  // Spawn gold particles
+  const content = document.getElementById('lvlup-content');
+  for(let i=0; i<28; i++){
+    const p = document.createElement('div');
+    p.className = 'lvlup-particle';
+    const angle = (i/28)*Math.PI*2;
+    const dist  = 120 + Math.random()*180;
+    p.style.setProperty('--px', Math.cos(angle)*dist+'px');
+    p.style.setProperty('--py', Math.sin(angle)*dist+'px');
+    p.style.setProperty('--pd', (Math.random()*0.3)+'s');
+    p.style.background = Math.random()>0.3 ? 'var(--gold-hi)' : '#fff';
+    p.style.width  = (4+Math.random()*5)+'px';
+    p.style.height = p.style.width;
+    overlay.appendChild(p);
+    setTimeout(()=>p.remove(), 1800);
+  }
+
+  overlay.classList.add('active');
+  overlay.style.animation = 'none';
+
+  // Dismiss on click or after 3.3s
+  const dismiss = ()=>{
+    overlay.classList.remove('active');
+    overlay.style.opacity='0';
+  };
+  overlay.onclick = dismiss;
+  setTimeout(dismiss, 3300);
+}
+
+function xpChangeParty(delta){
+  xpPartySize = Math.max(1, Math.min(8, xpPartySize + delta));
+  // Sync player array size
+  while(xpPlayers.length < xpPartySize)
+    xpPlayers.push({name:'Player '+(xpPlayers.length+1), level:1, xp:0});
+  document.getElementById('xpPartyCount').textContent = xpPartySize;
+  xpRenderAll();
+}
+
+function xpReset(){
+  if(!confirm('Reset all XP and levels?')) return;
+  xpSessionLog = [];
+  xpPlayers.forEach((p,i) => { p.level=1; p.xp=0; p.name='Player '+(i+1); });
+  xpRenderAll();
+  saveNow();
+}
+
+function xpSetLevel(playerIdx, delta){
+  const p = xpPlayers[playerIdx];
+  p.level = Math.max(1, Math.min(20, p.level + delta));
+  p.xp = xpForLevel(p.level);
+  xpRenderAll();
+}
+
+function xpStartEditName(idx){
+  const nameEl = document.getElementById('xpName'+idx);
+  const current = xpPlayers[idx].name;
+  nameEl.innerHTML = `<input class="xp-name-input" id="xpNameInput${idx}" value="${current}" maxlength="12"
+    onblur="xpSaveName(${idx})" onkeydown="if(event.key==='Enter')this.blur()">`;
+  document.getElementById('xpNameInput'+idx).select();
+}
+
+function xpSaveName(idx){
+  const inp = document.getElementById('xpNameInput'+idx);
+  if(inp) xpPlayers[idx].name = inp.value.trim() || ('Player '+(idx+1));
+  xpRenderAll();
+}
+
+function xpRenderAll(){
+  xpRenderPlayers();
+  xpRenderSummary();
+  xpRenderLog();
+}
+
+function xpRenderPlayers(){
+  const grid = document.getElementById('xpPlayerGrid');
+  grid.innerHTML = xpPlayers.slice(0, xpPartySize).map((p,i) => {
+    const lvl = p.level;
+    const curXP = p.xp;
+    const needed = xpToNextLevel(lvl);
+    const prevXP = xpForLevel(lvl);
+    const pct = needed ? Math.min(100, Math.round((curXP - prevXP) / (needed - prevXP) * 100)) : 100;
+    const nextXP = needed ? (needed - curXP).toLocaleString() + ' to next' : 'Max Level';
+    return `<div class="xp-player-card" id="xpPCard${i}">
+      <button class="xp-player-edit" onclick="xpStartEditName(${i})" title="Edit name">✎</button>
+      <div class="xp-player-name" id="xpName${i}">${p.name}</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:0.3rem;">
+        <button class="xp-count-btn" style="width:20px;height:20px;font-size:0.65rem;" onclick="xpSetLevel(${i},-1)">−</button>
+        <div class="xp-player-level">${lvl}</div>
+        <button class="xp-count-btn" style="width:20px;height:20px;font-size:0.65rem;" onclick="xpSetLevel(${i},1)">+</button>
+      </div>
+      <div class="xp-player-xp">${curXP.toLocaleString()} XP</div>
+      <div class="xp-player-bar-wrap"><div class="xp-player-bar" style="width:${pct}%"></div></div>
+      <div class="xp-player-xp" style="margin-top:0.2rem;font-size:0.52rem;">${nextXP}</div>
+    </div>`;
+  }).join('');
+}
+
+function xpRenderSummary(){
+  const totalXP = xpSessionLog.reduce((s,e)=>s+e.adjustedXP, 0);
+  const perPlayer = xpSessionLog.reduce((s,e)=>s+e.perPlayer, 0);
+  document.getElementById('xpTotal').textContent = totalXP.toLocaleString() + ' XP';
+  document.getElementById('xpPerPlayer').textContent = perPlayer.toLocaleString() + ' XP';
+
+  // Show note about who's closest to levelling up
+  const notes = xpPlayers.slice(0,xpPartySize).map(p=>{
+    if(p.level>=20) return null;
+    const rem = (xpToNextLevel(p.level)||0) - p.xp;
+    return {name:p.name, rem};
+  }).filter(Boolean).sort((a,b)=>a.rem-b.rem);
+
+  if(notes.length){
+    const closest = notes[0];
+    document.getElementById('xpNextNote').textContent =
+      `${closest.name} needs ${closest.rem.toLocaleString()} XP to reach level ${xpPlayers.find(p=>p.name===closest.name).level+1}`;
+  } else {
+    document.getElementById('xpNextNote').textContent = 'All players at maximum level';
+  }
+}
+
+function xpRenderLog(){
+  const el = document.getElementById('xpEncLog');
+  if(!xpSessionLog.length){
+    el.innerHTML = '<div class="xp-empty">No encounters yet — XP will appear here.</div>';
+    return;
+  }
+  el.innerHTML = xpSessionLog.map(e=>`
+    <div class="xp-enc-row">
+      <span class="xp-enc-turn">T${e.turn}</span>
+      <span class="xp-enc-name">${e.monsterName} <span style="font-size:0.65rem;color:var(--bone-faint);font-style:normal;">(${e.cr})</span></span>
+      <span class="xp-enc-xp">+${e.perPlayer.toLocaleString()} XP ea.</span>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════════
+// LEVEL-UP FANFARE — full orchestral-style brass sequence
+// ══════════════════════════════════════════════════
+function playLevelUpFanfare(){
+  if(!soundOn) return;
+  const ctx=ac(), now=ctx.currentTime;
+
+  // Shared reverb
+  const rev=ctx.createConvolver();
+  const rLen=ctx.sampleRate*2, rBuf=ctx.createBuffer(2,rLen,ctx.sampleRate);
+  for(let c=0;c<2;c++){const d=rBuf.getChannelData(c);for(let i=0;i<rLen;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/rLen,2.5);}
+  rev.buffer=rBuf;
+  const revGain=ctx.createGain(); revGain.gain.value=0.28*VOL_SFX;
+  rev.connect(revGain); revGain.connect(ctx.destination);
+
+  const dry=ctx.createGain(); dry.gain.value=VOL_SFX;
+  dry.connect(ctx.destination);
+
+  function note(freq,type,t,dur,vol,dest,detune=0){
+    const o=ctx.createOscillator(), g=ctx.createGain();
+    o.type=type; o.frequency.value=freq; o.detune.value=detune;
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(vol,t+0.015);
+    g.gain.setValueAtTime(vol,t+dur*0.7);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(g); g.connect(dest); o.start(t); o.stop(t+dur+0.05);
+  }
+
+  // ── Trumpet-like sawtooth lead ──────────────────
+  // Bar 1: short fanfare call  C4-E4-G4-C5
+  const BRASS=[{f:261.6,t:0},{f:329.6,t:0.12},{f:392,t:0.22},{f:523.2,t:0.34}];
+  BRASS.forEach(({f,t})=>{
+    note(f,'sawtooth',now+t,0.14,0.13,dry);
+    note(f,'sawtooth',now+t,0.14,0.06,rev,7);
+  });
+
+  // Bar 2: triumphant G4-C5-E5-G5 run
+  const RUN=[{f:392,t:0.58},{f:523.2,t:0.68},{f:659.2,t:0.78},{f:783.9,t:0.88}];
+  RUN.forEach(({f,t})=>{
+    note(f,'sawtooth',now+t,0.11,0.12,dry);
+    note(f,'sawtooth',now+t,0.11,0.05,rev,5);
+  });
+
+  // Bar 3: held final chord  C5+E5+G5  (full major triad)
+  [[523.2,-8],[659.2,0],[783.9,6]].forEach(([f,det])=>{
+    note(f,'sawtooth',now+1.08,0.75,0.11,dry,det);
+    note(f,'sawtooth',now+1.08,0.75,0.05,rev,det+4);
+  });
+
+  // ── French horn sub-octave harmony ─────────────
+  [[130.8,0],[164.8,0],[196,0],[261.6,0]].forEach(({0:f,1:_},i)=>{
+    note(f,'triangle',now+[0,0.12,0.22,0.34][i],0.18,0.07,dry);
+  });
+  note(261.6,'triangle',now+1.08,0.75,0.09,dry,-5);
+  note(196,  'triangle',now+1.08,0.75,0.07,dry, 3);
+
+  // ── Snare roll leading into chord ──────────────
+  for(let i=0;i<18;i++){
+    const t=now+0.85+i*0.012;
+    const sLen=Math.floor(ctx.sampleRate*0.012);
+    const sBuf=ctx.createBuffer(1,sLen,ctx.sampleRate);
+    const sd=sBuf.getChannelData(0);
+    for(let j=0;j<sLen;j++) sd[j]=(Math.random()*2-1)*Math.exp(-j/sLen*16);
+    const sSrc=ctx.createBufferSource(); sSrc.buffer=sBuf;
+    const shp=ctx.createBiquadFilter(); shp.type='bandpass'; shp.frequency.value=2200; shp.Q.value=2;
+    const sg=ctx.createGain(); sg.gain.value=0.055*VOL_SFX*(0.4+i/18*0.6);
+    sSrc.connect(shp); shp.connect(sg); sg.connect(dry);
+    sSrc.start(t); sSrc.stop(t+0.015);
+  }
+
+  // ── Cymbal crash on the chord ───────────────────
+  {
+    const t=now+1.06;
+    const cLen=ctx.sampleRate*1.5, cBuf=ctx.createBuffer(1,cLen,ctx.sampleRate);
+    const cd=cBuf.getChannelData(0);
+    for(let i=0;i<cLen;i++) cd[i]=(Math.random()*2-1)*Math.exp(-i/cLen*2.5);
+    const cSrc=ctx.createBufferSource(); cSrc.buffer=cBuf;
+    const chp=ctx.createBiquadFilter(); chp.type='highpass'; chp.frequency.value=6000;
+    const cg=ctx.createGain(); cg.gain.setValueAtTime(0.18*VOL_SFX,t);
+    cg.gain.exponentialRampToValueAtTime(0.0001,t+1.4);
+    cSrc.connect(chp); chp.connect(cg); cg.connect(dry);
+    cSrc.start(t); cSrc.stop(t+1.5);
+    // Reverb on cymbal
+    const cg2=ctx.createGain(); cg2.gain.value=0.12*VOL_SFX;
+    chp.connect(cg2); cg2.connect(rev);
+  }
+
+  // ── Kick drum on the chord ─────────────────────
+  {
+    const t=now+1.07;
+    const ko=ctx.createOscillator(), kg=ctx.createGain();
+    ko.type='sine'; ko.frequency.setValueAtTime(180,t); ko.frequency.exponentialRampToValueAtTime(40,t+0.12);
+    kg.gain.setValueAtTime(0.4*VOL_SFX,t); kg.gain.exponentialRampToValueAtTime(0.0001,t+0.18);
+    ko.connect(kg); kg.connect(dry); ko.start(t); ko.stop(t+0.2);
+  }
+}
+// Keep old name as alias so nothing breaks
+function playLevelUpSting(){ playLevelUpFanfare(); }
+
+// Hook into advanceTurn to award XP on encounter
+const _origAdvance = advanceTurn;
+// XP award happens inside the monster roll callback — patched below
+
+// Init XP display on load
+window.addEventListener('load', ()=>{ setTimeout(xpRenderAll, 100); });
+
 </script>
 </body>
 </html>
