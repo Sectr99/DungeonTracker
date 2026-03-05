@@ -875,8 +875,9 @@ tbody tr.hl .td-roll { color:var(--accent1); }
   .xp-party-label  { font-size:0.75rem; }
 
   /* Settings — bottom sheet on small phones */
-  .settings-overlay { padding:0; align-items:flex-end; }
-  .settings-panel { max-width:100%; border-radius:14px 14px 0 0; }
+  .settings-overlay { padding:0; align-items:flex-end; overflow:hidden; }
+  .settings-panel { max-width:100%; max-height:92vh; border-radius:14px 14px 0 0; }
+  .settings-panel .s-body { max-height:none; }
   .sp-header { padding:1.25rem 1.25rem 1rem; }
   .sp-title { font-size:1.05rem; }
   .theme-grid { grid-template-columns:repeat(3,1fr) !important; }
@@ -888,7 +889,7 @@ tbody tr.hl .td-roll { color:var(--accent1); }
   .settings-panel .preset-grid,
   .settings-panel .s-two-col,
   .settings-panel .slider-hint { padding-left:1.1rem; padding-right:1.1rem; }
-  .settings-footer { padding:1rem 1.1rem 1.25rem; }
+  .settings-footer { padding:1rem 1.1rem calc(1.25rem + env(safe-area-inset-bottom)); }
   .s-btn-cancel, .s-btn-save { font-size:0.78rem; padding:0.48rem 1rem; }
 
   /* Defeat button */
@@ -923,8 +924,8 @@ tbody tr.hl .td-roll { color:var(--accent1); }
   .xp-level-grid { grid-template-columns:repeat(2,1fr); }
 
   /* Settings — bottom sheet on mid phones */
-  .settings-overlay { padding:0; align-items:flex-end; }
-  .settings-panel { max-width:100%; border-radius:14px 14px 0 0; }
+  .settings-overlay { padding:0; align-items:flex-end; overflow:hidden; }
+  .settings-panel { max-width:100%; max-height:92vh; border-radius:14px 14px 0 0; }
   .theme-grid { grid-template-columns:repeat(3,1fr); }
   .s-two-col { gap:1rem; }
 
