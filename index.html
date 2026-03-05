@@ -9,92 +9,119 @@
 <style>
 /* ── THEME VARIABLES ── */
 :root {
-  --void:#07050a; --abyss:#0e0b14; --stone:#1e1726;
-  --bone:#c8b89a; --bone-dim:#8a7a64; --bone-faint:#4a3f30;
-  --crimson:#8b1a1a; --blood:#a82020; --blood-hi:#cc3333; --gore:#6b0f0f;
-  --gold:#9a7a2a; --gold-hi:#c4a040; --gold-pale:#e8d498; --amber:#c06020;
+  /* ── DARKEST DUNGEON — Crimson & Gold ── */
+  --void:#0a0608; --abyss:#130e18; --stone:#231828;
+  --bone:#ddd0b8; --bone-dim:#a89880; --bone-faint:#5a4e3a;
+  --crimson:#9b1e1e; --blood:#c02828; --blood-hi:#e04040; --gore:#7a1010;
+  --gold:#b08030; --gold-hi:#d8b050; --gold-pale:#f0e0a8; --amber:#d07028;
   --accent1:var(--blood-hi); --accent2:var(--gold-hi);
-  --bg-from:#1a0a1a; --bg-mid:#07050a;
-  --card-from:#1e1726; --card-to:#0e0b14;
-  --particle-color:rgba(200,50,50,0.55);
-  --fog-color:rgba(20,5,30,0.18);
-  --stat-border:rgba(200,80,80,0.35);
-  --stat-cell-bg:rgba(0,0,0,0.55);
-  --stat-cell-border:rgba(180,140,80,0.4);
-  --stat-title:#c4a040;
-  --stat-val:#f0e8d0;
-  --stat-mod:#c8b880;
-  --stat-label:#a09060;
-  --stat-pill-bg:rgba(0,0,0,0.45);
-  --stat-pill-border:rgba(180,140,80,0.35);
-  --stat-pill-text:#d8cca8;
-  --stat-pill-key:#f0e040;
+  --bg-from:#200c20; --bg-mid:#0a0608;
+  --card-from:#251828; --card-to:#130e18;
+  --particle-color:rgba(220,60,60,0.7);
+  --fog-color:rgba(28,8,38,0.28);
+  --stat-border:rgba(220,90,90,0.45);
+  --stat-cell-bg:rgba(0,0,0,0.5);
+  --stat-cell-border:rgba(200,155,70,0.5);
+  --stat-title:#d8b050;
+  --stat-val:#f4ede0;
+  --stat-mod:#d8c890;
+  --stat-label:#b8a870;
+  --stat-pill-bg:rgba(10,5,15,0.55);
+  --stat-pill-border:rgba(200,155,70,0.45);
+  --stat-pill-text:#e8dcc0;
+  --stat-pill-key:#f8f040;
 }
 [data-theme="castlevania"] {
-  --void:#040408; --abyss:#08060f; --stone:#14103a;
-  --bone:#d4cce8; --bone-dim:#7a6ea8; --bone-faint:#3a3060;
-  --crimson:#6010a0; --blood:#8030c0; --blood-hi:#b060e0; --gore:#40087a;
-  --gold:#4080c0; --gold-hi:#60a0e0; --gold-pale:#c0d8f8; --amber:#4060b0;
-  --accent1:#b060e0; --accent2:#60a0e0;
-  --bg-from:#0a0020; --bg-mid:#040408;
-  --card-from:#14103a; --card-to:#080618;
-  --particle-color:rgba(150,60,220,0.55);
-  --fog-color:rgba(20,5,50,0.18);
-  --stat-border:rgba(140,60,220,0.4);
-  --stat-cell-bg:rgba(0,0,0,0.6);
-  --stat-cell-border:rgba(100,140,220,0.4);
-  --stat-title:#80b0f0;
-  --stat-val:#e8e0f8;
-  --stat-mod:#a090d0;
-  --stat-label:#7868a0;
-  --stat-pill-bg:rgba(0,0,0,0.5);
-  --stat-pill-border:rgba(100,140,220,0.35);
-  --stat-pill-text:#c8c0e0;
-  --stat-pill-key:#d0b0ff;
+  /* ── CASTLE — Violet & Ice Blue ── */
+  --void:#060408; --abyss:#0c0818; --stone:#1c1640;
+  --bone:#e0d8f8; --bone-dim:#9888c8; --bone-faint:#4a4278;
+  --crimson:#7018b8; --blood:#9838d8; --blood-hi:#c070f8; --gore:#500898;
+  --gold:#5090d8; --gold-hi:#70b8f8; --gold-pale:#c8e4ff; --amber:#5070c8;
+  --accent1:#c070f8; --accent2:#70b8f8;
+  --bg-from:#0e0030; --bg-mid:#060408;
+  --card-from:#1c1640; --card-to:#0c0820;
+  --particle-color:rgba(170,70,250,0.7);
+  --fog-color:rgba(25,8,60,0.28);
+  --stat-border:rgba(170,80,250,0.5);
+  --stat-cell-bg:rgba(0,0,0,0.55);
+  --stat-cell-border:rgba(110,160,250,0.5);
+  --stat-title:#90c8ff;
+  --stat-val:#f0ecff;
+  --stat-mod:#b8a8e8;
+  --stat-label:#8878b8;
+  --stat-pill-bg:rgba(5,0,18,0.6);
+  --stat-pill-border:rgba(110,160,250,0.45);
+  --stat-pill-text:#d8d0f8;
+  --stat-pill-key:#e0c0ff;
 }
 [data-theme="vampire"] {
-  --void:#050206; --abyss:#0c0310; --stone:#1a0a12;
-  --bone:#e8c8b0; --bone-dim:#a07060; --bone-faint:#503030;
-  --crimson:#980820; --blood:#c01830; --blood-hi:#e83050; --gore:#600010;
-  --gold:#c08020; --gold-hi:#e0b040; --gold-pale:#f8e8b0; --amber:#d06820;
-  --accent1:#e83050; --accent2:#e0b040;
-  --bg-from:#200010; --bg-mid:#050206;
-  --card-from:#1a0a12; --card-to:#0c0310;
-  --particle-color:rgba(220,30,60,0.6);
-  --fog-color:rgba(30,5,15,0.2);
-  --stat-border:rgba(220,40,70,0.4);
-  --stat-cell-bg:rgba(0,0,0,0.6);
-  --stat-cell-border:rgba(200,130,40,0.4);
-  --stat-title:#e0b040;
-  --stat-val:#f8e8d0;
-  --stat-mod:#d09050;
-  --stat-label:#a07050;
-  --stat-pill-bg:rgba(0,0,0,0.5);
-  --stat-pill-border:rgba(200,130,40,0.35);
-  --stat-pill-text:#e8cca8;
-  --stat-pill-key:#ffe060;
+  /* ── VAMPIRE SURVIVORS — Blood Red & Amber ── */
+  --void:#080204; --abyss:#100410; --stone:#200c14;
+  --bone:#f0d0b8; --bone-dim:#c08870; --bone-faint:#684040;
+  --crimson:#a80820; --blood:#d81838; --blood-hi:#ff3860; --gore:#780010;
+  --gold:#d89028; --gold-hi:#f8c848; --gold-pale:#ffe8b8; --amber:#e07828;
+  --accent1:#ff3860; --accent2:#f8c848;
+  --bg-from:#280010; --bg-mid:#080204;
+  --card-from:#200c14; --card-to:#100410;
+  --particle-color:rgba(255,40,70,0.75);
+  --fog-color:rgba(38,6,18,0.3);
+  --stat-border:rgba(255,50,80,0.5);
+  --stat-cell-bg:rgba(0,0,0,0.55);
+  --stat-cell-border:rgba(230,150,48,0.5);
+  --stat-title:#f8c848;
+  --stat-val:#fff0e0;
+  --stat-mod:#e8a870;
+  --stat-label:#c88870;
+  --stat-pill-bg:rgba(12,2,8,0.6);
+  --stat-pill-border:rgba(230,150,48,0.45);
+  --stat-pill-text:#f8dfc0;
+  --stat-pill-key:#ffec60;
 }
 [data-theme="dungeon"] {
-  --void:#040508; --abyss:#080c0f; --stone:#101820;
-  --bone:#b8c8b0; --bone-dim:#607060; --bone-faint:#304038;
-  --crimson:#185030; --blood:#286840; --blood-hi:#40a060; --gore:#0c3018;
-  --gold:#608050; --gold-hi:#80b070; --gold-pale:#c8e0b8; --amber:#406030;
-  --accent1:#40a060; --accent2:#80b070;
-  --bg-from:#081408; --bg-mid:#040508;
-  --card-from:#101820; --card-to:#080c0f;
-  --particle-color:rgba(40,120,60,0.5);
-  --fog-color:rgba(5,15,8,0.18);
-  --stat-border:rgba(60,160,90,0.35);
-  --stat-cell-bg:rgba(0,0,0,0.55);
-  --stat-cell-border:rgba(80,140,80,0.4);
-  --stat-title:#80c070;
-  --stat-val:#d0e8c8;
-  --stat-mod:#80a870;
-  --stat-label:#507850;
-  --stat-pill-bg:rgba(0,0,0,0.45);
-  --stat-pill-border:rgba(80,140,80,0.35);
-  --stat-pill-text:#b8d8a8;
-  --stat-pill-key:#c0f080;
+  /* ── DEEP DUNGEON — Toxic Green & Shadow ── */
+  --void:#040608; --abyss:#090e0c; --stone:#121e18;
+  --bone:#c8d8c0; --bone-dim:#789080; --bone-faint:#3a5040;
+  --crimson:#1a5c34; --blood:#287848; --blood-hi:#48b870; --gore:#0e3820;
+  --gold:#6a9058; --gold-hi:#90c878; --gold-pale:#d0ecc0; --amber:#4a7038;
+  --accent1:#48b870; --accent2:#90c878;
+  --bg-from:#081808; --bg-mid:#040608;
+  --card-from:#121e18; --card-to:#090e0c;
+  --particle-color:rgba(50,140,70,0.7);
+  --fog-color:rgba(6,18,10,0.28);
+  --stat-border:rgba(70,185,105,0.5);
+  --stat-cell-bg:rgba(0,0,0,0.5);
+  --stat-cell-border:rgba(90,160,90,0.5);
+  --stat-title:#98d888;
+  --stat-val:#daf0d0;
+  --stat-mod:#98c888;
+  --stat-label:#60a070;
+  --stat-pill-bg:rgba(4,8,6,0.55);
+  --stat-pill-border:rgba(90,160,90,0.45);
+  --stat-pill-text:#c8e8b8;
+  --stat-pill-key:#d0ff90;
+}
+[data-theme="escape"] {
+  /* ── ESCAPE THE DARK CASTLE — Stark Woodcut / Ink & Chalk ── */
+  --void:#000000; --abyss:#060606; --stone:#0f0f0f;
+  --bone:#e8e8e8; --bone-dim:#a8a8a8; --bone-faint:#484848;
+  --crimson:#1a1a1a; --blood:#282828; --blood-hi:#c8c8c8; --gore:#0a0a0a;
+  --gold:#d0d0d0; --gold-hi:#f0f0f0; --gold-pale:#ffffff; --amber:#b8b8b8;
+  --accent1:#e8e8e8; --accent2:#a0a0a0;
+  --bg-from:#0a0a0a; --bg-mid:#000000;
+  --card-from:#0f0f0f; --card-to:#060606;
+  --particle-color:rgba(200,200,200,0.5);
+  --fog-color:rgba(255,255,255,0.04);
+  --stat-border:rgba(200,200,200,0.4);
+  --stat-cell-bg:rgba(0,0,0,0.7);
+  --stat-cell-border:rgba(180,180,180,0.4);
+  --stat-title:#f0f0f0;
+  --stat-val:#ffffff;
+  --stat-mod:#c0c0c0;
+  --stat-label:#909090;
+  --stat-pill-bg:rgba(0,0,0,0.6);
+  --stat-pill-border:rgba(160,160,160,0.4);
+  --stat-pill-text:#d8d8d8;
+  --stat-pill-key:#ffffff;
 }
 
 * { box-sizing:border-box; margin:0; padding:0; }
@@ -355,7 +382,6 @@ tbody tr.hl .td-roll { color:var(--accent1); }
 /* ── MACABRE DECORATIONS ── */
 .drip-top { position:absolute; top:0; left:0; width:100%; height:60px; pointer-events:none; z-index:2; }
 
-
 /* scrollbar global */
 ::-webkit-scrollbar { width:5px; }
 ::-webkit-scrollbar-track { background:var(--abyss); }
@@ -472,8 +498,6 @@ tbody tr.hl .td-roll { color:var(--accent1); }
 @keyframes defeatPulse { 0%,100%{box-shadow:0 0 18px rgba(74,154,42,0.35);} 50%{box-shadow:0 0 32px rgba(74,154,42,0.7);} }
 .defeat-btn { animation:defeatPulse 1.8s ease-in-out infinite; }
 
-/* Combat lock — dims Advance Turn btn */
-.advance-btn-wrap { position:relative; }
 #advBtn.combat-locked {
   opacity:0.35; cursor:not-allowed; pointer-events:none;
 }
@@ -483,6 +507,125 @@ tbody tr.hl .td-roll { color:var(--accent1); }
   text-align:center; margin-top:0.35rem;
 }
 .combat-locked-label.visible { display:block; }
+
+/* ── COPYRIGHT FOOTER ── */
+.site-footer {
+  width:100%; max-width:700px; margin:1.5rem auto 0;
+  padding:1.25rem 1rem 1.5rem;
+  border-top:1px solid var(--bone-faint);
+  text-align:center;
+  position:relative; z-index:1;
+}
+.footer-creator {
+  font-family:'Cinzel',serif; font-size:0.7rem; letter-spacing:0.3em;
+  text-transform:uppercase; color:var(--bone-dim); margin-bottom:0.55rem;
+}
+.footer-creator span { color:var(--gold-hi); }
+.footer-ogl {
+  font-family:'Crimson Pro',serif; font-size:0.72rem; font-style:italic;
+  color:var(--bone-faint); line-height:1.55; max-width:620px; margin:0 auto;
+}
+.footer-ogl a {
+  color:var(--bone-dim); text-decoration:underline dotted;
+  transition:color 0.15s;
+}
+.footer-ogl a:hover { color:var(--gold-pale); }
+.footer-divider {
+  width:60px; height:1px; background:var(--bone-faint);
+  margin:0.7rem auto; opacity:0.5;
+}
+
+/* ── ESCAPE THEME OVERRIDES — raw woodcut ink aesthetic ── */
+[data-theme="escape"] .card {
+  background:linear-gradient(160deg,#111 0%,#090909 60%,#0d0d0d 100%);
+  border-color:rgba(220,220,220,0.55);
+  box-shadow:0 6px 30px rgba(0,0,0,0.95),
+             inset 0 1px 0 rgba(255,255,255,0.07);
+}
+[data-theme="escape"] .card::before {
+  content:'';
+  position:absolute; inset:0; pointer-events:none; border-radius:inherit;
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 3px,
+      rgba(255,255,255,0.013) 3px,
+      rgba(255,255,255,0.013) 4px
+    );
+  z-index:0;
+}
+[data-theme="escape"] .card-label {
+  color:#c0c0c0;
+  border-bottom-color:rgba(200,200,200,0.3);
+  letter-spacing:0.35em;
+}
+[data-theme="escape"] .advance-btn {
+  background:linear-gradient(180deg,#1e1e1e 0%,#0a0a0a 100%);
+  border-color:#d0d0d0;
+  color:#f0f0f0;
+  box-shadow:0 3px 12px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+[data-theme="escape"] .advance-btn:hover {
+  background:linear-gradient(180deg,#2a2a2a 0%,#141414 100%);
+  box-shadow:0 6px 24px rgba(255,255,255,0.08);
+}
+[data-theme="escape"] .counter-number {
+  text-shadow:0 0 2px #000, 0 0 20px rgba(255,255,255,0.15);
+}
+[data-theme="escape"] .enc-card {
+  background:#0a0a0a;
+  border-color:rgba(220,220,220,0.5);
+}
+[data-theme="escape"] .enc-name { color:#ffffff; }
+[data-theme="escape"] .enc-cr   { color:#a0a0a0; }
+[data-theme="escape"] .enc-badge {
+  background:#1a1a1a;
+  border-color:rgba(200,200,200,0.5);
+  color:#f0f0f0;
+}
+[data-theme="escape"] .die-roll-num { color:#f0f0f0; }
+[data-theme="escape"] .die-roll-num.enc { color:#ffffff; }
+[data-theme="escape"] .die-result-label { color:#a0a0a0; }
+[data-theme="escape"] .die-result-label.enc { color:#e0e0e0; }
+[data-theme="escape"] .oc { color:#a0a0a0 !important; opacity:0.6 !important; }
+[data-theme="escape"] .log-entry { border-left-color:rgba(160,160,160,0.4); }
+[data-theme="escape"] .log-entry.enc-log { border-left-color:#e0e0e0; }
+[data-theme="escape"] .torch-wrap { filter:grayscale(1) brightness(1.2); }
+[data-theme="escape"] .stat-block { border-top-color:rgba(200,200,200,0.3); }
+[data-theme="escape"] header h1 {
+  text-shadow:0 0 2px rgba(0,0,0,1), 0 0 20px rgba(255,255,255,0.2);
+}
+[data-theme="escape"] .settings-panel {
+  background:linear-gradient(160deg,#111 0%,#080808 60%,#0e0e0e 100%);
+  border-color:rgba(200,200,200,0.5);
+}
+[data-theme="escape"] .th-swatch { border-color:rgba(200,200,200,0.3) !important; }
+[data-theme="escape"] .theme-btn.active { border-color:#e8e8e8; }
+[data-theme="escape"] .die-type-btn.active { border-color:#e8e8e8; color:#f0f0f0; }
+[data-theme="escape"] .xp-player-card { background:rgba(10,10,10,0.8); border-color:rgba(180,180,180,0.3); }
+[data-theme="escape"] .xp-player-bar  { background:#d0d0d0; }
+[data-theme="escape"] .xp-enc-row { background:rgba(30,30,30,0.5); border-left-color:#909090; }
+[data-theme="escape"] .defeat-btn {
+  background:linear-gradient(180deg,#1e1e1e 0%,#0a0a0a 100%);
+  color:#d8d8d8;
+  border-color:#c0c0c0;
+  box-shadow:0 0 18px rgba(200,200,200,0.15);
+}
+@keyframes defeatPulseEscape {
+  0%,100%{ box-shadow:0 0 18px rgba(200,200,200,0.15); }
+  50%{     box-shadow:0 0 32px rgba(200,200,200,0.35); }
+}
+[data-theme="escape"] .defeat-btn { animation:defeatPulseEscape 1.8s ease-in-out infinite; }
+[data-theme="escape"] #lvlup-bg {
+  background:radial-gradient(ellipse at 50% 50%,rgba(220,220,220,0.2) 0%,rgba(0,0,0,0.96) 70%);
+}
+[data-theme="escape"] #lvlup-title,
+[data-theme="escape"] #lvlup-num   { color:#ffffff; text-shadow:0 0 30px rgba(255,255,255,0.4); }
+[data-theme="escape"] .lvlup-star  { border-color:rgba(220,220,220,0.4); }
+[data-theme="escape"] .lvlup-particle { background:#e0e0e0; }
+[data-theme="escape"] .drip-top path,
+[data-theme="escape"] .drip-top polygon { fill:#1a1a1a; }
 </style>
 </head>
 <body>
@@ -543,16 +686,19 @@ tbody tr.hl .td-roll { color:var(--accent1); }
     <div class="s-section-label">Visual Theme</div>
     <div class="theme-grid" id="themeGrid">
       <button class="theme-btn active" onclick="applyTheme('default',this)">
-        <div class="th-swatch" style="background:linear-gradient(90deg,#8b1a1a,#9a7a2a)"></div>Darkest Dungeon
+        <div class="th-swatch" style="background:linear-gradient(90deg,#8b1a1a,#9a7a2a)"></div>Default
       </button>
       <button class="theme-btn" onclick="applyTheme('castlevania',this)">
-        <div class="th-swatch" style="background:linear-gradient(90deg,#6010a0,#4080c0)"></div>Castlevania
+        <div class="th-swatch" style="background:linear-gradient(90deg,#6010a0,#4080c0)"></div>Castle
       </button>
       <button class="theme-btn" onclick="applyTheme('vampire',this)">
         <div class="th-swatch" style="background:linear-gradient(90deg,#c01830,#c08020)"></div>Vampire
       </button>
       <button class="theme-btn" onclick="applyTheme('dungeon',this)">
         <div class="th-swatch" style="background:linear-gradient(90deg,#286840,#608050)"></div>Deep Dungeon
+      </button>
+      <button class="theme-btn" onclick="applyTheme('escape',this)">
+        <div class="th-swatch" style="background:linear-gradient(90deg,#0f0f0f,#3a3a3a);border:1px solid #666;"></div>Escape
       </button>
     </div>
 
@@ -598,7 +744,7 @@ tbody tr.hl .td-roll { color:var(--accent1); }
       <div style="text-align:right;"><div class="threshold-pct" id="tdPct">35% chance per turn</div><div style="font-size:0.7rem;font-style:italic;color:var(--bone-faint);margin-top:0.2rem;" id="tdExpected">~1 encounter every 2.9 turns</div></div>
     </div>
     <div class="settings-footer">
-      <button class="s-btn-cancel" onclick="closeSettings()">Cancel</button>
+      <button class="s-btn-cancel" onclick="cancelSettings()">Cancel</button>
       <button class="s-btn-save" onclick="saveSettings()">☠ Apply</button>
     </div>
   </div>
@@ -709,7 +855,7 @@ tbody tr.hl .td-roll { color:var(--accent1); }
   </div>
 
   <!-- XP Tracker -->
-  <div class="card" id="xpCard">
+  <div class="card" id="xpCard" tabindex="-1">
     <svg class="oc tl" style="color:var(--gold);opacity:0.4;"><use href="#sk"/></svg>
     <svg class="oc tr" style="color:var(--gold);opacity:0.4;"><use href="#sk"/></svg>
     <svg class="oc bl" style="color:var(--gold);opacity:0.4;"><use href="#sk"/></svg>
@@ -781,9 +927,6 @@ tbody tr.hl .td-roll { color:var(--accent1); }
     <div class="log-wrap"><div class="log-entries" id="logEntries"><div class="log-empty">The dungeon awaits... no turns have passed.</div></div></div>
     <div class="foot-note" id="footNote">Each turn = 10 minutes &nbsp;·&nbsp; Roll ≤35 on d100 triggers a wandering monster &nbsp;·&nbsp; Roll d20 on the table above</div>
   </div>
-
-
-
 
 </div>
 
@@ -924,7 +1067,6 @@ const DIE_SIDES = {d100:100, d20:20, d12:12, d6:6};
   const ctx = canvas.getContext('2d');
   let W, H;
   const particles = [];
-  const bats = [];
 
   function resize(){
     W = canvas.width  = window.innerWidth;
@@ -1334,6 +1476,10 @@ function monsterDefeated(){
   card.style.borderColor = '#4a9a2a';
   setTimeout(()=>{ card.style.borderColor = orig; }, 600);
 
+  // Clear stat block and return focus to advance button
+  document.getElementById('statBlock').innerHTML = '';
+  document.getElementById('advBtn').focus();
+
   // Unlock
   setCombatActive(false, null, 0);
   saveNow();
@@ -1490,18 +1636,29 @@ document.addEventListener('keydown',e=>{
 // ══════════════════════════════════════════════════
 // SETTINGS
 // ══════════════════════════════════════════════════
+let previousTheme='';
 let currentTheme='default';
 let VOL_SFX=0.80;
 
 function openSettings(){
   pendingThresh=THRESHOLD;pendingDie=DIE_TYPE;
+  previousTheme=currentTheme;  // snapshot theme for cancel revert
   document.getElementById('threshSlider').max=DIE_SIDES[pendingDie];
   document.getElementById('threshSlider').value=pendingThresh;
   syncDieTypeButtons(pendingDie);updateThreshDisplay();syncPresetHighlight();
   document.getElementById('settingsOverlay').classList.add('open');
 }
 function closeSettings(){document.getElementById('settingsOverlay').classList.remove('open');}
-function overlayClick(e){if(e.target===document.getElementById('settingsOverlay'))closeSettings();}
+function cancelSettings(){
+  // Revert to the theme that was active when settings was opened
+  if(previousTheme !== currentTheme){
+    const btn = document.querySelector(`.theme-btn[onclick*="'${previousTheme}'"]`)
+               || document.querySelector('.theme-btn');
+    applyTheme(previousTheme, btn || document.createElement('button'));
+  }
+  closeSettings();
+}
+function overlayClick(e){if(e.target===document.getElementById('settingsOverlay'))cancelSettings();}
 
 function saveSettings(){
   THRESHOLD=pendingThresh;DIE_TYPE=pendingDie;
@@ -1816,7 +1973,6 @@ function xpAwardEncounter(monster, turnNum){
   const levelUps = [];
   xpPlayers.forEach((p,i) => {
     if(p.level >= 20) return;
-    const oldLevel = p.level;
     p.xp += perPlayer;
     while(p.level < 20 && p.xp >= xpToNextLevel(p.level)){
       p.level++;
@@ -1844,6 +2000,14 @@ function xpFlashLevelUp(playerIndexes){
   const first = playerIndexes[0];
   const p = xpPlayers[first];
   showLevelUpOverlay(p.name, p.level);
+  // Scroll XP tracker into view and focus it after overlay clears
+  setTimeout(()=>{
+    const xpCard = document.getElementById('xpCard');
+    if(xpCard){
+      xpCard.scrollIntoView({ behavior:'smooth', block:'nearest' });
+      xpCard.focus();
+    }
+  }, 3400);
 }
 
 function showLevelUpOverlay(playerName, newLevel){
@@ -2107,13 +2271,33 @@ function playLevelUpFanfare(){
 // Keep old name as alias so nothing breaks
 function playLevelUpSting(){ playLevelUpFanfare(); }
 
-// Hook into advanceTurn to award XP on encounter
-const _origAdvance = advanceTurn;
-// XP award happens inside the monster roll callback — patched below
-
 // Init XP display on load
 window.addEventListener('load', ()=>{ setTimeout(xpRenderAll, 100); });
 
 </script>
+
+<footer class="site-footer">
+  <div class="footer-creator">Created by <span>Sectr99</span></div>
+  <div class="footer-divider"></div>
+  <div class="footer-ogl">
+    This application uses game mechanics and statistics derived from the
+    <em>System Reference Document 5.1</em> (&ldquo;SRD 5.1&rdquo;), available at
+    <a href="https://dnd.wizards.com/resources/systems-reference-document" target="_blank" rel="noopener">dnd.wizards.com</a>.
+    The SRD 5.1 is &copy; 2016 Wizards of the Coast LLC and is licensed under the
+    <strong>Open Game License Version 1.0a</strong>. The full text of the Open Game License
+    Version 1.0a can be found at
+    <a href="https://media.wizards.com/2016/downloads/SRD-OGL_V1.1.pdf" target="_blank" rel="noopener">media.wizards.com</a>.
+    Dungeons &amp; Dragons, D&amp;D, and all associated terms are trademarks or registered
+    trademarks of Wizards of the Coast LLC in the USA and other countries and are used without
+    permission. This is an unofficial fan tool, not affiliated with or endorsed by Wizards of
+    the Coast LLC. &copy; 2025 Sectr99. All non-SRD content reserved.
+    <br><br>
+    <strong>OPEN GAME LICENSE Version 1.0a Copyright Notice:</strong>
+    Open Game License v 1.0a &copy; 2000, Wizards of the Coast, LLC.
+    System Reference Document 5.1 &copy; 2016 Wizards of the Coast Inc.
+    Authors: Jonathan Tweet, Monte Cook, Skip Williams, Bruce R. Cordell, based on original
+    material by E. Gary Gygax and Dave Arneson.
+  </div>
+</footer>
 </body>
 </html>
