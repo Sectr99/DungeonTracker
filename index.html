@@ -171,6 +171,7 @@ h1 .t-tracker { color:var(--accent1); }
   border:1px solid var(--bone-faint); border-radius:3px; padding:1.75rem 1.75rem 1.5rem;
   position:relative;
   box-shadow:0 8px 50px rgba(0,0,0,0.8), 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(200,184,154,0.08);
+  overflow:hidden;
 }
 .card::before { content:''; position:absolute; inset:5px; border:1px solid var(--bone-faint); opacity:0.45; pointer-events:none; border-radius:2px; }
 .card .oc { position:absolute; width:24px; height:24px; opacity:0.5; }
@@ -181,7 +182,7 @@ h1 .t-tracker { color:var(--accent1); }
 .card-label { font-family:'Crimson Pro',Georgia,serif; font-size:0.72rem; letter-spacing:0.28em; text-transform:uppercase; color:var(--gold-hi); text-align:center; margin-bottom:1.4rem; border-bottom:1px solid rgba(176,128,48,0.25); padding-bottom:0.7rem; }
 
 /* ── SETTINGS OVERLAY ── */
-.settings-overlay { position:fixed; inset:0; z-index:100; background:rgba(7,5,10,0.8); display:flex; align-items:flex-start; justify-content:center; padding-top:3rem; opacity:0; pointer-events:none; transition:opacity 0.25s; backdrop-filter:blur(4px); }
+.settings-overlay { position:fixed; inset:0; z-index:100; background:rgba(7,5,10,0.85); display:flex; align-items:flex-start; justify-content:center; padding-top:3rem; opacity:0; pointer-events:none; transition:opacity 0.25s; backdrop-filter:blur(4px); overflow-y:auto; }
 .settings-overlay.open { opacity:1; pointer-events:all; }
 .settings-panel { width:100%; max-width:600px; max-height:88vh; overflow-y:auto; background:linear-gradient(160deg,var(--card-from) 0%,var(--card-to) 60%,var(--card-from) 100%); border:1px solid var(--bone-dim); border-radius:3px; padding:2.25rem 2.25rem 2rem; position:relative; box-shadow:0 24px 80px rgba(0,0,0,0.95); transform:translateY(-20px); transition:transform 0.25s; }
 .settings-overlay.open .settings-panel { transform:translateY(0); }
@@ -300,7 +301,7 @@ input[type=range]::-moz-range-thumb { width:16px; height:16px; border-radius:50%
 .enc-title { font-family:'Crimson Pro',Georgia,serif; font-size:0.82rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--accent1); flex:1; font-weight:600; }
 .enc-body { display:flex; align-items:flex-start; gap:1rem; flex-wrap:wrap; }
 .enc-badge { font-family:'Caesar Dressing','Crimson Pro',serif; font-weight:400; font-size:2.4rem; color:var(--gold-pale); min-width:60px; text-align:center; line-height:1; background:rgba(0,0,0,0.45); border:1px solid var(--gold); border-radius:2px; padding:0.25rem 0.5rem; flex-shrink:0; }
-.enc-info { flex:1; min-width:180px; }
+.enc-info { flex:1; min-width:0; }
 .enc-name { font-family:'Crimson Pro',Georgia,serif; font-size:1.25rem; color:var(--bone); font-weight:700; line-height:1.2; }
 .enc-cr   { font-family:'Crimson Pro',Georgia,serif; font-size:0.78rem; letter-spacing:0.08em; color:var(--accent1); margin-top:0.25rem; font-weight:600; }
 .enc-desc { font-style:italic; color:var(--bone-dim); font-size:0.9rem; margin-top:0.4rem; line-height:1.55; }
@@ -347,7 +348,7 @@ input[type=range]::-moz-range-thumb { width:16px; height:16px; border-radius:50%
 .toggle-caret.open { transform:rotate(180deg); }
 .table-wrap { display:none; margin-top:1rem; overflow-x:auto; }
 .table-wrap.open { display:block; }
-table { width:100%; border-collapse:collapse; font-size:0.9rem; min-width:380px; }
+table { width:100%; border-collapse:collapse; font-size:0.9rem; min-width:340px; }
 thead th { font-family:'Crimson Pro',Georgia,serif; font-size:0.72rem; letter-spacing:0.12em; color:var(--bone-dim); text-align:left; padding:0.45rem 0.75rem; border-bottom:1px solid var(--bone-faint); }
 tbody td { padding:0.4rem 0.75rem; border-bottom:1px solid rgba(74,63,48,0.3); vertical-align:top; }
 tbody tr:last-child td { border-bottom:none; }
@@ -372,7 +373,7 @@ tbody tr.hl .td-roll { color:var(--accent1); }
 .log-turn { font-family:'Crimson Pro',Georgia,serif; font-size:0.8rem; color:var(--bone-dim); }
 .log-d100 { font-family:'Crimson Pro',Georgia,serif; font-weight:700; color:var(--bone); }
 .log-d100.enc { color:var(--accent1); }
-.log-note { font-style:italic; color:var(--bone-faint); font-size:0.84rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.log-note { font-style:italic; color:var(--bone-faint); font-size:0.84rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
 .log-note.enc { color:var(--bone-dim); font-style:normal; }
 .log-tag { font-family:'Crimson Pro',Georgia,serif; font-size:0.72rem; color:var(--accent1); white-space:nowrap; font-weight:600; }
 .log-undo-btn { background:transparent; border:none; color:var(--bone-faint); font-size:0.7rem; cursor:pointer; padding:0 0.2rem; opacity:0; transition:opacity 0.2s; }
@@ -391,7 +392,7 @@ tbody tr.hl .td-roll { color:var(--accent1); }
 
 /* ── XP TRACKER ── */
 .xp-section { display:flex; flex-direction:column; gap:1.15rem; }
-.xp-party-row { display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; }
+.xp-party-row { display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; row-gap:0.5rem; }
 .xp-party-label { font-family:'Crimson Pro',Georgia,serif; font-size:0.82rem; letter-spacing:0.08em; color:var(--bone-dim); text-transform:uppercase; white-space:nowrap; }
 .xp-party-btns  { display:flex; gap:0.4rem; }
 .xp-count-btn { background:transparent; border:1px solid var(--bone-faint); color:var(--bone-dim); font-family:'Crimson Pro',Georgia,serif; font-size:0.9rem; font-weight:700; width:30px; height:30px; display:flex; align-items:center; justify-content:center; cursor:pointer; border-radius:2px; transition:all 0.12s; flex-shrink:0; }
@@ -637,6 +638,146 @@ tbody tr.hl .td-roll { color:var(--accent1); }
   color:var(--bone-faint); font-style:italic;
   margin-top:0.2rem; display:block;
 }
+
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE — Mobile-first breakpoints
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Small phones: ≤ 480px ── */
+@media (max-width: 480px) {
+  body { padding:2rem 0.75rem 4rem; font-size:15px; }
+
+  /* Header */
+  h1 { font-size:clamp(1.7rem,11vw,2.6rem); }
+  .subtitle { font-size:0.75rem; letter-spacing:0.15em; }
+  .hdr-btn { font-size:0.72rem; padding:0.35rem 0.75rem; }
+  .header-btns { gap:0.4rem; }
+  .h-rule { max-width:60px; }
+
+  /* Cards */
+  .card { padding:1.25rem 1rem 1.1rem; }
+  .card-label { font-size:0.65rem; letter-spacing:0.2em; margin-bottom:1rem; padding-bottom:0.6rem; }
+
+  /* Turn counter */
+  .counter-number { font-size:clamp(4rem,22vw,7rem); }
+  .turn-display { gap:1.25rem; margin-bottom:1.1rem; }
+  .advance-btn { font-size:0.9rem; padding:0.8rem 0; max-width:100%; }
+  .freq-badge { font-size:0.75rem; }
+  .undo-btn, .reset-btn { font-size:0.72rem; padding:0.38rem 0.85rem; }
+
+  /* Dice */
+  .dice-row { gap:1.5rem; }
+  .die-canvas-wrap, .die-canvas-wrap canvas { width:130px !important; height:130px !important; }
+  .die-roll-num { font-size:2rem; }
+
+  /* Encounter */
+  .enc-badge { font-size:2rem; min-width:50px; }
+  .enc-name  { font-size:1.05rem; }
+  .enc-body  { gap:0.75rem; }
+  .enc-info  { min-width:0; }
+
+  /* Stat block — stack to 3 cols on tiny screens */
+  .stat-grid { grid-template-columns:repeat(3,1fr); gap:0.35rem; }
+
+  /* Table — horizontal scroll on small screens */
+  .table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  table { min-width:320px; font-size:0.82rem; }
+  thead th { font-size:0.65rem; padding:0.35rem 0.5rem; }
+  tbody td  { padding:0.35rem 0.5rem; }
+
+  /* Log */
+  .log-row { grid-template-columns:36px 40px 1fr auto; gap:0.35rem; padding:0.4rem 0.6rem; font-size:0.82rem; }
+  .log-wrap { max-height:240px; }
+
+  /* XP tracker */
+  .xp-level-grid { grid-template-columns:repeat(2,1fr); gap:0.4rem; }
+  .xp-player-card { padding:0.55rem 0.4rem; }
+  .xp-player-level { font-size:1.5rem; }
+  .xp-player-name  { font-size:0.7rem; }
+  .xp-player-xp    { font-size:0.65rem; }
+  .xp-summary { padding:0.7rem 0.85rem; }
+  .xp-summary-label { font-size:0.72rem; }
+  .xp-summary-val   { font-size:0.95rem; }
+  .xp-enc-row { grid-template-columns:34px 1fr auto; padding:0.3rem 0.5rem; font-size:0.78rem; }
+  .xp-party-row { gap:0.5rem; }
+  .xp-party-label  { font-size:0.75rem; }
+
+  /* Settings */
+  .settings-overlay { padding-top:0; align-items:flex-end; }
+  .settings-panel { max-width:100%; max-height:92vh; border-radius:12px 12px 0 0; padding:1.75rem 1.25rem 1.5rem; }
+  .preset-grid { grid-template-columns:repeat(2,1fr); }
+  .theme-grid  { grid-template-columns:repeat(3,1fr); }
+  .slider-hint { padding-left:0; }
+  .slider-label { min-width:72px; font-size:0.78rem; }
+  .s-btn-cancel, .s-btn-save { font-size:0.78rem; padding:0.48rem 1rem; }
+
+  /* Defeat button */
+  .defeat-btn { font-size:0.88rem; padding:0.75rem 1.5rem; }
+
+  /* Stat pills wrap nicely */
+  .stat-pill { font-size:0.76rem; }
+
+  /* Footer */
+  .site-footer { padding:1rem 0.75rem 1.25rem; }
+  .footer-ogl  { font-size:0.75rem; }
+}
+
+/* ── Mid-range phones + small tablets: 481px–700px ── */
+@media (min-width: 481px) and (max-width: 700px) {
+  body { padding:2.5rem 1rem 4.5rem; }
+
+  /* Header */
+  h1 { font-size:clamp(2rem,8vw,3rem); }
+
+  /* Cards */
+  .card { padding:1.5rem 1.25rem 1.25rem; }
+
+  /* Turn counter */
+  .counter-number { font-size:clamp(5rem,18vw,7.5rem); }
+  .advance-btn { max-width:100%; }
+
+  /* Stat block */
+  .stat-grid { grid-template-columns:repeat(6,1fr); }
+
+  /* XP */
+  .xp-level-grid { grid-template-columns:repeat(2,1fr); }
+
+  /* Settings — bottom sheet style */
+  .settings-overlay { padding-top:0; align-items:flex-end; }
+  .settings-panel { max-width:100%; max-height:90vh; border-radius:12px 12px 0 0; padding:2rem 1.5rem 1.75rem; }
+  .theme-grid { grid-template-columns:repeat(3,1fr); }
+
+  /* Table */
+  .table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+
+  /* Log */
+  .log-wrap { max-height:260px; }
+}
+
+/* ── Tablets landscape / large phones: 701px–900px ── */
+@media (min-width: 701px) and (max-width: 900px) {
+  .xp-level-grid { grid-template-columns:repeat(3,1fr); }
+  .settings-panel { max-width:560px; }
+}
+
+/* ── Touch device refinements (all mobile) ── */
+@media (hover: none) and (pointer: coarse) {
+  /* Larger tap targets */
+  .hdr-btn      { min-height:40px; padding:0.5rem 1rem; }
+  .advance-btn  { min-height:52px; }
+  .undo-btn,
+  .reset-btn    { min-height:38px; }
+  .xp-count-btn { width:38px; height:38px; }
+  .die-canvas-wrap,
+  .die-canvas-wrap canvas { width:140px !important; height:140px !important; }
+  .log-undo-btn { opacity:0.6; } /* always visible on touch — no hover */
+  .xp-player-edit { opacity:0.6; }
+
+  /* Remove hover-only effects that don't translate to touch */
+  .advance-btn:hover { transform:none; }
+  tbody tr:hover td  { background:transparent; }
+}
+
 </style>
 </head>
 <body>
