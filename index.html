@@ -875,8 +875,8 @@ tbody tr.hl .td-roll { color:var(--accent1); }
   .xp-party-label  { font-size:0.75rem; }
 
   /* Settings — bottom sheet on small phones */
-  .settings-overlay { padding:0; align-items:flex-end; overflow:hidden; }
-  .settings-panel { max-width:100%; max-height:92vh; border-radius:14px 14px 0 0; }
+  .settings-overlay { padding:0; align-items:flex-end; overflow:hidden !important; }
+  .settings-panel { max-width:100%; max-height:88vh; max-height:88dvh; border-radius:14px 14px 0 0; }
   .settings-panel .s-body { max-height:none; }
   .sp-header { padding:1.25rem 1.25rem 1rem; }
   .sp-title { font-size:1.05rem; }
@@ -889,7 +889,7 @@ tbody tr.hl .td-roll { color:var(--accent1); }
   .settings-panel .preset-grid,
   .settings-panel .s-two-col,
   .settings-panel .slider-hint { padding-left:1.1rem; padding-right:1.1rem; }
-  .settings-footer { padding:1rem 1.1rem calc(1.25rem + env(safe-area-inset-bottom)); }
+  .settings-footer { padding:1rem 1.1rem calc(1.25rem + env(safe-area-inset-bottom, 0px)); }
   .s-btn-cancel, .s-btn-save { font-size:0.78rem; padding:0.48rem 1rem; }
 
   /* Defeat button */
@@ -924,8 +924,8 @@ tbody tr.hl .td-roll { color:var(--accent1); }
   .xp-level-grid { grid-template-columns:repeat(2,1fr); }
 
   /* Settings — bottom sheet on mid phones */
-  .settings-overlay { padding:0; align-items:flex-end; overflow:hidden; }
-  .settings-panel { max-width:100%; max-height:92vh; border-radius:14px 14px 0 0; }
+  .settings-overlay { padding:0; align-items:flex-end; overflow:hidden !important; }
+  .settings-panel { max-width:100%; max-height:88vh; max-height:88dvh; border-radius:14px 14px 0 0; }
   .theme-grid { grid-template-columns:repeat(3,1fr); }
   .s-two-col { gap:1rem; }
 
@@ -968,22 +968,23 @@ tbody tr.hl .td-roll { color:var(--accent1); }
   opacity:0; pointer-events:none;
   transition:opacity 0.3s;
   backdrop-filter:blur(6px);
-  overflow-y:auto;
+  overflow:hidden;
 }
-.settings-overlay.open { opacity:1; pointer-events:all; }
+.settings-overlay.open { opacity:1; pointer-events:all; overflow-y:auto; }
 
 .settings-panel {
   width:100%; max-width:620px;
   background:linear-gradient(160deg,var(--card-from) 0%,var(--card-to) 55%,var(--card-from) 100%);
   border:1px solid rgba(176,128,48,0.38);
   border-radius:4px;
-  padding:0 0 0 0;
+  padding:0;
   position:relative;
   box-shadow:0 32px 80px rgba(0,0,0,0.95), 0 0 0 1px rgba(0,0,0,0.6);
   transform:translateY(-16px);
   transition:transform 0.3s cubic-bezier(0.22,1,0.36,1);
   display:flex; flex-direction:column;
   max-height:90vh;
+  max-height:90dvh;
 }
 .settings-overlay.open .settings-panel { transform:translateY(0); }
 
@@ -1008,6 +1009,7 @@ tbody tr.hl .td-roll { color:var(--accent1); }
   padding:1.75rem 2rem 1.25rem;
   border-bottom:1px solid rgba(176,128,48,0.2);
   background:linear-gradient(180deg,rgba(176,128,48,0.07) 0%,transparent 100%);
+  flex-shrink:0;
 }
 .sp-header-rule {
   flex:1; height:1px;
