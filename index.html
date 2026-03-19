@@ -1276,6 +1276,80 @@ input[type=range]::-moz-range-thumb {
 .monster-table-btn.active { border-color:var(--gold-hi); color:var(--gold-pale); background:rgba(154,122,42,0.12); box-shadow:0 0 10px rgba(154,122,42,0.18), inset 0 0 0 1px rgba(255,255,255,0.04); }
 .monster-table-btn.tier-deep.active  { border-color:#c06040; color:#e08060; background:rgba(140,60,30,0.15); box-shadow:0 0 10px rgba(180,70,30,0.2); }
 .monster-table-btn.tier-abyss.active { border-color:#9040c0; color:#c070e8; background:rgba(100,20,120,0.18); box-shadow:0 0 14px rgba(120,30,160,0.3); }
+.monster-table-btn.has-custom::after {
+  content:'✦'; position:absolute; top:3px; right:4px;
+  font-size:0.5rem; color:var(--gold-hi); opacity:0.8;
+}
+.monster-table-btn.tier-deep.has-custom::after   { color:#e08060; }
+.monster-table-btn.tier-abyss.has-custom::after  { color:#c070e8; }
+
+/* Upload panel — appears below the tier buttons */
+.mtb-upload-panel {
+  margin-top:0.75rem;
+  padding:0.9rem 1rem;
+  background:rgba(0,0,0,0.28);
+  border:1px solid rgba(176,128,48,0.15);
+  border-radius:3px;
+}
+.mtb-upload-header {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:0.65rem; gap:0.5rem;
+}
+.mtb-upload-title {
+  font-family:'Crimson Pro',Georgia,serif;
+  font-size:0.72rem; letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--gold-hi); font-weight:600;
+}
+.mtb-upload-status {
+  font-family:'Crimson Pro',Georgia,serif;
+  font-size:0.72rem; font-style:italic;
+  color:var(--bone-faint); flex:1; text-align:right;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.mtb-upload-status.ok   { color:#70c870; }
+.mtb-upload-status.err  { color:#e04040; }
+.mtb-drop-zone {
+  border:1px dashed rgba(176,128,48,0.3);
+  border-radius:2px; padding:0.7rem 0.8rem;
+  text-align:center; cursor:pointer;
+  transition:border-color 0.15s, background 0.15s;
+  position:relative; overflow:hidden;
+  display:flex; align-items:center; justify-content:center; gap:0.6rem;
+}
+.mtb-drop-zone:hover, .mtb-drop-zone.drag-over {
+  border-color:rgba(176,128,48,0.6);
+  background:rgba(176,128,48,0.05);
+}
+.mtb-drop-zone input[type=file] {
+  position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%;
+}
+.mtb-drop-label {
+  font-family:'Crimson Pro',Georgia,serif;
+  font-size:0.78rem; color:var(--bone-dim); pointer-events:none;
+}
+.mtb-drop-label strong { color:var(--gold-pale); font-weight:600; }
+.mtb-actions { display:flex; gap:0.4rem; margin-top:0.55rem; }
+.mtb-btn {
+  flex:1; font-family:'Crimson Pro',Georgia,serif;
+  font-size:0.72rem; font-weight:700; letter-spacing:0.05em;
+  padding:0.35rem 0.6rem; border-radius:2px; cursor:pointer;
+  border:1px solid rgba(176,128,48,0.3);
+  background:rgba(0,0,0,0.4); color:var(--bone-dim);
+  transition:all 0.12s; text-transform:uppercase;
+}
+.mtb-btn:hover { border-color:var(--gold-hi); color:var(--gold-pale); background:rgba(176,128,48,0.08); }
+.mtb-btn.reset { border-color:rgba(200,60,60,0.35); color:rgba(200,100,100,0.8); }
+.mtb-btn.reset:hover { border-color:#e04040; color:#ff6060; background:rgba(200,40,40,0.08); }
+.mtb-format-hint {
+  margin-top:0.5rem;
+  font-family:'Crimson Pro',Georgia,serif;
+  font-size:0.68rem; color:var(--bone-faint); line-height:1.5;
+}
+.mtb-format-hint code {
+  font-family:monospace; font-size:0.65rem;
+  color:var(--bone-dim); background:rgba(0,0,0,0.3);
+  padding:0.1em 0.3em; border-radius:2px;
+}
   position:relative; overflow:hidden;
   background:rgba(0,0,0,0.35);
   border:1px solid rgba(176,128,48,0.22);
@@ -1765,18 +1839,39 @@ input[type=range]::-moz-range-thumb {
     <!-- Monster Table -->
     <div class="s-section-label">Monster Table</div>
     <div class="monster-table-row">
-      <button class="monster-table-btn active" onclick="setMonsterTable(0)">
+      <button class="monster-table-btn active" id="mtbBtn0" onclick="setMonsterTable(0)">
         <span class="mtb-name">Shallow Dungeon</span>
         <span class="mtb-tier">CR ⅛ – 5</span>
       </button>
-      <button class="monster-table-btn tier-deep" onclick="setMonsterTable(1)">
+      <button class="monster-table-btn tier-deep" id="mtbBtn1" onclick="setMonsterTable(1)">
         <span class="mtb-name">Deep Dungeon</span>
         <span class="mtb-tier">CR 3 – 17</span>
       </button>
-      <button class="monster-table-btn tier-abyss" onclick="setMonsterTable(2)">
+      <button class="monster-table-btn tier-abyss" id="mtbBtn2" onclick="setMonsterTable(2)">
         <span class="mtb-name">The Abyss</span>
         <span class="mtb-tier">CR 9 – 30</span>
       </button>
+    </div>
+    <!-- Upload panel — one per tier, shown below the buttons -->
+    <div class="mtb-upload-panel" id="mtbUploadPanel" style="padding-left:0;padding-right:0;margin-left:2rem;margin-right:2rem;">
+      <div class="mtb-upload-header">
+        <span class="mtb-upload-title" id="mtbUploadTitle">Custom Table — Shallow Dungeon</span>
+        <span class="mtb-upload-status" id="mtbUploadStatus">Using built-in table</span>
+      </div>
+      <div class="mtb-drop-zone" id="mtbDropZone"
+           ondragover="mtbDragOver(event)" ondragleave="mtbDragLeave(event)" ondrop="mtbDrop(event)">
+        <input type="file" id="mtbFileInput" accept=".csv,.json,.txt"
+               onchange="mtbFileChosen(event)" onclick="this.value=null">
+        <span class="mtb-drop-label"><strong>Choose file</strong> or drag &amp; drop — CSV or JSON</span>
+      </div>
+      <div class="mtb-actions">
+        <button class="mtb-btn" onclick="mtbDownloadTemplate()">⬇ Download template</button>
+        <button class="mtb-btn reset" id="mtbResetBtn" onclick="mtbReset()" style="display:none">✕ Remove custom</button>
+      </div>
+      <div class="mtb-format-hint">
+        CSV columns: <code>roll, name, cr, count, desc</code> — 20 rows, roll 1–20.<br>
+        JSON: array of <code>{roll, name, cr, count, desc}</code> objects. Extra fields (lore, tactics, etc.) are preserved if present.
+      </div>
     </div>
     <p class="s-hint" style="margin-top:0.55rem;">Which d20 table is rolled when an encounter is triggered.</p>
 
@@ -2420,9 +2515,34 @@ const MONSTER_TABLES = [
 ]
 ];
 
+const CUSTOM_TABLE_KEY = 'dt_custom_tables'; // localStorage key
+const TIER_NAMES  = ['Shallow Dungeon', 'Deep Dungeon', 'The Abyss'];
+const TIER_CLASSES = ['', 'tier-deep', 'tier-abyss'];
+
+// Load custom tables from localStorage — array of 3, null = use built-in
+let customTables = [null, null, null];
+(function loadCustomTables() {
+  try {
+    const raw = localStorage.getItem(CUSTOM_TABLE_KEY);
+    if(raw) {
+      const parsed = JSON.parse(raw);
+      if(Array.isArray(parsed) && parsed.length === 3) customTables = parsed;
+    }
+  } catch(e) {}
+})();
+
+function saveCustomTables() {
+  try { localStorage.setItem(CUSTOM_TABLE_KEY, JSON.stringify(customTables)); }
+  catch(e) { console.warn('localStorage save failed:', e); }
+}
+
+function activeTableForIndex(idx) {
+  return customTables[idx] || MONSTER_TABLES[idx];
+}
+
 // Active table index (0 = Shallow, 1 = Deep, 2 = Abyss)
 let MONSTER_TABLE_INDEX = 0;
-let MONSTERS = MONSTER_TABLES[MONSTER_TABLE_INDEX];
+let MONSTERS = activeTableForIndex(MONSTER_TABLE_INDEX);
 
 
 // ══════════════════════════════════════════════════
@@ -2872,9 +2992,11 @@ function restoreState(state) {
   if(typeof state.diceAnimOn === 'boolean') diceAnimOn = state.diceAnimOn;
   if(typeof state.MONSTER_TABLE_INDEX === 'number' && state.MONSTER_TABLE_INDEX >= 0 && state.MONSTER_TABLE_INDEX <= 2) {
     MONSTER_TABLE_INDEX = state.MONSTER_TABLE_INDEX;
-    MONSTERS = MONSTER_TABLES[MONSTER_TABLE_INDEX];
+    MONSTERS = activeTableForIndex(MONSTER_TABLE_INDEX);
     populateMonsterTable();
     syncMonsterTableButtons(MONSTER_TABLE_INDEX);
+    syncUploadPanel(MONSTER_TABLE_INDEX);
+    syncAllTierBadges();
   }
   EL.turnCounter().textContent = turn;
 
@@ -2960,12 +3082,14 @@ function populateMonsterTable() {
       <td class="td-desc">${m.desc}</td>
     </tr>`
   ).join('');
-  // Update table label
   const labels = ['Shallow Dungeon', 'Deep Dungeon', 'The Abyss'];
+  const isCustom = !!customTables[MONSTER_TABLE_INDEX];
   const tLabel = document.querySelector('.table-toggle .card-label');
-  if(tLabel) tLabel.textContent = `Wandering Monster Table — ${labels[MONSTER_TABLE_INDEX]} (d20)`;
+  if(tLabel) tLabel.textContent = `Wandering Monster Table — ${labels[MONSTER_TABLE_INDEX]}${isCustom ? ' ✦ Custom' : ''} (d20)`;
 }
 populateMonsterTable();
+// Init upload panel + tier badges on page load (after DOM is ready)
+setTimeout(() => { syncAllTierBadges(); syncUploadPanel(MONSTER_TABLE_INDEX); }, 0);
 
 // ── Dice helpers ───────────────────────────────────
 function rDie(type) { return Math.floor(Math.random() * DIE_SIDES[type]) + 1; }
@@ -3382,11 +3506,192 @@ document.addEventListener('keydown', e => {
 // ══════════════════════════════════════════════════
 let previousTheme = '', currentTheme = 'default', VOL_SFX = 0.80;
 
+// ══════════════════════════════════════════════════
+// CUSTOM MONSTER TABLE UPLOAD
+// ══════════════════════════════════════════════════
+
+
+// ── CSV parser ──────────────────────────────────────
+function parseCSV(text) {
+  const lines = text.trim().split(/\r?\n/).filter(l => l.trim());
+  // Detect header
+  const first = lines[0].toLowerCase();
+  const hasHeader = first.includes('roll') || first.includes('name') || first.includes('monster');
+  const dataLines = hasHeader ? lines.slice(1) : lines;
+  if(dataLines.length === 0) throw new Error('No data rows found');
+
+  return dataLines.map((line, i) => {
+    // Simple CSV split respecting quoted fields
+    const cols = [];
+    let cur = '', inQ = false;
+    for(let c of line) {
+      if(c === '"') { inQ = !inQ; }
+      else if(c === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+      else cur += c;
+    }
+    cols.push(cur.trim());
+
+    const roll = parseInt(cols[0]) || (i + 1);
+    const name = cols[1] || `Monster ${roll}`;
+    const cr   = cols[2] || '—';
+    const count= cols[3] || '1';
+    const desc = cols[4] || '';
+    return { roll, name, cr, count, desc };
+  });
+}
+
+// ── JSON parser ─────────────────────────────────────
+function parseJSON(text) {
+  const data = JSON.parse(text); // throws on bad JSON
+  if(!Array.isArray(data)) throw new Error('JSON must be an array of monster objects');
+  return data.map((m, i) => {
+    if(typeof m !== 'object' || !m) throw new Error(`Row ${i+1}: not an object`);
+    const roll = parseInt(m.roll) || (i + 1);
+    const name = String(m.name || `Monster ${roll}`);
+    const cr   = String(m.cr   || '—');
+    const count= String(m.count|| '1');
+    const desc = String(m.desc || '');
+    // Preserve optional rich fields
+    const extra = {};
+    ['lore','tactics','habitat','stats'].forEach(k => { if(m[k]) extra[k] = m[k]; });
+    return { roll, name, cr, count, desc, ...extra };
+  });
+}
+
+// ── Validate parsed table ───────────────────────────
+function validateTable(rows) {
+  if(!rows || rows.length === 0) throw new Error('Table is empty');
+  if(rows.length > 100) throw new Error(`Too many rows (${rows.length}) — max 100`);
+  for(const r of rows) {
+    if(!r.name || r.name.trim() === '') throw new Error(`Row ${r.roll}: missing name`);
+  }
+  return rows;
+}
+
+// ── Parse file content ──────────────────────────────
+function parseTableFile(filename, text) {
+  const ext = filename.split('.').pop().toLowerCase();
+  let rows;
+  if(ext === 'json') {
+    rows = parseJSON(text);
+  } else {
+    // CSV or TXT
+    rows = parseCSV(text);
+  }
+  return validateTable(rows);
+}
+
+// ── Upload panel sync ───────────────────────────────
+function syncUploadPanel(idx) {
+  const title  = document.getElementById('mtbUploadTitle');
+  const status = document.getElementById('mtbUploadStatus');
+  const reset  = document.getElementById('mtbResetBtn');
+  if(!title) return;
+
+  title.textContent = `Custom Table — ${TIER_NAMES[idx]}`;
+
+  if(customTables[idx]) {
+    const n = customTables[idx].length;
+    status.textContent = `✦ Custom — ${n} entr${n === 1 ? 'y' : 'ies'} loaded`;
+    status.className = 'mtb-upload-status ok';
+    reset.style.display = '';
+  } else {
+    status.textContent = 'Using built-in table';
+    status.className = 'mtb-upload-status';
+    reset.style.display = 'none';
+  }
+}
+
+function syncAllTierBadges() {
+  [0, 1, 2].forEach(i => {
+    const btn = document.getElementById(`mtbBtn${i}`);
+    if(btn) btn.classList.toggle('has-custom', !!customTables[i]);
+  });
+}
+
+// ── File input / drag-drop handlers ────────────────
+function mtbDragOver(e) {
+  e.preventDefault();
+  document.getElementById('mtbDropZone').classList.add('drag-over');
+}
+function mtbDragLeave(e) {
+  document.getElementById('mtbDropZone').classList.remove('drag-over');
+}
+function mtbDrop(e) {
+  e.preventDefault();
+  document.getElementById('mtbDropZone').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if(file) mtbLoadFile(file);
+}
+function mtbFileChosen(e) {
+  const file = e.target.files[0];
+  if(file) mtbLoadFile(file);
+}
+
+function mtbLoadFile(file) {
+  const status = document.getElementById('mtbUploadStatus');
+  status.textContent = 'Reading…';
+  status.className = 'mtb-upload-status';
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const rows = parseTableFile(file.name, e.target.result);
+      customTables[MONSTER_TABLE_INDEX] = rows;
+      saveCustomTables();
+      // Apply immediately if this is the active tier
+      MONSTERS = activeTableForIndex(MONSTER_TABLE_INDEX);
+      populateMonsterTable();
+      syncUploadPanel(MONSTER_TABLE_INDEX);
+      syncAllTierBadges();
+      showSaveIndicator('✦ Custom table loaded');
+    } catch(err) {
+      status.textContent = `✕ ${err.message}`;
+      status.className = 'mtb-upload-status err';
+    }
+  };
+  reader.onerror = () => {
+    status.textContent = '✕ Could not read file';
+    status.className = 'mtb-upload-status err';
+  };
+  reader.readAsText(file);
+}
+
+// ── Reset to built-in ───────────────────────────────
+function mtbReset() {
+  customTables[MONSTER_TABLE_INDEX] = null;
+  saveCustomTables();
+  MONSTERS = MONSTER_TABLES[MONSTER_TABLE_INDEX];
+  populateMonsterTable();
+  syncUploadPanel(MONSTER_TABLE_INDEX);
+  syncAllTierBadges();
+  showSaveIndicator('Built-in table restored');
+}
+
+// ── Download CSV template ───────────────────────────
+function mtbDownloadTemplate() {
+  const src = activeTableForIndex(MONSTER_TABLE_INDEX);
+  const header = 'roll,name,cr,count,desc\n';
+  const rows = src.map(m =>
+    `${m.roll},"${(m.name||'').replace(/"/g,'""')}","${(m.cr||'').replace(/"/g,'""')}","${(m.count||'1').replace(/"/g,'""')}","${(m.desc||'').replace(/"/g,'""')}"`
+  ).join('\n');
+  const blob = new Blob([header + rows], { type: 'text/csv' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  const name = TIER_NAMES[MONSTER_TABLE_INDEX].toLowerCase().replace(/\s+/g,'-');
+  a.href     = url;
+  a.download = `encounter-table-${name}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── Table selection ─────────────────────────────────
 function setMonsterTable(idx) {
   MONSTER_TABLE_INDEX = idx;
-  MONSTERS = MONSTER_TABLES[idx];
+  MONSTERS = activeTableForIndex(idx);
   populateMonsterTable();
   syncMonsterTableButtons(idx);
+  syncUploadPanel(idx);
   saveNow();
 }
 
@@ -3409,6 +3714,8 @@ function openSettings() {
   updateThreshDisplay();
   syncPresetHighlight();
   syncMonsterTableButtons(MONSTER_TABLE_INDEX);
+  syncUploadPanel(MONSTER_TABLE_INDEX);
+  syncAllTierBadges();
   EL.settingsOverlay().classList.add('open');
 }
 
