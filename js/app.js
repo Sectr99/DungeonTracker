@@ -54,7 +54,7 @@ const EL = {
 // ══════════════════════════════════════════════════
 let S = defaultState();
 // Transient UI state — never saved
-const ui = { rolling: false, defeating: false, tableOpen: false, settingsOpen: false, draft: null };
+const ui = { rolling: false, defeating: false, tableOpen: false, logAll: false, settingsOpen: false, draft: null };
 
 function save() {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }
@@ -99,6 +99,7 @@ function showSaveIndicator(msg) {
 // ══════════════════════════════════════════════════
 // RENDER — derive the page from S + ui. Safe to call any time.
 // ══════════════════════════════════════════════════
+const LOG_ROWS = 8;
 const applied = {}; // last-applied values for work worth skipping (die shapes, table rows)
 
 function render() {
@@ -211,7 +212,7 @@ function renderCombat() {
 function renderLog() {
   EL.logEntries().innerHTML = !S.history.length
     ? '<li class="log-empty">No turns yet. Press Space to take the first one.</li>'
-    : S.history.slice(0, 40).map((e, i) => `
+    : S.history.slice(0, ui.logAll ? 100 : LOG_ROWS).map((e, i) => `
     <li class="${e.enc ? 'enc' : ''}">
       <span class="log-turn">T${esc(e.turn)}</span>
       <span class="log-roll">${esc(e.roll)}</span>
@@ -221,6 +222,9 @@ function renderLog() {
 
   const encCount = S.history.filter(e => e.enc).length;
   $('freqBadgeExtra').textContent = S.turn > 0 ? ` ${encCount} of ${S.turn} turns so far.` : '';
+  const more = $('logMore');
+  more.hidden = S.history.length <= LOG_ROWS;
+  more.textContent = ui.logAll ? 'Show fewer' : `Show all ${S.history.length} turns`;
 }
 
 function quietFlavor(roll) {
@@ -370,7 +374,7 @@ function setCheckRoll(roll, isEnc, die = S.die) {
 }
 
 function setMonsterRoll(mroll, monsterName) {
-  EL.d20label().textContent = monsterName;
+  EL.d20label().textContent = ''; // the encounter card names the monster
   $('d20block').classList.add('glow-mon');
   drawDie('monsterDieFace', 'd20', mroll);
 }
@@ -487,14 +491,13 @@ function advanceTurn() {
 
     rollDie('monsterDieFace', 'd20', mroll, () => {
       setMonsterRoll(mroll, monster.name);
-      ui.tableOpen = true;
       finishTurn({ turn, roll, die: S.die, enc: true, monster, mroll, count: rollCountExpr(monster.count || '1') });
 
       setTimeout(() => {
         const r = EL.encCard().getBoundingClientRect();
         window.scrollBy({ top: r.top + r.height / 2 - window.innerHeight / 2, behavior: 'smooth' });
       }, 80);
-      setTimeout(() => $(`mr${mroll}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 350);
+      if(ui.tableOpen) setTimeout(() => $(`mr${mroll}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 350);
     });
   });
 }
@@ -653,6 +656,7 @@ const ACTIONS = {
   'torch-toggle':     () => torchToggle(),
   'torch-reset':      () => commit(s => { s.torch = { left: TORCH_MS, endsAt: null }; }),
   'toggle-table':     () => { ui.tableOpen = !ui.tableOpen; render(); },
+  'toggle-log':       () => { ui.logAll = !ui.logAll; render(); },
   'toggle-sound':     () => commit(s => { s.sound = !s.sound; }),
   'toggle-anim':      () => commit(s => { s.anim = !s.anim; }),
   'settings-open':    () => openSettings(),

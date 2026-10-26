@@ -15,20 +15,29 @@
 <body>
 <div id="enc-flash" aria-hidden="true"></div>
 
-<header class="bar">
-  <div class="brand">
-    <span class="mark">Dungeon <em>Tracker</em></span>
-    <span class="tagline">Wandering monsters, 10-minute turns</span>
+<header class="masthead">
+  <div class="masthead-plate">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 100 100" aria-hidden="true">
+        <polygon class="bm-edge" points="50,4 90,27 90,73 50,96 10,73 10,27"/>
+        <path class="bm-facet" d="M50,26 L10,27 M50,26 L50,4 M50,26 L90,27 M26,67 L10,27 M26,67 L10,73 M26,67 L50,96 M74,67 L90,27 M74,67 L90,73 M74,67 L50,96"/>
+        <polygon class="bm-face" points="50,26 74,67 26,67"/>
+      </svg>
+      <div>
+        <h1 class="mark">Dungeon Tracker</h1>
+        <p class="tagline">Wandering monsters, 10-minute turns</p>
+      </div>
+    </div>
+    <nav class="bar-tools">
+      <button class="tool" id="soundToggle" data-action="toggle-sound" aria-label="Toggle sound">
+        <svg id="iconSoundOn" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none"/></svg>
+        <svg id="iconSoundOff" viewBox="0 0 24 24" aria-hidden="true" style="display:none"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 9l5 6M21 9l-5 6" fill="none"/></svg>
+        <span id="soundLabel">Sound</span>
+      </button>
+      <button class="tool" data-action="settings-open">Settings</button>
+    </nav>
   </div>
   <p class="dateline" id="dateline" aria-live="off"></p>
-  <nav class="bar-tools">
-    <button class="tool" id="soundToggle" data-action="toggle-sound" aria-label="Toggle sound">
-      <svg id="iconSoundOn" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none"/></svg>
-      <svg id="iconSoundOff" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 9l5 6M21 9l-5 6" fill="none"/></svg>
-      <span id="soundLabel">Sound</span>
-    </button>
-    <button class="tool" data-action="settings-open">Settings</button>
-  </nav>
 </header>
 
 <main class="screen">
@@ -65,7 +74,6 @@
         <button class="btn btn-primary" id="advBtn" data-action="advance">Advance turn <kbd>Space</kbd></button>
         <div class="actions-quiet">
           <button class="btn-link" id="undoBtn" data-action="undo" disabled>Undo</button>
-          <button class="btn-link" data-action="abandon">Abandon session</button>
         </div>
       </div>
       <p class="locked" id="combatLockedLabel"></p>
@@ -121,6 +129,10 @@
     <section class="panel">
       <div class="panel-head"><h2>Turn log</h2></div>
       <ol class="log" id="logEntries"></ol>
+      <div class="panel-foot">
+        <button class="btn-link" id="logMore" data-action="toggle-log" hidden></button>
+        <button class="btn-link btn-danger" data-action="abandon">Abandon session</button>
+      </div>
     </section>
 
     <section class="panel" id="xpCard" tabindex="-1">
