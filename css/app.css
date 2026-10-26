@@ -355,16 +355,11 @@ body::before {
 .quiet-line::before { content: '“'; font: 600 1.4em/0 var(--display); color: var(--red); margin-right: 0.08em; vertical-align: -0.28em; font-style: normal; }
 .quiet-meta { margin-top: 12px; color: var(--ink-3); font-size: 16px; }
 
-/* Encounter: printer's crop marks; a drop cap opens the lore (long enough to wrap around it) */
+/* Encounter: printer's crop marks */
 .encounter { position: relative; }
 .crop { position: absolute; top: -20px; width: 14px; height: 14px; border-top: 1px solid var(--ink); }
 .crop-tl { left: -12px; border-left: 1px solid var(--ink); }
 .crop-tr { right: -12px; border-right: 1px solid var(--ink); }
-.sb-lore { display: flow-root; } /* contain the drop cap so it never spills into Tactics */
-.sb-lore::first-letter {
-  float: left; font: 600 3.1em/0.8 var(--display); color: var(--red); font-style: normal;
-  margin: 5px 10px 0 0; text-transform: uppercase;
-}
 .enc-roll { position: relative; }
 .enc-roll::after { content: 'd20'; position: absolute; left: 0; right: 0; bottom: -16px; font: 500 11px/1 var(--display); letter-spacing: 0.12em; color: var(--ink-3); }
 
