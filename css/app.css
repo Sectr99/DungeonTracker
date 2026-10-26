@@ -349,10 +349,9 @@ body::before {
 }
 
 /* Between encounters: a pull quote holds the space */
-.quiet { display: none; border-top: 8px solid var(--ink); padding-top: 20px; }
+.quiet { display: none; border-top: 3px solid var(--ink); padding-top: 18px; }
 .quiet.visible { display: block; animation: rise 0.3s ease-out; }
-.quiet-line { margin: 12px 0 0; font: italic 400 clamp(28px, 4vw, 42px)/1.15 var(--text); max-width: 22ch; }
-.quiet-line::before { content: '“'; font: 600 1.4em/0 var(--display); color: var(--red); margin-right: 0.08em; vertical-align: -0.28em; font-style: normal; }
+.quiet-line { margin: 12px 0 0; font: italic 400 clamp(28px, 4vw, 42px)/1.15 var(--text); max-width: 30ch; text-wrap: balance; }
 .quiet-meta { margin-top: 12px; color: var(--ink-3); font-size: 16px; }
 
 /* Encounter: printer's crop marks */

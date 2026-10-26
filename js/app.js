@@ -364,15 +364,15 @@ function setCheckRoll(roll, isEnc, die = S.die) {
   const lbl = EL.d100label();
   lbl.textContent = isEnc ? 'Encounter' : 'Quiet turn';
   lbl.className   = isEnc ? 'enc' : '';
+  $('checkDieWrap').classList.toggle('glow-enc', isEnc); // before drawing: the dice read their colour from it
   drawDie('checkDieFace', die, roll);
   $('checkTotal').textContent = die === 'd100' ? roll : '';
-  $('checkDieWrap').classList.toggle('glow-enc', isEnc);
 }
 
 function setMonsterRoll(mroll, monsterName) {
   EL.d20label().textContent = monsterName;
-  drawDie('monsterDieFace', 'd20', mroll);
   $('d20block').classList.add('glow-mon');
+  drawDie('monsterDieFace', 'd20', mroll);
 }
 
 function clearRollDisplay() {
@@ -380,9 +380,9 @@ function clearRollDisplay() {
   EL.d100label().className   = '';
   EL.d20label().textContent  = '';
   EL.d20block().style.display = 'none';
+  $('checkDieWrap').classList.remove('glow-enc'); // before drawing: the dice read their colour from it
   drawDie('checkDieFace', S.die, null);
   $('checkTotal').textContent = '';
-  $('checkDieWrap').classList.remove('glow-enc');
 }
 
 // ══════════════════════════════════════════════════
