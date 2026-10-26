@@ -1,0 +1,8 @@
+# Files Cloudflare should not serve as static assets (gitignore syntax)
+.git
+.gitignore
+.assetsignore
+.claude/
+CLAUDE.md
+test/
+wrangler.jsonc
