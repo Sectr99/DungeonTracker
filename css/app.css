@@ -109,21 +109,31 @@ code { font: 0.85em ui-monospace, Consolas, monospace; }
 .dice { display: flex; gap: 20px; }
 .die { display: grid; justify-items: center; gap: 6px; }
 .die figcaption { font: 400 12px/1 var(--display); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }
-.die-face { position: relative; width: 112px; height: 112px; }
-.die-shape { width: 100%; height: 100%; overflow: visible; }
-.die-shape .edge  { fill: var(--paper); stroke: var(--ink); stroke-width: 4; stroke-linejoin: round; }
-.die-shape .facet { fill: none; stroke: var(--ink); stroke-width: 1.5; stroke-linejoin: round; opacity: 0.45; }
-.die-num {
-  position: absolute; inset: 0; display: grid; place-items: center; padding-top: 6px;
-  font: 600 30px/1 var(--display); font-variant-numeric: tabular-nums;
-}
-.die.glow-enc .edge, .die.glow-mon .edge { fill: var(--red); stroke: var(--red); }
-.die.glow-enc .facet, .die.glow-mon .facet { stroke: var(--on-red); }
-.die.glow-enc .die-num, .die.glow-mon .die-num { color: var(--on-red); }
-.die.rolling .die-shape { animation: tumble 0.65s cubic-bezier(.3,.7,.4,1); }
+.die-face { display: flex; gap: 4px; }
+.die-shape { width: 112px; height: 112px; overflow: visible; }
+.die-shape .edge { fill: var(--paper); stroke: var(--ink); stroke-width: 4; stroke-linejoin: round; }
+.die-shape .face { fill: var(--paper-2); stroke: var(--ink); stroke-width: 1.5; stroke-linejoin: round; }
+.die-shape .face-main { fill: var(--paper); }
+.die-shape text { font-family: var(--display); font-weight: 600; text-anchor: middle; dominant-baseline: central; fill: var(--ink); }
+.die-shape .n-side { font-weight: 500; fill: var(--ink-3); }
+.die-shape .pip { fill: var(--ink); }
+.die.glow-enc .edge, .die.glow-mon .edge, .die.glow-enc .face-main, .die.glow-mon .face-main { fill: var(--red); stroke: var(--red); }
+.die.glow-enc .face, .die.glow-mon .face { stroke: var(--on-red); }
+.die.glow-enc .face:not(.face-main), .die.glow-mon .face:not(.face-main) { fill: color-mix(in srgb, var(--red) 78%, var(--ink)); }
+.die.glow-enc text, .die.glow-mon text, .die.glow-enc .pip, .die.glow-mon .pip { fill: var(--on-red); }
+.die.glow-enc .n-side, .die.glow-mon .n-side { opacity: 0.7; }
+.die-total { font-weight: 600; color: var(--ink); font-size: 14px; }
+.die-total:empty { display: none; }
+/* A tumble across the table: spin, squash as it turns over, settle on the result face */
+.die.rolling .die-shape { animation: tumble 0.76s cubic-bezier(.25,.7,.35,1); transform-origin: 50% 60%; }
+.die.rolling .die-shape + .die-shape { animation-delay: 0.06s; }
 @keyframes tumble {
-  0% { transform: rotate(0) scale(1); } 30% { transform: rotate(-140deg) scale(0.9); }
-  70% { transform: rotate(-330deg) scale(1.04); } 100% { transform: rotate(-360deg) scale(1); }
+  0%   { transform: translate(-28px, -10px) rotate(-260deg) scale(0.8, 0.8); }
+  25%  { transform: translate(-8px, 2px) rotate(-140deg) scale(0.75, 0.95); }
+  50%  { transform: translate(4px, -4px) rotate(-40deg) scale(0.95, 0.8); }
+  68%  { transform: translate(2px, 0) rotate(10deg) scale(1.03, 0.97); }
+  84%  { transform: rotate(-4deg) scale(0.99, 1.01); }
+  100% { transform: none; }
 }
 .die--monster { display: none; }
 
@@ -314,8 +324,7 @@ input[type=range] { width: 100%; accent-color: var(--ink); }
   :root { --gutter: 16px; }
   .screen { grid-template-columns: minmax(0, 1fr); gap: 36px; padding-top: 20px; }
   .tagline { display: none; }
-  .die-face { width: 88px; height: 88px; }
-  .die-num { font-size: 24px; }
+  .die-shape { width: 88px; height: 88px; }
   /* Keep the one action in thumb reach */
   .actions {
     position: sticky; bottom: 0; z-index: 10; margin-inline: calc(-1 * var(--gutter)); padding: 12px var(--gutter);
@@ -328,8 +337,7 @@ input[type=range] { width: 100%; accent-color: var(--ink); }
   .turn-grid { flex-wrap: nowrap; gap: 12px; }
   .turn-num { font-size: 104px; }
   .dice { gap: 10px; }
-  .die-face { width: 72px; height: 72px; }
-  .die-num { font-size: 20px; }
+  .die-shape { width: 66px; height: 66px; }
   .result { margin-top: 16px; font-size: 20px; }
   .actions { gap: 8px 20px; padding-block: 10px; }
   .actions .btn-primary { min-height: 52px; }

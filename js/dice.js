@@ -1,30 +1,113 @@
-// Flat SVG dice — line-drawn silhouettes per die type, plus a short tumble-and-settle roll.
-// Replaces the old Three.js renderer; no dependencies.
-const DIE_SVG = {
-  d20:  '<polygon class="edge" points="50,4 90,27 90,73 50,96 10,73 10,27"/>' +
-        '<polygon class="facet" points="50,26 74,67 26,67"/>' +
-        '<path class="facet" d="M50,26 L10,27 M50,26 L50,4 M50,26 L90,27 M26,67 L10,27 M26,67 L10,73 M26,67 L50,96 M74,67 L90,27 M74,67 L90,73 M74,67 L50,96"/>',
-  d100: '<polygon class="edge" points="50,4 93,42 50,96 7,42"/>' +
-        '<path class="facet" d="M7,42 L50,62 L93,42 M50,62 L50,96"/>',
-  d12:  '<polygon class="edge" points="50,4 94,36 77,91 23,91 6,36"/>' +
-        '<polygon class="facet" points="50,24 74,41 65,70 35,70 26,41"/>' +
-        '<path class="facet" d="M50,24 L50,4 M74,41 L94,36 M65,70 L77,91 M35,70 L23,91 M26,41 L6,36"/>',
-  d6:   '<rect class="edge" x="10" y="10" width="80" height="80" rx="10"/>' +
-        '<rect class="facet" x="22" y="22" width="56" height="56" rx="5"/>',
+// Flat SVG dice, drawn front-on with their visible faces numbered.
+// The face toward you shows the result; side faces show other numbers (never the opposite face).
+// d100 is a percentile pair: a tens d10 (00–90) and a units d10 (0–9); 00 + 0 reads as 100.
+
+// Geometry in a 0–100 viewBox. faces[0] is the face toward the viewer; `at`/`size` place its number.
+const DIE_GEOM = {
+  d20: (() => {
+    const H = [[50,4],[90,27],[90,73],[50,96],[10,73],[10,27]];
+    const P1 = [50,26], P2 = [74,67], P3 = [26,67];
+    return {
+      outline: H, at: [50, 54], size: 24,
+      faces: [[P1,P2,P3], [P1,H[1],P2], [P2,H[3],P3], [P3,H[5],P1],
+              [H[5],H[0],P1], [H[0],H[1],P1], [H[1],H[2],P2], [H[2],H[3],P2], [H[3],H[4],P3], [H[4],H[5],P3]],
+    };
+  })(),
+  d10: (() => {
+    const T = [50,3], A = [6,40], L = [27,47], M = [50,61], R = [73,47], D = [94,40], E = [10,63], F = [90,63], B = [50,97];
+    return {
+      outline: [T,D,F,B,E,A], at: [50, 40], size: 22,
+      faces: [[T,L,M,R], [T,A,E,L], [T,R,F,D], [L,E,B,M], [M,B,F,R]],
+    };
+  })(),
+  d12: (() => {
+    const O = [[50,4],[94,36],[77,91],[23,91],[6,36]];
+    const I = [[50,24],[74,41],[65,70],[35,70],[26,41]];
+    return {
+      outline: O, at: [50, 51], size: 24,
+      faces: [I, ...O.map((o, i) => [I[i], o, O[(i + 1) % 5], I[(i + 1) % 5]])],
+    };
+  })(),
+  d6: {
+    outline: [[8,22],[22,8],[92,8],[92,78],[78,92],[8,92]], at: [43, 57], size: 0, // pips instead of a number
+    faces: [[[8,22],[78,22],[78,92],[8,92]], [[8,22],[22,8],[92,8],[78,22]], [[78,22],[92,8],[92,78],[78,92]]],
+  },
 };
 
-function setDieShape(svgId, die) { $(svgId).innerHTML = DIE_SVG[die] || DIE_SVG.d20; }
+// Per die: shape, face values, opposite face, label
+const DIE_KIND = {
+  d20:   { geom: 'd20', values: range(1, 20), opp: n => 21 - n, label: mark69 },
+  d12:   { geom: 'd12', values: range(1, 12), opp: n => 13 - n, label: mark69 },
+  d6:    { geom: 'd6',  values: range(1, 6),  opp: n => 7 - n,  label: String },
+  units: { geom: 'd10', values: range(0, 9),  opp: n => 9 - n,  label: mark69 },
+  tens:  { geom: 'd10', values: range(0, 9),  opp: n => 9 - n,  label: n => String(n * 10).padStart(2, '0') },
+};
 
-// Scramble numbers with a tumble, then settle on `final`. Instant when animations are off.
-function rollDie(wrapId, numId, sides, final, done) {
-  const wrap = $(wrapId), num = $(numId);
-  if(!S.anim) { num.textContent = final; done(); return; }
+function range(a, b) { return Array.from({ length: b - a + 1 }, (_, i) => a + i); }
+function mark69(n) { return n === 6 || n === 9 ? `${n}.` : String(n); } // like real dice: tell 6 from 9
+
+// Side-face numbers: stable per result, distinct, never the result or its opposite
+function sideValues(kind, value, count) {
+  const pool = kind.values.filter(v => v !== value && v !== kind.opp(value));
+  let seed = value * 7919 + 17;
+  for(let i = pool.length - 1; i > 0; i--) {
+    seed = (seed * 48271) % 2147483647;
+    const j = seed % (i + 1);
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool.slice(0, count);
+}
+
+const pts = poly => poly.map(p => p.join(',')).join(' ');
+const centroid = poly => poly.reduce((a, p) => [a[0] + p[0] / poly.length, a[1] + p[1] / poly.length], [0, 0]);
+
+const PIPS = { 1: [[0,0]], 2: [[-1,-1],[1,1]], 3: [[-1,-1],[0,0],[1,1]], 4: [[-1,-1],[1,-1],[-1,1],[1,1]],
+               5: [[-1,-1],[1,-1],[0,0],[-1,1],[1,1]], 6: [[-1,-1],[1,-1],[-1,0],[1,0],[-1,1],[1,1]] };
+
+function dieSVG(kindName, value) {
+  const kind = DIE_KIND[kindName], g = DIE_GEOM[kind.geom];
+  const sides = sideValues(kind, value, g.faces.length - 1);
+  let out = `<polygon class="edge" points="${pts(g.outline)}"/>`;
+  g.faces.forEach((f, i) => { out += `<polygon class="${i ? 'face' : 'face face-main'}" points="${pts(f)}"/>`; });
+
+  if(kind.geom === 'd6') {
+    out += PIPS[value].map(([x, y]) => `<circle class="pip" cx="${g.at[0] + x * 19}" cy="${g.at[1] + y * 19}" r="6.5"/>`).join('');
+  } else {
+    const main = kind.label(value);
+    const size = main.length > 2 ? g.size * 0.8 : g.size;
+    out += `<text class="n-main" x="${g.at[0]}" y="${g.at[1]}" font-size="${size}">${main}</text>`;
+  }
+  if(kind.geom !== 'd6') g.faces.slice(1).forEach((f, i) => { // d6 sides stay plain (pips would be noise)
+    const [x, y] = centroid(f);
+    out += `<text class="n-side" x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-size="${kind.geom === 'd10' ? 8 : 9}">${kind.label(sides[i])}</text>`;
+  });
+  return `<svg class="die-shape" viewBox="0 0 100 100" aria-hidden="true">${out}</svg>`;
+}
+
+// Draw `die` showing `value` (1..sides) into the .die-face element; null = at rest on its top value
+function drawDie(faceId, die, value) {
+  const el = $(faceId);
+  const v = value ?? DIE_SIDES[die];
+  if(die === 'd100') {
+    el.innerHTML = dieSVG('tens', Math.floor((v % 100) / 10)) + dieSVG('units', v % 10);
+    el.classList.add('pair');
+  } else {
+    el.innerHTML = dieSVG(die, v);
+    el.classList.remove('pair');
+  }
+  el.setAttribute('aria-label', `${die}: ${value ?? 'not rolled'}`);
+}
+
+// Tumble with faces flicking past, then settle showing `final`. Instant when animations are off.
+function rollDie(faceId, die, final, done) {
+  if(!S.anim) { drawDie(faceId, die, final); done(); return; }
+  const wrap = $(faceId).closest('.die');
+  const sides = DIE_SIDES[die];
+  drawDie(faceId, die, 1 + Math.floor(Math.random() * sides));
+  wrap.classList.remove('rolling');
+  void wrap.offsetWidth;
   wrap.classList.add('rolling');
-  const t = setInterval(() => { num.textContent = 1 + Math.floor(Math.random() * sides); }, 55);
-  setTimeout(() => {
-    clearInterval(t);
-    num.textContent = final;
-    wrap.classList.remove('rolling');
-    done();
-  }, 650);
+  const t = setInterval(() => drawDie(faceId, die, 1 + Math.floor(Math.random() * sides)), 70);
+  setTimeout(() => { clearInterval(t); drawDie(faceId, die, final); }, 470); // lands on its face for the settle
+  setTimeout(() => { wrap.classList.remove('rolling'); done(); }, 760);
 }

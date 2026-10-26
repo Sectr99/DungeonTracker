@@ -153,7 +153,6 @@ function renderTurn() {
   EL.freqDie().textContent    = S.die;
   EL.freqPct().textContent    = (S.threshold / DIE_SIDES[S.die] * 100).toFixed(0) + '%';
   EL.checkDieLabel().textContent = S.die;
-  if(applied.die !== S.die) { applied.die = S.die; setDieShape('checkDieShape', S.die); }
 }
 
 // The dice show the latest turn, unless that turn's encounter is already resolved
@@ -161,7 +160,7 @@ function renderRoll() {
   if(ui.rolling) return; // the roll animation owns the dice mid-roll
   const last = S.history[0];
   if(!last || (last.enc && !S.combat)) { clearRollDisplay(); return; }
-  setCheckRoll(last.roll, last.enc);
+  setCheckRoll(last.roll, last.enc, last.die);
   EL.d20block().style.display = last.enc ? 'grid' : 'none';
   if(last.enc) setMonsterRoll(last.mroll, last.monster?.name || '');
 }
@@ -336,17 +335,20 @@ function renderStatBlock(monster) {
     ${lore}${tactics}${habitat}`;
 }
 
-function setCheckRoll(roll, isEnc) {
+// `die` is the die that turn was rolled on (older saves lack it: infer from the roll)
+function setCheckRoll(roll, isEnc, die = S.die) {
+  if(!DIE_SIDES[die] || roll > DIE_SIDES[die]) die = 'd100';
   const lbl = EL.d100label();
   lbl.textContent = isEnc ? 'Encounter' : 'Quiet turn';
   lbl.className   = isEnc ? 'enc' : '';
-  $('checkFlatNum').textContent = roll;
+  drawDie('checkDieFace', die, roll);
+  $('checkTotal').textContent = die === 'd100' ? roll : '';
   $('checkDieWrap').classList.toggle('glow-enc', isEnc);
 }
 
 function setMonsterRoll(mroll, monsterName) {
   EL.d20label().textContent = monsterName;
-  $('monsterFlatNum').textContent = mroll;
+  drawDie('monsterDieFace', 'd20', mroll);
   $('d20block').classList.add('glow-mon');
 }
 
@@ -355,8 +357,8 @@ function clearRollDisplay() {
   EL.d100label().className   = '';
   EL.d20label().textContent  = '';
   EL.d20block().style.display = 'none';
-  $('checkFlatNum').textContent = '—';
-  $('monsterFlatNum').textContent = '—';
+  drawDie('checkDieFace', S.die, null);
+  $('checkTotal').textContent = '';
   $('checkDieWrap').classList.remove('glow-enc');
 }
 
@@ -432,18 +434,19 @@ function advanceTurn() {
 
   EL.d20block().style.display = 'none';
   $('checkDieWrap').classList.remove('glow-enc');
+  $('checkTotal').textContent = '';
   EL.d100label().textContent = 'Rolling…';
   EL.d100label().className = '';
   EL.d20label().textContent = '';
 
-  rollDie('checkDieWrap', 'checkFlatNum', DIE_SIDES[S.die], roll, () => {
+  rollDie('checkDieFace', S.die, roll, () => {
     popCounter(turn);
     setCheckRoll(roll, isEnc);
 
     if(!isEnc) {
       if(S.sound) playTurnTock();
       EL.d20block().style.display = 'none';
-      finishTurn({ turn, roll, enc: false, monster: null, mroll: null, count: null });
+      finishTurn({ turn, roll, die: S.die, enc: false, monster: null, mroll: null, count: null });
       return;
     }
 
@@ -456,10 +459,10 @@ function advanceTurn() {
     EL.d20block().style.display = 'grid';
     $('d20block').classList.remove('glow-mon');
 
-    rollDie('d20block', 'monsterFlatNum', 20, mroll, () => {
+    rollDie('monsterDieFace', 'd20', mroll, () => {
       setMonsterRoll(mroll, monster.name);
       ui.tableOpen = true;
-      finishTurn({ turn, roll, enc: true, monster, mroll, count: rollCountExpr(monster.count || '1') });
+      finishTurn({ turn, roll, die: S.die, enc: true, monster, mroll, count: rollCountExpr(monster.count || '1') });
 
       setTimeout(() => {
         const r = EL.encCard().getBoundingClientRect();
@@ -694,7 +697,6 @@ document.addEventListener('keydown', e => {
 // BOOT
 // ══════════════════════════════════════════════════
 // Scripts sit at the end of <body>, so the DOM is ready: load before the first paint
-setDieShape('monsterDieShape', 'd20');
 const saved = load();
 if(saved) { S = saved; save(); } // re-save in the current shape
 render();
