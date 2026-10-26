@@ -1,5 +1,5 @@
-// 3D dice in plain CSS 3D transforms — no library.
-// Each die is a real polyhedron (d6, d10, d12, d20) built from flat SVG faces, shaded per frame
+// 3D dice drawn on canvas with our own projection — no library.
+// Each die is a real polyhedron (d6, d10, d12, d20) with numbered faces, shaded per frame
 // against a fixed light. A roll picks the result first, then animates a throw that tumbles and
 // lands with that face toward the viewer, upright. d100 is a tens d10 (00–90) + units d10 (0–9).
 
@@ -127,30 +127,27 @@ function areaCentroid(P) {
 let DIGIT_HEIGHT = 0.72;
 function measureDigits() {
   const ctx = document.createElement('canvas').getContext('2d');
-  ctx.font = "600 100px Oswald";
+  ctx.font = '600 100px Oswald';
   const m = ctx.measureText('0123456789');
   if(m.actualBoundingBoxAscent) DIGIT_HEIGHT = (m.actualBoundingBoxAscent - (m.actualBoundingBoxDescent || 0)) / 100;
-  document.querySelectorAll('.die3 text').forEach(t => t.setAttribute('y', +t.dataset.cy + DIGIT_HEIGHT * t.dataset.fs / 2));
+  Object.values(DICE_SETS).forEach(paintSet); // repaint now the real font is in
 }
-document.fonts?.load("600 40px Oswald").then(measureDigits).catch(() => {});
+document.fonts?.load('600 40px Oswald').then(measureDigits).catch(() => {});
 
-// ── One die ────────────────────────────────────────
+// ── One die (pure data; painted onto its set's canvas) ──
 const faceLabel = (kind, v) => kind === 'tens' ? String(v * 10).padStart(2, '0') : (v === 6 || v === 9) ? `${v}.` : String(v);
 
-function makeDie(kind, parent, S) {
+function makeDie(kind, S) {
   const geom = kind === 'tens' || kind === 'units' ? 'd10' : kind;
   const faces = GEOMETRY[geom]();
   numberFaces(faces, geom === 'd10');
 
-  const el = document.createElement('div');
-  el.className = 'die3';
   faces.forEach(f => {
     // Face-local axes: z = outward normal, y = down the face (away from `up`), x = y × z
     const c = vavg(f.verts), z = f.n;
     let up = vsub(f.up, c);
     up = vnrm(vsub(up, vmul(z, vdot(up, z))));
     const y = vmul(up, -1), x = vcross(y, z);
-    Object.assign(f, { x, y, z });
 
     const P = f.verts.map(p => [vdot(vsub(p, c), x) * S, vdot(vsub(p, c), y) * S]);
     const [mx, my] = areaCentroid(P);
@@ -160,39 +157,11 @@ function makeDie(kind, parent, S) {
       inr = Math.min(inr, Math.abs((a[0] - mx) * e[1] - (a[1] - my) * e[0]) / Math.hypot(...e));
     }
     const txt = faceLabel(kind, f.v);
-    const fs  = inr * (txt.length > 1 ? 1.0 : 1.25) * (geom === 'd10' ? 1.15 : 1);
-    const W   = Math.ceil(2 * Math.max(...P.flat().map(Math.abs))) + 6;
-    const pts = P.map(p => p.map(n => n.toFixed(1)).join(',')).join(' ');
-
-    const d = document.createElement('div');
-    d.className = 'f';
-    d.style.cssText = `width:${W}px;height:${W}px;left:${-W / 2}px;top:${-W / 2}px;` +
-      `transform:matrix3d(${x},0,${y},0,${z},0,${c[0] * S},${c[1] * S},${c[2] * S},1)`;
-    d.innerHTML = `<svg width="${W}" height="${W}" viewBox="${-W / 2} ${-W / 2} ${W} ${W}" aria-hidden="true">` +
-      `<polygon class="base" points="${pts}"/><polygon class="shade" points="${pts}" opacity="0"/>` +
-      `<text x="${mx.toFixed(1)}" y="${(my + DIGIT_HEIGHT * fs / 2).toFixed(1)}" data-cy="${my.toFixed(1)}" data-fs="${fs.toFixed(1)}" style="font-size:${fs.toFixed(1)}px">${txt}</text></svg>`;
-    f.shade = d.querySelector('.shade');
-    el.appendChild(d);
+    Object.assign(f, { x, y, z, c: vmul(c, S), mx, my, txt,
+      fs: inr * (txt.length > 1 ? 1.0 : 1.25) * (geom === 'd10' ? 1.15 : 1),
+      pts: f.verts.map(p => vmul(p, S)) });
   });
-
-  const shadow = document.createElement('div');
-  shadow.className = 'die3-shadow';
-  parent.append(shadow, el);
-  return { el, shadow, faces, q: qaxis(randAxis(), Math.random() * 6), off: 0, S };
-}
-
-const LIGHT = vnrm([-0.45, -0.7, 0.75]);
-
-function poseDie(die, q, tx = die.off, ty = 0) {
-  const m = qmat(q);
-  die.el.style.transform = `translate3d(${tx}px,${ty}px,0) matrix3d(${m[0][0]},${m[1][0]},${m[2][0]},0,${m[0][1]},${m[1][1]},${m[2][1]},0,${m[0][2]},${m[1][2]},${m[2][2]},0,0,0,0,1)`;
-  die.faces.forEach(f => {
-    const wn = [vdot(m[0], f.z), vdot(m[1], f.z), vdot(m[2], f.z)];
-    f.shade.setAttribute('opacity', (0.42 * (1 - Math.max(0, vdot(wn, LIGHT)))).toFixed(3));
-  });
-  const lift = Math.min(0, ty);
-  die.shadow.style.transform = `translateX(${tx}px) scale(${(1 + lift / (die.S * 5)).toFixed(3)})`;
-  die.shadow.style.opacity = (1 + lift / (die.S * 4)).toFixed(2);
+  return { faces, q: qaxis(randAxis(), Math.random() * 6), off: 0, tx: 0, ty: 0, S };
 }
 
 // Rest pose for a value: that face toward the viewer, upright, tilted a little to show depth
@@ -201,24 +170,104 @@ function restQ(die, value) {
   return matq(mmul(mmul(rotX(0.2), rotY(0.12)), [f.x, f.y, f.z]));
 }
 
+// ── Painting ───────────────────────────────────────
+// Canvas, not CSS 3D: the browser can't smooth text on steeply tilted CSS layers, but canvas
+// paths and text are anti-aliased and drawn at the screen's full pixel density.
+const LIGHT = vnrm([-0.45, -0.7, 0.75]);
+const FOCAL = 700; // perspective distance, px
+const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+
+function paintSet(set) {
+  const { ctx, cv, ox, oy, el } = set;
+  const dpr = window.devicePixelRatio || 1;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, cv.width, cv.height);
+
+  const css = getComputedStyle(el.closest('.die') || el);
+  const face = css.getPropertyValue('--die-face').trim() || css.getPropertyValue('--paper').trim();
+  const ink  = css.getPropertyValue('--ink').trim();
+  const num  = css.getPropertyValue('--die-ink').trim() || ink;
+
+  set.dice.forEach(d => {
+    const m = qmat(d.q), S = d.S;
+    const rot = p => [vdot(m[0], p), vdot(m[1], p), vdot(m[2], p)];
+    const proj = w => { const k = FOCAL / (FOCAL - w[2]); return [ox + (w[0] + d.tx) * k, oy + (w[1] + d.ty) * k]; };
+
+    // Shadow on the table, shrinking and fading as the die lifts
+    const lift = Math.min(0, d.ty), sc = 1 + lift / (S * 5);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.save();
+    ctx.translate(ox + d.tx, oy + S * 0.98);
+    ctx.scale(sc, sc * 0.22);
+    const g = ctx.createRadialGradient(0, 0, 0, 0, 0, S * 0.85);
+    g.addColorStop(0, `rgba(0,0,0,${(0.2 * (1 + lift / (S * 4))).toFixed(3)})`);
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(0, 0, S * 0.85, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+
+    // Faces toward the viewer, far to near
+    d.faces
+      .map(f => ({ f, n: rot(f.z), c: rot(f.c) }))
+      .filter(o => o.n[2] > 0.01)
+      .sort((a, b) => a.c[2] - b.c[2])
+      .forEach(({ f, n, c }) => {
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.beginPath();
+        f.pts.forEach((p, i) => { const [sx, sy] = proj(rot(p)); i ? ctx.lineTo(sx, sy) : ctx.moveTo(sx, sy); });
+        ctx.closePath();
+        ctx.fillStyle = face; ctx.fill();
+        ctx.fillStyle = `rgba(0,0,0,${(0.42 * (1 - Math.max(0, vdot(n, LIGHT)))).toFixed(3)})`; ctx.fill();
+        ctx.lineJoin = 'round'; ctx.lineWidth = 2; ctx.strokeStyle = ink; ctx.stroke();
+
+        // Number: map the face's local 2D frame onto screen (affine fit of the projection);
+        // fade it out as the face turns edge-on, like a real die
+        const alpha = smooth(0.12, 0.45, n[2]);
+        if(alpha <= 0) return;
+        const O = proj(c), X = proj(vadd(c, rot(f.x))), Y = proj(vadd(c, rot(f.y)));
+        ctx.setTransform(dpr * (X[0] - O[0]), dpr * (X[1] - O[1]), dpr * (Y[0] - O[0]), dpr * (Y[1] - O[1]), dpr * O[0], dpr * O[1]);
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = num;
+        ctx.font = `600 ${f.fs.toFixed(1)}px Oswald, 'Arial Narrow', sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillText(f.txt, f.mx, f.my + DIGIT_HEIGHT * f.fs / 2);
+        ctx.globalAlpha = 1;
+      });
+  });
+}
+
 // ── Public API (used by app.js) ────────────────────
-// Each .die-face element holds a set: one die, or the tens + units pair for d100.
+// Each .die-face element holds a set: one die, or the tens + units pair for d100, on one canvas
+// that extends past the box so throws can fly in from the left.
 const DICE_SETS = {};
 const dieParts = (die, v) => die === 'd100' ? [['tens', Math.floor((v % 100) / 10)], ['units', v % 10]] : [[die, v]];
+const THROW_TRAVEL = 3.2, THROW_HOP = 1.1; // in die radii
 
 function diceSet(faceId, die) {
   const el = $(faceId);
-  if(DICE_SETS[faceId]?.die === die) return DICE_SETS[faceId];
-  el.innerHTML = '';
+  const box = parseFloat(getComputedStyle(el).height) || 112; // works while hidden, unlike clientHeight
+  const dpr = window.devicePixelRatio || 1;
+  const cached = DICE_SETS[faceId];
+  if(cached && cached.die === die && cached.box === box && cached.dpr === dpr) return cached;
+
   el.classList.toggle('pair', die === 'd100');
-  const S = (parseFloat(getComputedStyle(el).height) || 112) * 0.4; // works while hidden, unlike clientHeight
+  const S = box * 0.4, w = box * (die === 'd100' ? 2 : 1);
+  const padL = S * (THROW_TRAVEL + 1.4), padT = S * (THROW_HOP + 1.4), pad = S * 1.4;
+  const cv = document.createElement('canvas');
+  const cw = w + padL + pad, ch = box + padT + pad;
+  cv.width = Math.ceil(cw * dpr); cv.height = Math.ceil(ch * dpr);
+  cv.style.cssText = `left:${-padL}px;top:${-padT}px;width:${cw}px;height:${ch}px`;
+  el.replaceChildren(cv);
+
   const parts = dieParts(die, DIE_SIDES[die]);
   const dice = parts.map(([kind], i) => {
-    const d = makeDie(kind, el, S);
-    d.off = parts.length > 1 ? (i ? 1 : -1) * S * 1.2 : 0;
+    const d = makeDie(kind, S);
+    d.off = d.tx = parts.length > 1 ? (i ? 1 : -1) * S * 1.2 : 0;
+    if(cached?.dice[i]) d.q = cached.dice[i].q; // keep orientation across a resize
     return d;
   });
-  return (DICE_SETS[faceId] = { die, dice });
+  return (DICE_SETS[faceId] = { die, dice, el, cv, ctx: cv.getContext('2d'), box, dpr, ox: padL + w / 2, oy: padT + box / 2 });
 }
 
 // Show `value` (1..sides) at rest; null = the die's top value
@@ -226,10 +275,10 @@ function drawDie(faceId, die, value) {
   const set = diceSet(faceId, die);
   dieParts(die, value ?? DIE_SIDES[die]).forEach(([, v], i) => {
     const d = set.dice[i];
-    d.q = restQ(d, v);
-    poseDie(d, d.q);
+    d.q = restQ(d, v); d.tx = d.off; d.ty = 0;
   });
-  $(faceId).setAttribute('aria-label', `${die}: ${value ?? 'not rolled'}`);
+  paintSet(set);
+  set.el.setAttribute('aria-label', `${die}: ${value ?? 'not rolled'}`);
 }
 
 // Throw: enters from the left, bounces, slides to a stop, tumbling the whole way and landing on `final`
@@ -237,23 +286,25 @@ const THROW_MS = 1250;
 const easeOut = t => 1 - Math.pow(1 - t, 3);
 
 function rollDie(faceId, die, final, done) {
-  const set = diceSet(faceId, die);
-  const parts = dieParts(die, final);
   if(!S.anim) { drawDie(faceId, die, final); done(); return; }
-  let left = parts.length;
-  parts.forEach(([, v], i) => {
+  const set = diceSet(faceId, die);
+  const plans = dieParts(die, final).map(([, v], i) => {
     const d = set.dice[i];
-    const q0 = d.q, qf = restQ(d, v), ax = randAxis(), spin = (2.2 + Math.random()) * 2 * Math.PI;
-    const start = performance.now() + i * 90;
-    const travel = d.S * 3.2, hop = d.S * 1.1;
-    const frame = now => {
-      const t = Math.min(1, Math.max(0, (now - start) / THROW_MS)), e = easeOut(t);
-      const q = qmul(qaxis(ax, spin * (1 - e)), qslerp(q0, qf, e));
-      poseDie(d, q, d.off - travel * (1 - e), -Math.abs(Math.sin(t * Math.PI * 3.2)) * hop * Math.pow(1 - t, 1.6));
-      if(t < 1) requestAnimationFrame(frame);
-      else { d.q = qf; if(--left === 0) done(); }
-    };
-    requestAnimationFrame(frame);
+    return { d, q0: d.q, qf: restQ(d, v), ax: randAxis(), spin: (2.2 + Math.random()) * 2 * Math.PI, delay: i * 90 };
   });
-  $(faceId).setAttribute('aria-label', `${die}: ${final}`);
+  const start = performance.now();
+  const frame = now => {
+    let running = false;
+    plans.forEach(({ d, q0, qf, ax, spin, delay }) => {
+      const t = Math.min(1, Math.max(0, (now - start - delay) / THROW_MS)), e = easeOut(t);
+      if(t < 1) running = true;
+      d.q  = t < 1 ? qmul(qaxis(ax, spin * (1 - e)), qslerp(q0, qf, e)) : qf;
+      d.tx = d.off - d.S * THROW_TRAVEL * (1 - e);
+      d.ty = -Math.abs(Math.sin(t * Math.PI * 3.2)) * d.S * THROW_HOP * Math.pow(1 - t, 1.6);
+    });
+    paintSet(set);
+    if(running) requestAnimationFrame(frame); else done();
+  };
+  requestAnimationFrame(frame);
+  set.el.setAttribute('aria-label', `${die}: ${final}`);
 }

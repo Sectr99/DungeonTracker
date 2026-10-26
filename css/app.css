@@ -97,6 +97,8 @@ code { font: 0.85em ui-monospace, Consolas, monospace; }
 .col-main, .col-side { display: grid; gap: 40px; min-width: 0; }
 
 /* ── Turn ──────────────────────────────────────── */
+/* Dice canvases overhang their boxes for the throw; clip sideways so the page never scrolls */
+.turn { overflow-x: clip; }
 .turn-grid { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
 .turn-count { display: grid; gap: 6px; }
 .turn-num {
@@ -109,20 +111,10 @@ code { font: 0.85em ui-monospace, Consolas, monospace; }
 .dice { display: flex; gap: 20px; }
 .die { display: grid; justify-items: center; gap: 6px; }
 .die figcaption { font: 400 12px/1 var(--display); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }
-/* 3D dice (js/dice.js): the face box is the stage; dice may fly in past its edges */
-.die-face { position: relative; width: var(--die, 112px); height: var(--die, 112px); perspective: 700px; }
+/* 3D dice (js/dice.js) paint on a canvas that overhangs this box, so throws can fly in */
+.die-face { position: relative; width: var(--die, 112px); height: var(--die, 112px); }
 .die-face.pair { width: calc(var(--die, 112px) * 2); }
-.die3 { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform-style: preserve-3d; z-index: 2; }
-.die3 .f { position: absolute; backface-visibility: hidden; }
-.die3 svg { display: block; overflow: visible; }
-.die3 .base { fill: var(--die-face, var(--paper)); stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; }
-.die3 .shade { fill: #000; }
-.die3 text { font-family: var(--display); font-weight: 600; text-anchor: middle; fill: var(--die-ink, var(--ink)); }
-.die3-shadow {
-  position: absolute; left: 50%; top: 50%; width: calc(var(--die, 112px) * 0.8); height: calc(var(--die, 112px) * 0.2);
-  margin: calc(var(--die, 112px) * 0.36) 0 0 calc(var(--die, 112px) * -0.4);
-  border-radius: 50%; background: rgb(0 0 0 / 0.16); filter: blur(4px);
-}
+.die-face canvas { position: absolute; z-index: 2; pointer-events: none; }
 .die.glow-enc, .die.glow-mon { --die-face: var(--red); --die-ink: var(--on-red); }
 .die-total { font-weight: 600; color: var(--ink); font-size: 14px; }
 .die-total:empty { display: none; }

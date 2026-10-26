@@ -29,7 +29,7 @@ No dependencies to install; tests use Node's built-in runner.
 | `js/state.js` | Pure: state shape (`defaultState`), `migrate(raw)` for any saved version, `torchRemaining` |
 | `js/tables.js` | Pure CSV/JSON table parsing + validation for uploads |
 | `js/audio.js` | All Web Audio synthesized SFX (no audio files); reads `S.sound` / `S.volume` |
-| `js/dice.js` | 3D dice in CSS transforms, no library: real d6/d10/d12/d20 solids with numbered SVG faces, shaded per frame; `drawDie` poses a result, `rollDie` throws and lands on it. d100 = tens + units d10 |
+| `js/dice.js` | 3D dice painted on canvas with our own projection (anti-aliased, full pixel density), no library: real d6/d10/d12/d20 solids with numbered faces, shaded per frame; `drawDie` poses a result, `rollDie` throws and lands on it. d100 = tens + units d10 |
 | `js/app.js` | State + `render()`, actions, effects, delegated events, boot |
 
 `rules.js`, `state.js`, `tables.js` end with `if (typeof module !== 'undefined') module.exports = …` so tests can `require` them; keep pure logic there and DOM code out.
