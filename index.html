@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- ponytail: 'unsafe-inline' scripts needed for the inline onclick handlers; drop it once they move to addEventListener -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>Dungeon Tracker</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIj4KICA8ZGVmcz4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0iYmciIGN4PSI1MCUiIGN5PSI1MCUiIHI9IjUwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMyYTEwMjAiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMGEwNjA4Ii8+CiAgICA8L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJnbG93IiBjeD0iNTAlIiBjeT0iNDAlIiByPSI1NSUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjYzRhMDQwIiBzdG9wLW9wYWNpdHk9IjAuMzUiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjYzRhMDQwIiBzdG9wLW9wYWNpdHk9IjAiLz4KICAgIDwvcmFkaWFsR3JhZGllbnQ+CiAgPC9kZWZzPgoKICA8IS0tIEJhY2tncm91bmQgLS0+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNCIgZmlsbD0idXJsKCNiZykiLz4KICA8IS0tIEFtYmllbnQgZ2xvdyAtLT4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI0IiBmaWxsPSJ1cmwoI2dsb3cpIi8+CgogIDwhLS0gU2t1bGwgY3Jhbml1bSAtLT4KICA8ZWxsaXBzZSBjeD0iMTYiIGN5PSIxMyIgcng9IjkiIHJ5PSI4LjUiIGZpbGw9IiNjOGI4OWEiLz4KCiAgPCEtLSBTa3VsbCBmYWNlIC8gamF3IGFyZWEg4oCUIGZsYXQgYm90dG9tIC0tPgogIDxyZWN0IHg9IjkiIHk9IjE3IiB3aWR0aD0iMTQiIGhlaWdodD0iNSIgcng9IjEiIGZpbGw9IiNjOGI4OWEiLz4KCiAgPCEtLSBKYXcgYm90dG9tIGVkZ2UgLS0+CiAgPHJlY3QgeD0iMTAiIHk9IjIxIiB3aWR0aD0iMTIiIGhlaWdodD0iMi41IiByeD0iMSIgZmlsbD0iI2IwYTA4OCIvPgoKICA8IS0tIENoZWVrYm9uZSBzaGFkb3cgLS0+CiAgPGVsbGlwc2UgY3g9IjE2IiBjeT0iMTQiIHJ4PSI3IiByeT0iNi41IiBmaWxsPSJub25lIiBzdHJva2U9IiM5YTdhNWEiIHN0cm9rZS13aWR0aD0iMC42IiBvcGFjaXR5PSIwLjQiLz4KCiAgPCEtLSBMZWZ0IGV5ZSBzb2NrZXQgLS0+CiAgPGVsbGlwc2UgY3g9IjEyIiBjeT0iMTQiIHJ4PSIyLjgiIHJ5PSIyLjUiIGZpbGw9IiMwYTA2MDgiLz4KICA8IS0tIExlZnQgZXllIHJlZCBnbGVhbSAtLT4KICA8ZWxsaXBzZSBjeD0iMTIuNiIgY3k9IjEzLjIiIHJ4PSIwLjgiIHJ5PSIwLjciIGZpbGw9IiNjYzMzMzMiIG9wYWNpdHk9IjAuODUiLz4KCiAgPCEtLSBSaWdodCBleWUgc29ja2V0IC0tPgogIDxlbGxpcHNlIGN4PSIyMCIgY3k9IjE0IiByeD0iMi44IiByeT0iMi41IiBmaWxsPSIjMGEwNjA4Ii8+CiAgPCEtLSBSaWdodCBleWUgcmVkIGdsZWFtIC0tPgogIDxlbGxpcHNlIGN4PSIyMC42IiBjeT0iMTMuMiIgcng9IjAuOCIgcnk9IjAuNyIgZmlsbD0iI2NjMzMzMyIgb3BhY2l0eT0iMC44NSIvPgoKICA8IS0tIE5vc2UgY2F2aXR5IC0tPgogIDxwYXRoIGQ9Ik0xNSAxNy41IEwxNiAxNS41IEwxNyAxNy41IFoiIGZpbGw9IiMwYTA2MDgiLz4KCiAgPCEtLSBUZWV0aCAtLT4KICA8cmVjdCB4PSIxMC41IiB5PSIyMS41IiB3aWR0aD0iMi4yIiBoZWlnaHQ9IjIuOCIgcng9IjAuNCIgZmlsbD0iI2U4ZGZjMCIvPgogIDxyZWN0IHg9IjEzLjQiIHk9IjIxLjUiIHdpZHRoPSIyLjIiIGhlaWdodD0iMy4yIiByeD0iMC40IiBmaWxsPSIjZThkZmMwIi8+CiAgPHJlY3QgeD0iMTYuNCIgeT0iMjEuNSIgd2lkdGg9IjIuMiIgaGVpZ2h0PSIzLjIiIHJ4PSIwLjQiIGZpbGw9IiNlOGRmYzAiLz4KICA8cmVjdCB4PSIxOS4zIiB5PSIyMS41IiB3aWR0aD0iMi4yIiBoZWlnaHQ9IjIuOCIgcng9IjAuNCIgZmlsbD0iI2U4ZGZjMCIvPgoKICA8IS0tIEdvbGQgY3Jvd24gZGV0YWlsIG9uIHRvcCAtLT4KICA8cGF0aCBkPSJNMTEgOCBMMTIuNSA1IEwxNCA3LjUgTDE2IDQuNSBMMTggNy41IEwxOS41IDUgTDIxIDgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Q4YjA1MCIgc3Ryb2tlLXdpZHRoPSIxLjIiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgoKICA8IS0tIEJvcmRlciByaW5nIC0tPgogIDxyZWN0IHg9IjAuNSIgeT0iMC41IiB3aWR0aD0iMzEiIGhlaWdodD0iMzEiIHJ4PSIzLjUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2M0YTA0MCIgc3Ryb2tlLXdpZHRoPSIxIiBvcGFjaXR5PSIwLjUiLz4KPC9zdmc+">
@@ -60,7 +59,7 @@
 </svg>
 
 <!-- SETTINGS OVERLAY -->
-<div class="settings-overlay" id="settingsOverlay" onclick="overlayClick(event)">
+<div class="settings-overlay" id="settingsOverlay" data-action="settings-backdrop">
   <div class="settings-panel">
     <div class="corner-bracket tl"></div>
     <div class="corner-bracket tr"></div>
@@ -80,7 +79,7 @@
     <!-- Theme -->
     <div class="s-section-label">Visual Theme</div>
     <div class="theme-grid" id="themeGrid">
-      <button class="theme-btn active" onclick="applyTheme('default',this)" data-theme-id="default">
+      <button class="theme-btn active" data-action="theme" data-arg="default">
         <div class="th-swatch-large" style="background:linear-gradient(150deg,#1a0a1a 0%,#200818 40%,#3a1010 100%)">
           <span class="th-accent" style="background:#e04040"></span>
           <span class="th-accent" style="background:#d8b050"></span>
@@ -88,7 +87,7 @@
         <span class="th-name">Default</span>
         <span class="th-sub">Crimson &amp; Gold</span>
       </button>
-      <button class="theme-btn" onclick="applyTheme('castlevania',this)" data-theme-id="castlevania">
+      <button class="theme-btn" data-action="theme" data-arg="castlevania">
         <div class="th-swatch-large" style="background:linear-gradient(150deg,#060408 0%,#0c0818 40%,#1c1640 100%)">
           <span class="th-accent" style="background:#c070f8"></span>
           <span class="th-accent" style="background:#70b8f8"></span>
@@ -96,7 +95,7 @@
         <span class="th-name">Castle</span>
         <span class="th-sub">Violet &amp; Ice</span>
       </button>
-      <button class="theme-btn" onclick="applyTheme('vampire',this)" data-theme-id="vampire">
+      <button class="theme-btn" data-action="theme" data-arg="vampire">
         <div class="th-swatch-large" style="background:linear-gradient(150deg,#080204 0%,#180410 40%,#280010 100%)">
           <span class="th-accent" style="background:#ff3860"></span>
           <span class="th-accent" style="background:#f8c848"></span>
@@ -104,7 +103,7 @@
         <span class="th-name">Vampire</span>
         <span class="th-sub">Blood &amp; Amber</span>
       </button>
-      <button class="theme-btn" onclick="applyTheme('dungeon',this)" data-theme-id="dungeon">
+      <button class="theme-btn" data-action="theme" data-arg="dungeon">
         <div class="th-swatch-large" style="background:linear-gradient(150deg,#040608 0%,#091008 40%,#121e18 100%)">
           <span class="th-accent" style="background:#48b870"></span>
           <span class="th-accent" style="background:#90c878"></span>
@@ -112,7 +111,7 @@
         <span class="th-name">Deep Dungeon</span>
         <span class="th-sub">Toxic Green</span>
       </button>
-      <button class="theme-btn" onclick="applyTheme('escape',this)" data-theme-id="escape">
+      <button class="theme-btn" data-action="theme" data-arg="escape">
         <div class="th-swatch-large" style="background:linear-gradient(150deg,#000 0%,#0a0a0a 40%,#141414 100%)">
           <span class="th-accent" style="background:#c8c8c8"></span>
           <span class="th-accent" style="background:#808080"></span>
@@ -120,7 +119,7 @@
         <span class="th-name">Escape</span>
         <span class="th-sub">Ink &amp; Chalk</span>
       </button>
-      <button class="theme-btn" onclick="applyTheme('torchlight',this)" data-theme-id="torchlight">
+      <button class="theme-btn" data-action="theme" data-arg="torchlight">
         <div class="th-swatch-large" style="background:linear-gradient(150deg,#000 0%,#000 45%,#f2eee4 45%,#f2eee4 100%)">
           <span class="th-accent" style="background:#141210"></span>
           <span class="th-accent" style="background:#e0a040"></span>
@@ -140,7 +139,7 @@
         SFX Volume
       </span>
       <div class="s-slider-wrap">
-        <input type="range" id="volSfx" min="0" max="100" value="80" oninput="updateVolume()">
+        <input type="range" id="volSfx" min="0" max="100" value="80" data-action="volume">
         <span class="slider-val" id="volSfxVal">80</span>
       </div>
     </div>
@@ -154,7 +153,7 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
         Background &amp; Effects
       </span>
-      <button class="sp-toggle-btn" id="animToggle" onclick="toggleAnim()">
+      <button class="sp-toggle-btn" id="animToggle" data-action="toggle-anim">
         <span id="animLabel">On</span>
       </button>
     </div>
@@ -163,7 +162,7 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
         3D Dice
       </span>
-      <button class="sp-toggle-btn" id="diceAnimToggle" onclick="toggleDiceAnim()">
+      <button class="sp-toggle-btn" id="diceAnimToggle" data-action="toggle-dice-anim">
         <span id="diceAnimLabel">On</span>
       </button>
     </div>
@@ -173,22 +172,22 @@
     <!-- Difficulty -->
     <div class="s-section-label">Difficulty</div>
     <div class="preset-grid">
-      <button class="preset-btn" onclick="applyPreset(10,'d100',this)">
+      <button class="preset-btn" data-action="preset" data-arg="10">
         <span class="preset-pct">10%</span>
         <span class="preset-name">Forgiving</span>
         <span class="preset-desc">A gentle stroll</span>
       </button>
-      <button class="preset-btn active" onclick="applyPreset(35,'d100',this)">
+      <button class="preset-btn active" data-action="preset" data-arg="35">
         <span class="preset-pct">35%</span>
         <span class="preset-name">Standard</span>
         <span class="preset-desc">By the book</span>
       </button>
-      <button class="preset-btn" onclick="applyPreset(50,'d100',this)">
+      <button class="preset-btn" data-action="preset" data-arg="50">
         <span class="preset-pct">50%</span>
         <span class="preset-name">Grim</span>
         <span class="preset-desc">Danger lurks</span>
       </button>
-      <button class="preset-btn" onclick="applyPreset(75,'d100',this)">
+      <button class="preset-btn" data-action="preset" data-arg="75">
         <span class="preset-pct">75%</span>
         <span class="preset-name">Doomed</span>
         <span class="preset-desc">No mercy</span>
@@ -200,15 +199,15 @@
     <!-- Monster Table -->
     <div class="s-section-label">Monster Table</div>
     <div class="monster-table-row">
-      <button class="monster-table-btn active" id="mtbBtn0" onclick="setMonsterTable(0)">
+      <button class="monster-table-btn active" id="mtbBtn0" data-action="table" data-arg="0">
         <span class="mtb-name">Shallow Dungeon</span>
         <span class="mtb-tier">CR ⅛ – 5</span>
       </button>
-      <button class="monster-table-btn tier-deep" id="mtbBtn1" onclick="setMonsterTable(1)">
+      <button class="monster-table-btn tier-deep" id="mtbBtn1" data-action="table" data-arg="1">
         <span class="mtb-name">Deep Dungeon</span>
         <span class="mtb-tier">CR 3 – 17</span>
       </button>
-      <button class="monster-table-btn tier-abyss" id="mtbBtn2" onclick="setMonsterTable(2)">
+      <button class="monster-table-btn tier-abyss" id="mtbBtn2" data-action="table" data-arg="2">
         <span class="mtb-name">The Abyss</span>
         <span class="mtb-tier">CR 9 – 30</span>
       </button>
@@ -220,14 +219,14 @@
         <span class="mtb-upload-status" id="mtbUploadStatus">Using built-in table</span>
       </div>
       <div class="mtb-drop-zone" id="mtbDropZone"
-           ondragover="mtbDragOver(event)" ondragleave="mtbDragLeave(event)" ondrop="mtbDrop(event)">
+          >
         <input type="file" id="mtbFileInput" accept=".csv,.json,.txt"
-               onchange="mtbFileChosen(event)" onclick="this.value=null">
+               data-action="upload">
         <span class="mtb-drop-label"><strong>Choose file</strong> or drag &amp; drop — CSV or JSON</span>
       </div>
       <div class="mtb-actions">
-        <button class="mtb-btn" onclick="mtbDownloadTemplate()">⬇ Download template</button>
-        <button class="mtb-btn reset" id="mtbResetBtn" onclick="mtbReset()" style="display:none">✕ Remove custom</button>
+        <button class="mtb-btn" data-action="download-template">⬇ Download template</button>
+        <button class="mtb-btn reset" id="mtbResetBtn" data-action="reset-table" style="display:none">✕ Remove custom</button>
       </div>
       <div class="mtb-format-hint">
         CSV columns: <code>roll, name, cr, count, desc</code> — 20 rows, roll 1–20.<br>
@@ -243,10 +242,10 @@
       <div class="s-col">
         <div class="s-section-label">Check Die</div>
         <div class="die-type-row" id="dieTypeRow">
-          <button class="die-type-btn active" onclick="setDieType('d100',this)">d100</button>
-          <button class="die-type-btn" onclick="setDieType('d20',this)">d20</button>
-          <button class="die-type-btn" onclick="setDieType('d12',this)">d12</button>
-          <button class="die-type-btn" onclick="setDieType('d6',this)">d6</button>
+          <button class="die-type-btn active" data-action="die" data-arg="d100">d100</button>
+          <button class="die-type-btn" data-action="die" data-arg="d20">d20</button>
+          <button class="die-type-btn" data-action="die" data-arg="d12">d12</button>
+          <button class="die-type-btn" data-action="die" data-arg="d6">d6</button>
         </div>
         <p class="s-hint">Die rolled each turn for encounter check.</p>
       </div>
@@ -255,7 +254,7 @@
         <div class="s-control-row">
           <span class="s-control-label s-control-label--sm">Roll ≤</span>
           <div class="s-slider-wrap">
-            <input type="range" id="threshSlider" min="1" max="100" value="35" oninput="updateThreshDisplay()">
+            <input type="range" id="threshSlider" min="1" max="100" value="35" data-action="threshold">
             <span class="slider-val" id="threshVal">35</span>
           </div>
         </div>
@@ -273,8 +272,8 @@
     </div>
 
     <div class="settings-footer">
-      <button class="s-btn-cancel" onclick="cancelSettings()">Cancel</button>
-      <button class="s-btn-save" onclick="saveSettings()">Apply Changes</button>
+      <button class="s-btn-cancel" data-action="settings-cancel">Cancel</button>
+      <button class="s-btn-save" data-action="settings-save">Apply Changes</button>
     </div>
   </div>
 </div>
@@ -296,7 +295,7 @@
   </div>
   <p class="subtitle">D&amp;D 5th Edition &nbsp;·&nbsp; 10-Minute Turns</p>
   <div class="header-btns">
-    <button class="hdr-btn" id="soundToggle" onclick="toggleSound()">
+    <button class="hdr-btn" id="soundToggle" data-action="toggle-sound">
       <span class="hdr-btn-icon">
         <!-- speaker on -->
         <svg id="iconSoundOn" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -313,7 +312,7 @@
       </span>
       <span class="hdr-btn-label" id="soundLabel">Sound</span>
     </button>
-    <button class="hdr-btn" onclick="openSettings()">
+    <button class="hdr-btn" data-action="settings-open">
       <span class="hdr-btn-icon">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="3"/>
@@ -356,19 +355,19 @@
         <div class="torch-base"></div>
       </div>
     </div>
-    <button class="advance-btn" id="advBtn" onclick="advanceTurn()">⚔ Advance Turn</button>
+    <button class="advance-btn" id="advBtn" data-action="advance">⚔ Advance Turn</button>
     <div class="combat-locked-label" id="combatLockedLabel">⚔ Defeat the monster first</div>
     <div class="freq-badge">Encounter on <strong id="freqThresh">35</strong> or below on a <strong id="freqDie">d100</strong> &nbsp;·&nbsp; <strong id="freqPct">35%</strong> chance per turn<span id="freqBadgeExtra"></span></div>
     <div class="torch-timer" id="torchTimer">
       <span class="tt-label">Torch</span>
       <span class="tt-time" id="torchTime" role="timer" aria-live="off">60:00</span>
       <div class="tt-bar" aria-hidden="true"><div id="torchBar"></div></div>
-      <button class="tt-btn" id="torchBtn" onclick="torchToggle()">Light</button>
-      <button class="tt-btn" onclick="torchReset()" title="New torch" aria-label="New torch">↺</button>
+      <button class="tt-btn" id="torchBtn" data-action="torch-toggle">Light</button>
+      <button class="tt-btn" data-action="torch-reset" title="New torch" aria-label="New torch">↺</button>
     </div>
     <div class="turn-action-row">
-      <button class="undo-btn" id="undoBtn" onclick="undoTurn()" disabled>↩ Undo</button>
-      <button class="reset-btn" onclick="resetAll()">Abandon Session</button>
+      <button class="undo-btn" id="undoBtn" data-action="undo" disabled>↩ Undo</button>
+      <button class="reset-btn" data-action="abandon">Abandon Session</button>
     </div>
   </div>
 
@@ -421,7 +420,7 @@
       </div>
       <div class="stat-block" id="statBlock"></div>
       <div class="defeat-btn-wrap" id="defeatWrap" style="display:none;">
-        <button class="defeat-btn" onclick="monsterDefeated()">⚔ Monster Defeated</button>
+        <button class="defeat-btn" data-action="defeat">⚔ Monster Defeated</button>
       </div>
     </div>
   </div>
@@ -439,12 +438,12 @@
       <div class="xp-party-row">
         <span class="xp-party-label">Players</span>
         <div class="xp-party-btns">
-          <button class="xp-count-btn" onclick="xpChangeParty(-1)">−</button>
+          <button class="xp-count-btn" data-action="party" data-arg="-1">−</button>
           <span class="xp-player-count" id="xpPartyCount">4</span>
-          <button class="xp-count-btn" onclick="xpChangeParty(1)">+</button>
+          <button class="xp-count-btn" data-action="party" data-arg="1">+</button>
         </div>
         <div style="flex:1"></div>
-        <button class="xp-reset-btn" onclick="xpReset()">Reset XP</button>
+        <button class="xp-reset-btn" data-action="xp-reset">Reset XP</button>
       </div>
 
       <!-- Per-player cards -->
@@ -480,7 +479,7 @@
     <div class="corner-bracket tr"></div>
     <div class="corner-bracket bl"></div>
     <div class="corner-bracket br"></div>
-    <div class="table-toggle" onclick="toggleTable()">
+    <div class="table-toggle" data-action="toggle-table">
       <div class="card-label" style="margin-bottom:0;">Wandering Monster Table (d20)</div>
       <span class="toggle-caret" id="caret">▼</span>
     </div>
@@ -507,6 +506,7 @@
 
 <script src="js/data.js"></script>
 <script src="js/rules.js"></script>
+<script src="js/state.js"></script>
 <script src="js/tables.js"></script>
 <script src="js/dice3d.js"></script>
 <script src="js/audio.js"></script>

@@ -247,7 +247,7 @@
 
 
   function draw(ts){
-    if(!animOn){ requestAnimationFrame(draw); return; }
+    if(!S.anim){ requestAnimationFrame(draw); return; }
     if(lastTime === null) lastTime = ts;
     const dt = Math.min(ts - lastTime, 50);
     lastTime = ts;

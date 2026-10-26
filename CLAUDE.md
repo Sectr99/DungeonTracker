@@ -8,8 +8,8 @@ Dungeon Tracker is a vanilla HTML/CSS/JS web app — no build system, no npm, no
 
 A rebuild is in progress (architecture first, then a full visual redesign — the current themes are slated for replacement, and the DungeonTools hub is being redesigned too):
 1. ✅ Split the single file into `css/` + `js/` with no behaviour change; tests for pure rules
-2. Single state object + `render(state)`, versioned save schema, delegated `data-action` events (then drop `'unsafe-inline'` from the CSP)
-3. New design on top of the new render layer; SVG die replaces Three.js
+2. ✅ Single state object + `render()`, versioned save schema, delegated `data-action` events, strict script CSP
+3. New design on top of the render layer; SVG die replaces Three.js
 
 ## Development
 
@@ -20,22 +20,29 @@ No dependencies to install; tests use Node's built-in runner.
 
 ## Architecture
 
-`index.html` holds markup only. Scripts are **classic scripts sharing one global scope**, loaded at the end of `<body>` in this order — order matters, because top-level code in later files uses earlier ones and the inline `onclick=` handlers call globals:
+`index.html` holds markup only — no inline handlers or scripts (the CSP forbids them). Scripts are **classic scripts sharing one global scope**, loaded at the end of `<body>` in this order:
 
 | File | Contents |
 |---|---|
 | `js/data.js` | `MONSTER_TABLES` — 3 built-in tables × 20 entries with 5e stat blocks |
-| `js/rules.js` | Pure rules, no DOM: `esc`, `DIE_SIDES`, dice rolls, `rollCountExpr`, CR→XP, encounter multipliers, level thresholds |
+| `js/rules.js` | Pure rules, no DOM: `esc`, `DIE_SIDES`, dice rolls, `rollCountExpr`, CR→XP, `encounterXP`, `awardXP`, level thresholds |
+| `js/state.js` | Pure: state shape (`defaultState`), `migrate(raw)` for any saved version, `torchRemaining` |
 | `js/tables.js` | Pure CSV/JSON table parsing + validation for uploads |
 | `js/dice3d.js` | Three.js r128 icosahedron (`Die3D`, `THEME_DICE`, `initDice`) |
-| `js/audio.js` | All Web Audio synthesized SFX (no audio files) |
-| `js/app.js` | Everything else: `EL` DOM cache, persistence, game loop (`advanceTurn`/`undoTurn`), torch timer, settings, upload UI, XP tracker UI |
-| `js/bg.js` | Animated canvas background (IIFE, runs immediately) |
+| `js/audio.js` | All Web Audio synthesized SFX (no audio files); reads `S.sound` / `S.volume` |
+| `js/app.js` | State + `render()`, actions, effects, delegated events, boot |
+| `js/bg.js` | Animated canvas background (IIFE, runs immediately); reads `S.anim` |
 
-`rules.js` and `tables.js` end with `if (typeof module !== 'undefined') module.exports = …` so tests can `require` them; keep new pure logic there and DOM code out of them.
+`rules.js`, `state.js`, `tables.js` end with `if (typeof module !== 'undefined') module.exports = …` so tests can `require` them; keep pure logic there and DOM code out.
 
-### State
-Game state is ~30 top-level `let` vars in `app.js` (`turn`, `history`, `combatActive`, `THRESHOLD`, `DIE_TYPE`, `xpPlayers`, …). `cookieSave()` / `restoreState()` (names are historical) serialise to `localStorage` key `dungeonTracker_v1`; any new persistent var must be added to **both**, and `restoreState` must re-sync its UI by hand. Custom tables live in `localStorage` key `dt_custom_tables` as 3 slots overriding the built-in tables by index (`null` = built-in).
+### State and rendering (app.js)
+- **`S`** is the single persisted state object (shape in `defaultState()`); **`ui`** holds transient UI state (rolling, settings draft, table open) that is never saved.
+- Every change goes through **`commit(s => { … })`**, which saves to `localStorage` key `dungeonTracker_v1` and calls `render()`. `render()` derives the whole page from `S` + `ui` and is safe to call any time; it must not trigger animations or sounds.
+- One-shot **effects** (dice spins, flashes, particles, scrolls, sounds) are fired by actions, outside `render()`. Mid-roll, `ui.rolling` tells render to leave the dice display alone.
+- Adding a persisted field: add it to `defaultState()` **and** `migrate()` (sanitise it — saves are untrusted), then read it in a render function. Bump `SAVE_VERSION` only if old saves need mapping.
+- Undo restores `history[0].partyBefore` (snapshotted when XP is awarded), so it also takes back XP and level-ups.
+- **Events:** markup uses `data-action="name" data-arg="…"`; clicks dispatch through `ACTIONS`, input/change through `INPUTS`. Render-generated HTML uses the same attributes.
+- Custom tables live separately in `localStorage` key `dt_custom_tables` as 3 slots overriding the built-in tables by index (`null` = built-in).
 
 ### Themes
 `:root` CSS vars in `css/app.css` define the default palette; `[data-theme="X"]` on `<html>` overrides it (`castlevania`, `vampire`, `dungeon`, `escape`, `torchlight`). Each also needs a `THEME_DICE` entry and a `.theme-btn`. `torchlight` re-scopes vars on `.card` to paper/ink and overrides base rules with hard-coded dark backgrounds.

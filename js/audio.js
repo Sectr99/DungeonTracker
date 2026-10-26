@@ -1,6 +1,6 @@
 // AUDIO ENGINE
 // ══════════════════════════════════════════════════
-let AC=null,soundOn=true;
+let AC=null;
 
 function ac(){
   if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();
@@ -17,7 +17,7 @@ function makeNoise(ctx,secs,brown=false){
 // ── SFX helpers ───────────────────────────────────
 function sfxGain(){
   const ctx=ac(), g=ctx.createGain();
-  g.gain.value=VOL_SFX;
+  g.gain.value=S.volume;
   g.connect(ctx.destination);
   return g;
 }
@@ -106,7 +106,7 @@ function diceLand(ctx,dest,t){
 
 // Torch snuffed: short hiss of low-passed noise falling away
 function playTorchOut(){
-  if(!soundOn) return;
+  if(!S.sound) return;
   const ctx=ac(), t=ctx.currentTime, src=ctx.createBufferSource(), f=ctx.createBiquadFilter(), g=ctx.createGain();
   src.buffer=makeNoise(ctx,1.2);
   f.type='lowpass'; f.frequency.setValueAtTime(3000,t); f.frequency.exponentialRampToValueAtTime(200,t+1.1);
@@ -118,18 +118,18 @@ function playEncounterSting(){
   const ctx=ac(), dest=sfxGain(), now=ctx.currentTime;
   const ib=makeNoise(ctx,1.5), imp=ctx.createBufferSource(); imp.buffer=ib;
   const lp=ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=180;
-  const ie=ctx.createGain(); ie.gain.setValueAtTime(0,now); ie.gain.linearRampToValueAtTime(.55*VOL_SFX,now+.025); ie.gain.exponentialRampToValueAtTime(.001,now+1.4);
+  const ie=ctx.createGain(); ie.gain.setValueAtTime(0,now); ie.gain.linearRampToValueAtTime(.55*S.volume,now+.025); ie.gain.exponentialRampToValueAtTime(.001,now+1.4);
   imp.connect(lp); lp.connect(ie); ie.connect(ctx.destination); imp.start(now); imp.stop(now+1.6);
   [82.4,87.3,116.5].forEach((f,i)=>{
     const o=ctx.createOscillator(), g=ctx.createGain(), cf=ctx.createBiquadFilter();
     o.type='sawtooth'; o.frequency.value=f; o.detune.value=(i-1)*8; cf.type='lowpass'; cf.frequency.value=900;
-    g.gain.setValueAtTime(0,now); g.gain.linearRampToValueAtTime(.14*VOL_SFX,now+.06); g.gain.setValueAtTime(.14*VOL_SFX,now+.8); g.gain.exponentialRampToValueAtTime(.001,now+2.8);
+    g.gain.setValueAtTime(0,now); g.gain.linearRampToValueAtTime(.14*S.volume,now+.06); g.gain.setValueAtTime(.14*S.volume,now+.8); g.gain.exponentialRampToValueAtTime(.001,now+2.8);
     o.connect(cf); cf.connect(g); g.connect(ctx.destination); o.start(now); o.stop(now+3);
   });
   const sc=ctx.createOscillator(), sg=ctx.createGain(), sb=ctx.createBiquadFilter();
   sc.type='sawtooth'; sc.frequency.setValueAtTime(1200,now+.1); sc.frequency.exponentialRampToValueAtTime(600,now+.9);
   sb.type='bandpass'; sb.frequency.value=800; sb.Q.value=5;
-  sg.gain.setValueAtTime(0,now+.1); sg.gain.linearRampToValueAtTime(.07*VOL_SFX,now+.18); sg.gain.exponentialRampToValueAtTime(.001,now+1);
+  sg.gain.setValueAtTime(0,now+.1); sg.gain.linearRampToValueAtTime(.07*S.volume,now+.18); sg.gain.exponentialRampToValueAtTime(.001,now+1);
   sc.connect(sb); sb.connect(sg); sg.connect(ctx.destination); sc.start(now+.1); sc.stop(now+1.1);
 }
 function playTurnTock(){
@@ -141,27 +141,14 @@ function dungeonTick(ctx,dest,t,vol){
   for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*Math.exp(-i/len*12);
   const src=ctx.createBufferSource(); src.buffer=buf;
   const bp=ctx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=320; bp.Q.value=6;
-  const g=ctx.createGain(); g.gain.setValueAtTime(vol*VOL_SFX,t); g.gain.exponentialRampToValueAtTime(.0001,t+.04);
+  const g=ctx.createGain(); g.gain.setValueAtTime(vol*S.volume,t); g.gain.exponentialRampToValueAtTime(.0001,t+.04);
   src.connect(bp); bp.connect(g); g.connect(dest); src.start(t); src.stop(t+.05);
   const tn=ctx.createOscillator(), tg=ctx.createGain(); tn.type='sine'; tn.frequency.value=160;
-  tg.gain.setValueAtTime(vol*.6*VOL_SFX,t); tg.gain.exponentialRampToValueAtTime(.0001,t+.08);
+  tg.gain.setValueAtTime(vol*.6*S.volume,t); tg.gain.exponentialRampToValueAtTime(.0001,t+.08);
   tn.connect(tg); tg.connect(dest); tn.start(t); tn.stop(t+.1);
 }
 
-function toggleSound() {
-  soundOn = !soundOn;
-  syncSoundBtn();
-  saveNow();
-}
 
-function syncSoundBtn() {
-  const btn = EL.soundToggle();
-  if(!btn) return;
-  EL.soundLabel().textContent     = soundOn ? 'Sound' : 'Muted';
-  EL.iconSoundOn().style.display  = soundOn ? '' : 'none';
-  EL.iconSoundOff().style.display = soundOn ? 'none' : '';
-  btn.classList.toggle('hdr-btn--muted', !soundOn);
-}
 
 
 // ══════════════════════════════════════════════════
@@ -257,7 +244,7 @@ function playMonsterDefeated(){
 }
 
 function playLevelUpFanfare(){
-  if(!soundOn) return;
+  if(!S.sound) return;
   const ctx=ac(), now=ctx.currentTime;
 
   // Shared reverb
@@ -265,10 +252,10 @@ function playLevelUpFanfare(){
   const rLen=ctx.sampleRate*2, rBuf=ctx.createBuffer(2,rLen,ctx.sampleRate);
   for(let c=0;c<2;c++){const d=rBuf.getChannelData(c);for(let i=0;i<rLen;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/rLen,2.5);}
   rev.buffer=rBuf;
-  const revGain=ctx.createGain(); revGain.gain.value=0.28*VOL_SFX;
+  const revGain=ctx.createGain(); revGain.gain.value=0.28*S.volume;
   rev.connect(revGain); revGain.connect(ctx.destination);
 
-  const dry=ctx.createGain(); dry.gain.value=VOL_SFX;
+  const dry=ctx.createGain(); dry.gain.value=S.volume;
   dry.connect(ctx.destination);
 
   function note(freq,type,t,dur,vol,dest,detune=0){
@@ -318,7 +305,7 @@ function playLevelUpFanfare(){
     for(let j=0;j<sLen;j++) sd[j]=(Math.random()*2-1)*Math.exp(-j/sLen*16);
     const sSrc=ctx.createBufferSource(); sSrc.buffer=sBuf;
     const shp=ctx.createBiquadFilter(); shp.type='bandpass'; shp.frequency.value=2200; shp.Q.value=2;
-    const sg=ctx.createGain(); sg.gain.value=0.055*VOL_SFX*(0.4+i/18*0.6);
+    const sg=ctx.createGain(); sg.gain.value=0.055*S.volume*(0.4+i/18*0.6);
     sSrc.connect(shp); shp.connect(sg); sg.connect(dry);
     sSrc.start(t); sSrc.stop(t+0.015);
   }
@@ -331,12 +318,12 @@ function playLevelUpFanfare(){
     for(let i=0;i<cLen;i++) cd[i]=(Math.random()*2-1)*Math.exp(-i/cLen*2.5);
     const cSrc=ctx.createBufferSource(); cSrc.buffer=cBuf;
     const chp=ctx.createBiquadFilter(); chp.type='highpass'; chp.frequency.value=6000;
-    const cg=ctx.createGain(); cg.gain.setValueAtTime(0.18*VOL_SFX,t);
+    const cg=ctx.createGain(); cg.gain.setValueAtTime(0.18*S.volume,t);
     cg.gain.exponentialRampToValueAtTime(0.0001,t+1.4);
     cSrc.connect(chp); chp.connect(cg); cg.connect(dry);
     cSrc.start(t); cSrc.stop(t+1.5);
     // Reverb on cymbal
-    const cg2=ctx.createGain(); cg2.gain.value=0.12*VOL_SFX;
+    const cg2=ctx.createGain(); cg2.gain.value=0.12*S.volume;
     chp.connect(cg2); cg2.connect(rev);
   }
 
@@ -345,7 +332,7 @@ function playLevelUpFanfare(){
     const t=now+1.07;
     const ko=ctx.createOscillator(), kg=ctx.createGain();
     ko.type='sine'; ko.frequency.setValueAtTime(135,t); ko.frequency.exponentialRampToValueAtTime(30,t+0.12);
-    kg.gain.setValueAtTime(0.4*VOL_SFX,t); kg.gain.exponentialRampToValueAtTime(0.0001,t+0.18);
+    kg.gain.setValueAtTime(0.4*S.volume,t); kg.gain.exponentialRampToValueAtTime(0.0001,t+0.18);
     ko.connect(kg); kg.connect(dry); ko.start(t); ko.stop(t+0.2);
   }
 }

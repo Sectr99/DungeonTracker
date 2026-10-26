@@ -109,5 +109,29 @@ function xpToNextLevel(lvl){
   return XP_THRESHOLDS[lvl+1];
 }
 
+// XP for one encounter. `count` is the group size actually rolled; a CR written as
+// "CR ½×1d4" carries its own count, used when no larger count was rolled.
+function encounterXP(cr, count, partySize) {
+  const [base, crCount] = parseCR(cr);
+  const n = count > 1 ? count : crCount;
+  const rawXP      = (CR_XP[base] || 0) * n;
+  const adjustedXP = Math.round(rawXP * getEncounterMultiplier(n, partySize));
+  return { count: n, rawXP, adjustedXP, perPlayer: Math.floor(adjustedXP / partySize) };
+}
+
+// Give each of the first `size` players `perPlayer` XP. Returns new player objects and
+// the indexes of players who levelled up (inputs are not mutated).
+function awardXP(players, size, perPlayer) {
+  const levelUps = [];
+  const out = players.map((p, i) => {
+    if(i >= size || p.level >= 20) return { ...p };
+    const q = { ...p, xp: p.xp + perPlayer };
+    while(q.level < 20 && q.xp >= xpToNextLevel(q.level)) q.level++;
+    if(q.level > p.level) levelUps.push(i);
+    return q;
+  });
+  return { players: out, levelUps };
+}
+
 // Node (test/) import hook — no-op in the browser
-if (typeof module !== 'undefined') module.exports = { esc, DIE_SIDES, rDie, r20, dieRollToFace, rollCountExpr, XP_THRESHOLDS, CR_XP, getEncounterMultiplier, parseCR, crToXP, xpForLevel, xpToNextLevel };
+if (typeof module !== 'undefined') module.exports = { encounterXP, awardXP, esc, DIE_SIDES, rDie, r20, dieRollToFace, rollCountExpr, XP_THRESHOLDS, CR_XP, getEncounterMultiplier, parseCR, crToXP, xpForLevel, xpToNextLevel };

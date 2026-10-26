@@ -239,7 +239,7 @@ class Die3D{
   }
   _loop(){
     this.rafId=requestAnimationFrame(()=>this._loop());
-    if(!diceAnimOn) return; // skip render when dice anim disabled
+    if(!S.diceAnim) return; // skip render when dice anim disabled
     if(this.spinning){
       this.dieGroup.rotation.x+=this.velX;this.dieGroup.rotation.y+=this.velY;this.dieGroup.rotation.z+=this.velZ;
       this.velX*=.978;this.velY*=.978;this.velZ*=.978;
@@ -253,7 +253,7 @@ class Die3D{
     this.renderer.render(this.scene,this.camera);
   }
   roll(faceIndex,onDone){
-    if(!diceAnimOn){
+    if(!S.diceAnim){
       // Determine which flat die number element corresponds to this die
       const numElId = this.dieRole === 'check' ? 'checkFlatNum' : 'monsterFlatNum';
       const maxVal  = this.dieRole === 'check' ? 100 : 20;
@@ -274,7 +274,6 @@ class Die3D{
 }
 
 let checkDie,monsterDie;
-let diceAnimOn = true;
 
 function initDice(){
   checkDie  =new Die3D(document.getElementById('checkDieWrap'),  'check');
@@ -285,12 +284,6 @@ function rebuildDiceForTheme(){
   if(monsterDie)monsterDie.rebuildForTheme();
 }
 
-function syncDiceAnimBtn(){
-  const btn = document.getElementById('diceAnimToggle');
-  if(!btn) return;
-  document.getElementById('diceAnimLabel').textContent = diceAnimOn ? 'On' : 'Off';
-  btn.classList.toggle('active', !diceAnimOn);
-}
 
 function _applyDiceAnimState() {
   const canvases = [
@@ -301,16 +294,10 @@ function _applyDiceAnimState() {
     document.getElementById('checkFlatDie'),
     document.getElementById('monsterFlatDie'),
   ];
-  canvases.forEach(c => { if(c) c.style.display = diceAnimOn ? '' : 'none'; });
-  flats.forEach(f => { if(f) f.style.display = diceAnimOn ? 'none' : ''; });
+  canvases.forEach(c => { if(c) c.style.display = S.diceAnim ? '' : 'none'; });
+  flats.forEach(f => { if(f) f.style.display = S.diceAnim ? 'none' : ''; });
 }
 
-function toggleDiceAnim(){
-  diceAnimOn = !diceAnimOn;
-  _applyDiceAnimState();
-  syncDiceAnimBtn();
-  saveNow();
-}
 
 // Scramble a flat die number display for `duration`ms then call onDone
 function scrambleFlatDie(numElId, maxVal, duration, onDone) {
