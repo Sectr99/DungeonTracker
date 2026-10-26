@@ -236,10 +236,10 @@ code { font: 0.85em ui-monospace, Consolas, monospace; }
 .xp-log .log-xp { font-family: var(--display); font-variant-numeric: tabular-nums; }
 
 /* ── Footer ────────────────────────────────────── */
-.site-footer { max-width: 1280px; margin: 0 auto; padding: 24px var(--gutter) 48px; border-top: 1px solid var(--hair); color: var(--ink-3); font-size: 13px; line-height: 1.5; }
+.site-footer { max-width: 1280px; margin: 0 auto; padding: 28px var(--gutter) 48px; color: var(--ink-3); font-size: 13px; line-height: 1.55; text-align: center; }
 .site-footer a { color: inherit; }
-.credit { font: 500 13px/1 var(--display); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-2); margin-bottom: 10px; }
-.ogl { max-width: 80ch; }
+.credit { font: 500 13px/1.4 var(--display); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-2); margin-bottom: 12px; }
+.ogl { max-width: 72ch; margin: 0 auto; text-wrap: pretty; }
 
 /* ── Settings ──────────────────────────────────── */
 .overlay { display: none; position: fixed; inset: 0; z-index: 50; background: rgb(0 0 0 / 0.5); padding: 24px; overflow-y: auto; }
@@ -375,10 +375,12 @@ body::before {
 .player-level b { border: 1.5px solid var(--ink); padding: 3px 4px 1px; min-width: 2em; }
 
 /* Colophon */
-.site-footer { border-top: 3px solid var(--ink); margin-top: 24px; position: relative; }
-.site-footer::before { content: ''; position: absolute; left: var(--gutter); right: var(--gutter); top: 3px; border-top: 1px solid var(--ink); }
+/* Heavy rule over a hairline, both inset to the content margins like every other rule */
+.site-footer { margin-top: 24px; position: relative; }
+.site-footer::before, .site-footer::after { content: ''; position: absolute; left: var(--gutter); right: var(--gutter); }
+.site-footer::before { top: 0; border-top: 3px solid var(--ink); }
+.site-footer::after  { top: 6px; border-top: 1px solid var(--ink); }
 .credit .dim { text-transform: none; letter-spacing: 0.02em; font-family: var(--text); font-style: italic; font-size: 14px; }
-@media (min-width: 921px) { .ogl { column-count: 2; column-gap: 48px; max-width: none; } }
 
 /* ── Small screens ─────────────────────────────── */
 @media (max-width: 920px) {
