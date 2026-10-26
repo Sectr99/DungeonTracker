@@ -153,6 +153,29 @@ function renderTurn() {
   EL.freqDie().textContent    = S.die;
   EL.freqPct().textContent    = (S.threshold / DIE_SIDES[S.die] * 100).toFixed(0) + '%';
   EL.checkDieLabel().textContent = S.die;
+
+  // Dateline: the session at a glance, like the line under a masthead
+  const mins = S.turn * 10, encs = S.history.filter(e => e.enc).length;
+  $('dateline').textContent = S.turn
+    ? `Turn ${S.turn} · ${Math.floor(mins / 60)}h ${String(mins % 60).padStart(2, '0')}m below · ${encs} encounter${encs === 1 ? '' : 's'}`
+    : 'A new delve';
+
+  // Hour track: six turns to the hour, filled as they pass; encounter turns marked in red
+  const inHour = S.turn ? ((S.turn - 1) % 6) + 1 : 0, hourStart = S.turn - inHour + 1;
+  $('hourTrack').querySelectorAll('li').forEach((li, i) => {
+    li.classList.toggle('done', i < inHour);
+    li.classList.toggle('enc', i < inHour && S.history.some(e => e.enc && e.turn === hourStart + i));
+  });
+  $('hourLabel').textContent = `Hour ${S.turn ? Math.floor((S.turn - 1) / 6) + 1 : 1}`;
+
+  // Quiet card fills the encounter space between monsters
+  const last = S.history[0];
+  $('quietCard').classList.toggle('visible', !c);
+  $('quietLine').textContent = !last ? 'Nothing stirs. Yet.'
+    : last.enc ? `The ${last.monster?.name || 'monster'} is dealt with. For now.`
+    : quietFlavor(last.roll);
+  $('quietMeta').textContent = !last ? 'Advance the turn to listen for wandering monsters.'
+    : `Turn ${last.turn}: rolled ${last.roll} on a ${last.die || S.die}, needing ${S.threshold} or less.`;
 }
 
 // The dice show the latest turn, unless that turn's encounter is already resolved

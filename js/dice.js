@@ -277,9 +277,20 @@ function drawDie(faceId, die, value) {
     const d = set.dice[i];
     d.q = restQ(d, v); d.tx = d.off; d.ty = 0;
   });
+  set.value = value;
   paintSet(set);
   set.el.setAttribute('aria-label', `${die}: ${value ?? 'not rolled'}`);
 }
+
+// Dice are sized from their box (it shrinks on small screens) and the screen's pixel density:
+// rebuild at rest when either changes. Mid-throw sets are left alone; they repaint every frame.
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => Object.entries(DICE_SETS).forEach(([id, set]) => {
+    if(!set.rolling) drawDie(id, set.die, set.value);
+  }), 120);
+});
 
 // Throw: enters from the left, bounces, slides to a stop, tumbling the whole way and landing on `final`
 const THROW_MS = 1250;
@@ -293,6 +304,7 @@ function rollDie(faceId, die, final, done) {
     return { d, q0: d.q, qf: restQ(d, v), ax: randAxis(), spin: (2.2 + Math.random()) * 2 * Math.PI, delay: i * 90 };
   });
   const start = performance.now();
+  set.rolling = true;
   const frame = now => {
     let running = false;
     plans.forEach(({ d, q0, qf, ax, spin, delay }) => {
@@ -303,7 +315,8 @@ function rollDie(faceId, die, final, done) {
       d.ty = -Math.abs(Math.sin(t * Math.PI * 3.2)) * d.S * THROW_HOP * Math.pow(1 - t, 1.6);
     });
     paintSet(set);
-    if(running) requestAnimationFrame(frame); else done();
+    if(running) requestAnimationFrame(frame);
+    else { set.rolling = false; set.value = final; done(); }
   };
   requestAnimationFrame(frame);
   set.el.setAttribute('aria-label', `${die}: ${final}`);

@@ -17,9 +17,10 @@
 
 <header class="bar">
   <div class="brand">
-    <span class="mark">Dungeon Tracker</span>
+    <span class="mark">Dungeon <em>Tracker</em></span>
     <span class="tagline">Wandering monsters, 10-minute turns</span>
   </div>
+  <p class="dateline" id="dateline" aria-live="off"></p>
   <nav class="bar-tools">
     <button class="tool" id="soundToggle" data-action="toggle-sound" aria-label="Toggle sound">
       <svg id="iconSoundOn" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none"/></svg>
@@ -39,9 +40,14 @@
           <span class="eyebrow">Turn</span>
           <output id="turnCounter" class="turn-num">0</output>
           <span class="turn-time" id="timeLabel"></span>
+          <div class="hour" aria-label="Turns this hour">
+            <ol class="hour-track" id="hourTrack"><li></li><li></li><li></li><li></li><li></li><li></li></ol>
+            <span class="hour-label" id="hourLabel">Hour 1</span>
+          </div>
         </div>
 
         <div class="dice">
+          <span class="tray" aria-hidden="true"></span>
           <figure class="die" id="checkDieWrap">
             <div class="die-face" id="checkDieFace" role="img"></div>
             <figcaption><b class="die-total" id="checkTotal"></b> <span id="checkDieLabel">d100</span> check</figcaption>
@@ -69,14 +75,21 @@
         <div class="torch" id="torchTimer">
           <span class="torch-label">Torch</span>
           <span class="torch-time" id="torchTime" role="timer">60:00</span>
-          <div class="torch-bar" aria-hidden="true"><div id="torchBar"></div></div>
+          <div class="torch-bar" aria-hidden="true"><div id="torchBar"></div><span class="torch-ticks"></span></div>
           <button class="btn-small" id="torchBtn" data-action="torch-toggle">Light</button>
           <button class="btn-small" data-action="torch-reset" aria-label="New torch" title="New torch">New</button>
         </div>
       </div>
     </section>
 
+    <aside class="quiet" id="quietCard" aria-live="polite">
+      <span class="eyebrow">The dungeon</span>
+      <blockquote class="quiet-line" id="quietLine">Nothing stirs. Yet.</blockquote>
+      <p class="quiet-meta" id="quietMeta">Press <kbd>Space</kbd> or advance the turn to listen for wandering monsters.</p>
+    </aside>
+
     <article class="encounter" id="encCard" aria-live="polite">
+      <span class="crop crop-tl" aria-hidden="true"></span><span class="crop crop-tr" aria-hidden="true"></span>
       <header class="enc-head">
         <span class="enc-roll" id="encBadgeRoll"></span>
         <div>
@@ -133,7 +146,7 @@
 </main>
 
 <footer class="site-footer">
-  <p class="credit">Created by Sectr99</p>
+  <p class="credit">Created by Sectr99 <span class="dim">· Set in Oswald &amp; Crimson Pro · Dice thrown in canvas, no libraries</span></p>
   <p class="ogl">
     This application uses game mechanics and statistics derived from the
     <em>System Reference Document 5.1</em> (&ldquo;SRD 5.1&rdquo;), available at

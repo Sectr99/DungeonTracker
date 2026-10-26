@@ -302,11 +302,93 @@ input[type=range] { width: 100%; accent-color: var(--ink); }
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
 
+/* ── Polish: printed-page details ──────────────── */
+/* Paper grain: fractal noise multiplied over the page, like uncoated stock */
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: 100; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .1 0 0 0 0 .08 0 0 0 0 .05 0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: var(--grain, 0.32); mix-blend-mode: multiply;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --grain: 0.5; } }
+:root[data-theme="dark"] { --grain: 0.5; }
+
+/* Masthead: heavy rule with a hairline under it, dateline between title and tools */
+.bar { position: relative; margin-bottom: 6px; }
+.bar::after { content: ''; position: absolute; left: 0; right: 0; bottom: -7px; border-bottom: 1px solid var(--ink); }
+.mark { font-size: 28px; }
+.mark em { font-style: normal; font-weight: 400; }
+.dateline { font: 400 13px/1 var(--display); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-3); text-align: center; flex: 1; }
+
+/* Rulebook chapter numbers on the side panels */
+.col-side { counter-reset: chapter; }
+.panel-head h2::before { counter-increment: chapter; content: counter(chapter, upper-roman) '.'; color: var(--red); margin-right: 0.45em; }
+
+/* Hour track: six turns to the hour, as on an OSR turn sheet */
+.hour { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.hour-track { display: flex; gap: 4px; }
+.hour-track li { width: 15px; height: 15px; border: 1.5px solid var(--ink); transition: background 0.2s; }
+.hour-track li.done { background: var(--ink); }
+.hour-track li.enc { background: var(--red); border-color: var(--red); }
+.hour-label { font: 500 12px/1 var(--display); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-3); }
+
+/* The table the dice land on */
+.dice { position: relative; }
+.tray { position: absolute; left: -16px; right: -16px; bottom: 22px; border-bottom: 1px solid var(--hair); }
+
+/* Primary buttons: an inset double rule, and a press that sinks like a stamp */
+.btn-primary { box-shadow: inset 0 0 0 3px var(--ink), inset 0 0 0 4.5px var(--paper); transition: background 0.15s, transform 0.08s; }
+.btn-primary:hover { box-shadow: inset 0 0 0 3px var(--red), inset 0 0 0 4.5px var(--on-red); }
+.btn-primary:active { transform: translateY(2px); }
+#advBtn.combat-locked { box-shadow: none; }
+
+/* Torch: one tick per 10-minute turn */
+.torch-bar { position: relative; }
+.torch-ticks {
+  position: absolute; inset: -4px 0; pointer-events: none; opacity: 0.55;
+  background: repeating-linear-gradient(90deg, transparent 0 calc(100% / 6 - 1px), var(--ink) calc(100% / 6 - 1px) calc(100% / 6));
+}
+
+/* Between encounters: a pull quote holds the space */
+.quiet { display: none; border-top: 8px solid var(--ink); padding-top: 20px; }
+.quiet.visible { display: block; animation: rise 0.3s ease-out; }
+.quiet-line { margin: 12px 0 0; font: italic 400 clamp(28px, 4vw, 42px)/1.15 var(--text); max-width: 22ch; }
+.quiet-line::before { content: '“'; font: 600 1.4em/0 var(--display); color: var(--red); margin-right: 0.08em; vertical-align: -0.28em; font-style: normal; }
+.quiet-meta { margin-top: 12px; color: var(--ink-3); font-size: 16px; }
+
+/* Encounter: printer's crop marks; a drop cap opens the lore (long enough to wrap around it) */
+.encounter { position: relative; }
+.crop { position: absolute; top: -20px; width: 14px; height: 14px; border-top: 1px solid var(--ink); }
+.crop-tl { left: -12px; border-left: 1px solid var(--ink); }
+.crop-tr { right: -12px; border-right: 1px solid var(--ink); }
+.sb-lore::first-letter {
+  float: left; font: 600 3.1em/0.8 var(--display); color: var(--red); font-style: normal;
+  margin: 5px 10px 0 0; text-transform: uppercase;
+}
+.enc-roll { position: relative; }
+.enc-roll::after { content: 'd20'; position: absolute; left: 0; right: 0; bottom: -16px; font: 500 11px/1 var(--display); letter-spacing: 0.12em; color: var(--ink-3); }
+
+/* Stat block abilities in ruled cells, like a character sheet */
+.sb-abilities { gap: 0; border: 0; padding: 0; }
+.sb-abilities > div { border: 1px solid var(--ink); margin-left: -1px; padding: 6px 0 4px; }
+
+/* Ledger: encounter rows carry a red mark in the margin */
+.log li { position: relative; }
+.log li.enc::before { content: ''; position: absolute; left: -12px; top: 50%; width: 6px; height: 6px; margin-top: -3px; background: var(--red); transform: rotate(45deg); }
+
+/* Player rows: level boxed like a sheet field */
+.player-level b { border: 1.5px solid var(--ink); padding: 3px 4px 1px; min-width: 2em; }
+
+/* Colophon */
+.site-footer { border-top: 3px solid var(--ink); margin-top: 24px; position: relative; }
+.site-footer::before { content: ''; position: absolute; left: var(--gutter); right: var(--gutter); top: 3px; border-top: 1px solid var(--ink); }
+.credit .dim { text-transform: none; letter-spacing: 0.02em; font-family: var(--text); font-style: italic; font-size: 14px; }
+@media (min-width: 921px) { .ogl { column-count: 2; column-gap: 48px; max-width: none; } }
+
 /* ── Small screens ─────────────────────────────── */
 @media (max-width: 920px) {
   :root { --gutter: 16px; }
   .screen { grid-template-columns: minmax(0, 1fr); gap: 36px; padding-top: 20px; }
-  .tagline { display: none; }
+  .tagline, .dateline { display: none; }
   .die-face { --die: 92px; }
   /* Keep the one action in thumb reach */
   .actions {
