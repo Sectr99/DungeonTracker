@@ -6,7 +6,7 @@ function parseCSV(text) {
   const first = lines[0].toLowerCase();
   const hasHeader = first.includes('roll') || first.includes('name') || first.includes('monster');
   const dataLines = hasHeader ? lines.slice(1) : lines;
-  if(dataLines.length === 0) throw new Error('No data rows found');
+  if(dataLines.length === 0) throw new Error('The CSV has a header but no rows.');
 
   return dataLines.map((line, i) => {
     // Simple CSV split respecting quoted fields
@@ -31,9 +31,9 @@ function parseCSV(text) {
 // ── JSON parser ─────────────────────────────────────
 function parseJSON(text) {
   const data = JSON.parse(text); // throws on bad JSON
-  if(!Array.isArray(data)) throw new Error('JSON must be an array of monster objects');
+  if(!Array.isArray(data)) throw new Error('The JSON file must be a list of monsters, like [ { "roll": 1, "name": "Ghoul" } ].');
   return data.map((m, i) => {
-    if(typeof m !== 'object' || !m) throw new Error(`Row ${i+1}: not an object`);
+    if(typeof m !== 'object' || !m) throw new Error(`Row ${i+1} isn't a monster entry.`);
     const roll = parseInt(m.roll) || (i + 1);
     const name = String(m.name || `Monster ${roll}`);
     const cr   = String(m.cr   || '—');
@@ -48,10 +48,10 @@ function parseJSON(text) {
 
 // ── Validate parsed table ───────────────────────────
 function validateTable(rows) {
-  if(!rows || rows.length === 0) throw new Error('Table is empty');
-  if(rows.length > 100) throw new Error(`Too many rows (${rows.length}) — max 100`);
+  if(!rows || rows.length === 0) throw new Error('The file has no monsters in it.');
+  if(rows.length > 100) throw new Error(`That table has ${rows.length} rows. The limit is 100.`);
   for(const r of rows) {
-    if(!r.name || r.name.trim() === '') throw new Error(`Row ${r.roll}: missing name`);
+    if(!r.name || r.name.trim() === '') throw new Error(`Row ${r.roll} has no name.`);
   }
   return rows;
 }

@@ -71,7 +71,7 @@
       <p class="locked" id="combatLockedLabel"></p>
 
       <div class="turn-foot">
-        <p class="odds">Encounter on <b id="freqThresh">35</b> or less on a <b id="freqDie">d100</b> — <b id="freqPct">35%</b> a turn<span id="freqBadgeExtra"></span></p>
+        <p class="odds">Encounter on <b id="freqThresh">35</b> or less on a <b id="freqDie">d100</b>: <b id="freqPct">35%</b> each turn.<span id="freqBadgeExtra"></span></p>
         <div class="torch" id="torchTimer">
           <span class="torch-label">Torch</span>
           <span class="torch-time" id="torchTime" role="timer">60:00</span>
@@ -84,8 +84,8 @@
 
     <aside class="quiet" id="quietCard" aria-live="polite">
       <span class="eyebrow">The dungeon</span>
-      <blockquote class="quiet-line" id="quietLine">Nothing stirs. Yet.</blockquote>
-      <p class="quiet-meta" id="quietMeta">Press <kbd>Space</kbd> or advance the turn to listen for wandering monsters.</p>
+      <blockquote class="quiet-line" id="quietLine">The party stands at the entrance.</blockquote>
+      <p class="quiet-meta" id="quietMeta">Advance the turn to check for wandering monsters.</p>
     </aside>
 
     <article class="encounter" id="encCard" aria-live="polite">
@@ -146,7 +146,7 @@
 </main>
 
 <footer class="site-footer">
-  <p class="credit">Created by Sectr99 <span class="dim">· Set in Oswald &amp; Crimson Pro · Dice thrown in canvas, no libraries</span></p>
+  <p class="credit">Created by Sectr99 <span class="dim">· Set in Oswald and Crimson Pro</span></p>
   <p class="ogl">
     This application uses game mechanics and statistics derived from the
     <em>System Reference Document 5.1</em> (&ldquo;SRD 5.1&rdquo;), available at
@@ -202,9 +202,9 @@
     <section class="sheet-sec">
       <h3>Encounter table</h3>
       <div class="seg" role="group" aria-label="Encounter table">
-        <button class="monster-table-btn" data-action="table" data-arg="0">Shallow <small>CR ⅛–3</small></button>
-        <button class="monster-table-btn" data-action="table" data-arg="1">Deep <small>CR 3–17</small></button>
-        <button class="monster-table-btn" data-action="table" data-arg="2">Abyss <small>CR 5–30</small></button>
+        <button class="monster-table-btn" data-action="table" data-arg="0">Shallow <small>CR ⅛–5</small></button>
+        <button class="monster-table-btn" data-action="table" data-arg="1">Deep <small>CR 2–21</small></button>
+        <button class="monster-table-btn" data-action="table" data-arg="2">Abyss <small>CR 9–30</small></button>
       </div>
       <div class="upload" id="mtbDropZone">
         <p class="upload-title" id="mtbUploadTitle">Custom table</p>
@@ -214,7 +214,7 @@
           <button class="btn-small" data-action="download-template">Download template</button>
           <button class="btn-small" id="mtbResetBtn" data-action="reset-table">Remove custom</button>
         </div>
-        <p class="hint">Or drop a file here. CSV columns: <code>roll, name, cr, count, desc</code>, rolls 1–20. JSON: an array of those objects; <code>stats</code>, <code>lore</code>, <code>tactics</code> and <code>habitat</code> are kept.</p>
+        <p class="hint">Or drop a file here. A CSV needs the columns <code>roll, name, cr, count, desc</code>, with rolls from 1 to 20. A JSON file is a list of the same fields and can also include <code>stats</code>, <code>lore</code>, <code>tactics</code> and <code>habitat</code>.</p>
       </div>
     </section>
 

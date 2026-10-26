@@ -138,7 +138,7 @@ function renderToggles() {
 
 function renderTurn() {
   if(!ui.rolling) EL.turnCounter().textContent = S.turn;
-  EL.timeLabel().textContent = S.turn ? `${S.turn * 10} minutes in` : 'The delve begins';
+  EL.timeLabel().textContent = S.turn ? `${S.turn * 10} minutes in` : 'Not started';
   EL.undoBtn().disabled = !S.history.length;
   EL.advBtn().classList.toggle('rolling', ui.rolling);
 
@@ -157,8 +157,8 @@ function renderTurn() {
   // Dateline: the session at a glance, like the line under a masthead
   const mins = S.turn * 10, encs = S.history.filter(e => e.enc).length;
   $('dateline').textContent = S.turn
-    ? `Turn ${S.turn} · ${Math.floor(mins / 60)}h ${String(mins % 60).padStart(2, '0')}m below · ${encs} encounter${encs === 1 ? '' : 's'}`
-    : 'A new delve';
+    ? `Turn ${S.turn} · ${Math.floor(mins / 60)}h ${String(mins % 60).padStart(2, '0')}m underground · ${encs} encounter${encs === 1 ? '' : 's'}`
+    : 'New session';
 
   // Hour track: six turns to the hour, filled as they pass; encounter turns marked in red
   const inHour = S.turn ? ((S.turn - 1) % 6) + 1 : 0, hourStart = S.turn - inHour + 1;
@@ -171,10 +171,10 @@ function renderTurn() {
   // Quiet card fills the encounter space between monsters
   const last = S.history[0];
   $('quietCard').classList.toggle('visible', !c);
-  $('quietLine').textContent = !last ? 'Nothing stirs. Yet.'
-    : last.enc ? `The ${last.monster?.name || 'monster'} is dealt with. For now.`
+  $('quietLine').textContent = !last ? 'The party stands at the entrance.'
+    : last.enc ? `The ${last.monster?.name || 'monster'} is down.`
     : quietFlavor(last.roll);
-  $('quietMeta').textContent = !last ? 'Advance the turn to listen for wandering monsters.'
+  $('quietMeta').textContent = !last ? 'Advance the turn to check for wandering monsters.'
     : `Turn ${last.turn}: rolled ${last.roll} on a ${last.die || S.die}, needing ${S.threshold} or less.`;
 }
 
@@ -220,15 +220,15 @@ function renderLog() {
     </li>`).join('');
 
   const encCount = S.history.filter(e => e.enc).length;
-  $('freqBadgeExtra').textContent = S.turn > 0 ? ` · ${encCount} of ${S.turn} so far` : '';
+  $('freqBadgeExtra').textContent = S.turn > 0 ? ` ${encCount} of ${S.turn} turns so far.` : '';
 }
 
 function quietFlavor(roll) {
   const x = roll / DIE_SIDES[S.die];
-  if(x <= 0.42) return 'Distant sounds. Nothing emerges.';
-  if(x <= 0.62) return 'Dripping water, nothing more.';
-  if(x <= 0.82) return 'Cold silence.';
-  return 'All is still.';
+  if(x <= 0.42) return 'Something moves far off, then stops.';
+  if(x <= 0.62) return 'Water drips somewhere ahead.';
+  if(x <= 0.82) return 'Only the hiss of the torch.';
+  return 'Dead quiet.';
 }
 
 function renderTable() {
@@ -250,7 +250,7 @@ function renderTable() {
   }
   const isCustom = !!customTables[S.tableIndex];
   document.querySelector('.table-toggle .card-label').textContent =
-    `Encounters — ${TIER_NAMES[S.tableIndex]}${isCustom ? ' (custom)' : ''}`;
+    `${TIER_NAMES[S.tableIndex]} encounters${isCustom ? ' (custom)' : ''}`;
 }
 
 function renderTorch() {
@@ -311,7 +311,7 @@ function renderSettings() {
   $('mtbUploadTitle').textContent = `Custom table for ${TIER_NAMES[S.tableIndex]}`;
   const custom = customTables[S.tableIndex];
   const status = $('mtbUploadStatus');
-  status.textContent = custom ? `Custom table loaded: ${custom.length} entr${custom.length === 1 ? 'y' : 'ies'}.` : 'Using the built-in table.';
+  status.textContent = custom ? `Using your table: ${custom.length} entr${custom.length === 1 ? 'y' : 'ies'}.` : 'Using the built-in table.';
   status.className   = 'upload-status' + (custom ? ' ok' : '');
   $('mtbResetBtn').style.display = custom ? '' : 'none';
 
@@ -421,21 +421,24 @@ function xpFlashLevelUp(playerIndexes) {
   }, 3400);
 }
 
-const LEVEL_FLAVOUR = {
-  2:'A spark of potential ignites.', 3:'The dungeon begins to fear you.', 4:'Your name is whispered in the dark.',
-  5:'Power flows through you like blood.', 6:'Monsters hesitate before charging.', 7:'You have walked where others fled.',
-  8:'The shadows show you respect.', 9:'Legends are forged in moments like this.', 10:"Half the world's horrors cannot touch you.",
-  11:'You stand apart from common warriors.', 12:'The dungeon shifts to account for you.', 13:'Death has looked you in the eye and blinked.',
-  14:'Your deeds echo through these stone halls.', 15:'Even warlords speak your name carefully.', 16:'You are becoming something beyond mortal.',
-  17:'The gods have noticed.', 18:'Few in history have stood where you stand.', 19:'One final threshold remains.',
-  20:'You have reached the apex of mortal power.',
+// What each level brings in 5e, shown on the level-up card
+const LEVEL_NOTES = {
+  2: 'New class features.', 3: 'Most classes choose a subclass.', 4: 'Ability Score Improvement or a feat.',
+  5: 'Proficiency bonus +3. Extra Attack, or 3rd-level spells.', 6: 'A subclass feature for most classes.',
+  7: '4th-level spells for full casters.', 8: 'Ability Score Improvement or a feat.',
+  9: 'Proficiency bonus +4. 5th-level spells.', 10: 'A subclass feature for many classes.',
+  11: '6th-level spells, and a big feature for martial classes.', 12: 'Ability Score Improvement or a feat.',
+  13: 'Proficiency bonus +5. 7th-level spells.', 14: 'A subclass feature for many classes.',
+  15: '8th-level spells for full casters.', 16: 'Ability Score Improvement or a feat.',
+  17: 'Proficiency bonus +6. 9th-level spells.', 18: 'New class features.', 19: 'Ability Score Improvement or a feat.',
+  20: 'The class capstone.',
 };
 
 function showLevelUpOverlay(playerName, newLevel) {
   const overlay = EL.lvlupOverlay();
   EL.lvlupName().textContent = playerName;
   EL.lvlupNum().textContent  = newLevel;
-  EL.lvlupSub().textContent  = LEVEL_FLAVOUR[newLevel] || 'A new power awakens in the darkness.';
+  EL.lvlupSub().textContent  = LEVEL_NOTES[newLevel] || '';
   overlay.classList.add('active');
   const dismiss = () => overlay.classList.remove('active');
   overlay.onclick = dismiss;
@@ -550,7 +553,7 @@ function undoTurn() {
 }
 
 function abandonSession() {
-  if(ui.rolling || !S.turn || !confirm('Abandon session? All history will be lost.')) return;
+  if(ui.rolling || !S.turn || !confirm('Abandon this session? The turn count and log will be cleared. XP is kept.')) return;
   commit(s => { s.turn = 0; s.history = []; s.combat = null; });
 }
 
@@ -569,7 +572,7 @@ setInterval(() => {
   if(S.torch.endsAt && torchRemaining(S.torch) === 0) {
     commit(({ torch }) => { torch.left = 0; torch.endsAt = null; });
     playTorchOut();
-    showSaveIndicator('The torch gutters out — darkness');
+    showSaveIndicator('The torch is out');
   }
   renderTorch();
 }, 1000);
@@ -610,10 +613,10 @@ function saveSettings() {
 
 function loadTableFile(file) {
   const status = $('mtbUploadStatus');
-  const fail = msg => { status.textContent = `✕ ${msg}`; status.className = 'mtb-upload-status err'; };
-  if(file.size > 1024 * 1024) return fail('File too large (max 1 MB)');
+  const fail = msg => { status.textContent = msg; status.className = 'upload-status err'; };
+  if(file.size > 1024 * 1024) return fail('That file is over 1 MB.');
   status.textContent = 'Reading…';
-  status.className = 'mtb-upload-status';
+  status.className = 'upload-status';
 
   const reader = new FileReader();
   reader.onload = e => {
@@ -624,7 +627,7 @@ function loadTableFile(file) {
       showSaveIndicator('Custom table loaded');
     } catch(err) { fail(err.message); }
   };
-  reader.onerror = () => fail('Could not read file');
+  reader.onerror = () => fail("Couldn't read that file.");
   reader.readAsText(file);
 }
 
@@ -672,7 +675,7 @@ const ACTIONS = {
     while(s.party.players.length < s.party.size) s.party.players.push(defaultPlayer(s.party.players.length));
   }),
   'xp-reset':         () => {
-    if(!confirm('Reset all XP and levels?')) return;
+    if(!confirm('Reset XP, levels and names for the whole party?')) return;
     commit(s => { s.xpLog = []; s.party.players = s.party.players.map((_, i) => defaultPlayer(i)); });
   },
   'level':            arg => {
@@ -721,6 +724,14 @@ document.addEventListener('keydown', e => {
 // ══════════════════════════════════════════════════
 // Scripts sit at the end of <body>, so the DOM is ready: load before the first paint
 const saved = load();
-if(saved) { S = saved; save(); } // re-save in the current shape
+if(saved) {
+  // Saves hold copies of monsters; refresh built-in ones so text updates reach old sessions
+  const builtIn = new Map(MONSTER_TABLES.flat().map(m => [m.name, m]));
+  const fresh = m => (m && builtIn.get(m.name)) || m;
+  saved.history.forEach(e => { e.monster = fresh(e.monster); });
+  if(saved.combat) saved.combat.monster = fresh(saved.combat.monster);
+  S = saved;
+  save(); // re-save in the current shape
+}
 render();
 if(saved) showSaveIndicator('Session restored');

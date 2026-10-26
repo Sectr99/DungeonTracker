@@ -46,6 +46,13 @@ No dependencies to install; tests use Node's built-in runner.
 ### Design
 One look: ink on bone paper with a single rubric red, Oswald (condensed caps) for structure and Crimson Pro for reading. All colours are tokens on `:root` in `css/app.css`; dark mode redefines them under `prefers-color-scheme` unless `data-theme="light"`, and under `data-theme="dark"`. `S.theme` is `auto` / `light` / `dark`. `S.anim` off adds `.no-motion` to `<html>`; `prefers-reduced-motion` is also honoured. Below 920px the layout is one column and the advance-turn bar sticks to the bottom.
 
+### Copy
+Write like a terse OSR module, for the GM: present tense, short sentences, concrete detail they can use at the table.
+- No em-dash asides, twist endings ("until it isn't"), dramatic one-liners ("It is ready."), lists of three, or mood words standing in for information.
+- Monster `desc`: what the party notices first, under ten words. `lore`: one or two sentences giving a hook (who, why, what it wants). `tactics`: what it does in a fight, matching its `stats.props`. `habitat`: plain places.
+- UI text: sentence case, plain verbs; errors say what's wrong and what the limit is.
+- Saves hold copies of monsters; on load, built-in ones are refreshed from `MONSTER_TABLES` by name, so copy edits reach old sessions.
+
 ### Custom encounter tables
 CSV (`roll,name,cr,count,desc`) or JSON array, max 1 MB / 100 rows:
 ```json

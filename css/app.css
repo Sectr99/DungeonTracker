@@ -360,6 +360,7 @@ body::before {
 .crop { position: absolute; top: -20px; width: 14px; height: 14px; border-top: 1px solid var(--ink); }
 .crop-tl { left: -12px; border-left: 1px solid var(--ink); }
 .crop-tr { right: -12px; border-right: 1px solid var(--ink); }
+.sb-lore { display: flow-root; } /* contain the drop cap so it never spills into Tactics */
 .sb-lore::first-letter {
   float: left; font: 600 3.1em/0.8 var(--display); color: var(--red); font-style: normal;
   margin: 5px 10px 0 0; text-transform: uppercase;
