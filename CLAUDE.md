@@ -9,7 +9,7 @@ Dungeon Tracker is a vanilla HTML/CSS/JS web app — no build system, no npm, no
 A rebuild is in progress (architecture first, then a full visual redesign — the current themes are slated for replacement, and the DungeonTools hub is being redesigned too):
 1. ✅ Split the single file into `css/` + `js/` with no behaviour change; tests for pure rules
 2. ✅ Single state object + `render()`, versioned save schema, delegated `data-action` events, strict script CSP
-3. 🚧 New design (branch `redesign`): printed-page GM screen, SVG dice replace Three.js
+3. ✅ New design: printed-page GM screen; canvas-painted 3D dice replace Three.js
 
 ## Development
 
