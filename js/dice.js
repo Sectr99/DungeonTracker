@@ -67,47 +67,66 @@ const PIPS = { 1: [[0,0]], 2: [[-1,-1],[1,1]], 3: [[-1,-1],[0,0],[1,1]], 4: [[-1
 function dieSVG(kindName, value) {
   const kind = DIE_KIND[kindName], g = DIE_GEOM[kind.geom];
   const sides = sideValues(kind, value, g.faces.length - 1);
-  let out = `<polygon class="edge" points="${pts(g.outline)}"/>`;
-  g.faces.forEach((f, i) => { out += `<polygon class="${i ? 'face' : 'face face-main'}" points="${pts(f)}"/>`; });
+  // Body (outline + faces) turns while rolling; numbers sit in their own group and stay upright
+  let body = `<polygon class="edge" points="${pts(g.outline)}"/>`;
+  g.faces.forEach((f, i) => { body += `<polygon class="${i ? 'face' : 'face face-main'}" points="${pts(f)}"/>`; });
 
-  if(kind.geom === 'd6') {
-    out += PIPS[value].map(([x, y]) => `<circle class="pip" cx="${g.at[0] + x * 19}" cy="${g.at[1] + y * 19}" r="6.5"/>`).join('');
-  } else {
-    const main = kind.label(value);
-    const size = main.length > 2 ? g.size * 0.8 : g.size;
-    out += `<text class="n-main" x="${g.at[0]}" y="${g.at[1]}" font-size="${size}">${main}</text>`;
-  }
+  let nums = `<g class="n-main-g">${mainMark(kindName, value)}</g>`;
   if(kind.geom !== 'd6') g.faces.slice(1).forEach((f, i) => { // d6 sides stay plain (pips would be noise)
     const [x, y] = centroid(f);
-    out += `<text class="n-side" x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-size="${kind.geom === 'd10' ? 8 : 9}">${kind.label(sides[i])}</text>`;
+    nums += `<text class="n-side" x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-size="${kind.geom === 'd10' ? 8 : 9}">${kind.label(sides[i])}</text>`;
   });
-  return `<svg class="die-shape" viewBox="0 0 100 100" aria-hidden="true">${out}</svg>`;
+  return `<svg class="die-shape" viewBox="0 0 100 100" aria-hidden="true"><g class="body">${body}</g>${nums}</svg>`;
+}
+
+// The front-face mark: a number, or pips on a d6
+function mainMark(kindName, value) {
+  const kind = DIE_KIND[kindName], g = DIE_GEOM[kind.geom];
+  if(kind.geom === 'd6')
+    return PIPS[value].map(([x, y]) => `<circle class="pip" cx="${g.at[0] + x * 19}" cy="${g.at[1] + y * 19}" r="6.5"/>`).join('');
+  const label = kind.label(value);
+  return `<text class="n-main" x="${g.at[0]}" y="${g.at[1]}" font-size="${label.length > 2 ? g.size * 0.8 : g.size}">${label}</text>`;
+}
+
+// d100 → [['tens', 6], ['units', 6]]; other dice → [[die, value]]
+function dieParts(die, v) {
+  return die === 'd100' ? [['tens', Math.floor((v % 100) / 10)], ['units', v % 10]] : [[die, v]];
 }
 
 // Draw `die` showing `value` (1..sides) into the .die-face element; null = at rest on its top value
 function drawDie(faceId, die, value) {
   const el = $(faceId);
-  const v = value ?? DIE_SIDES[die];
-  if(die === 'd100') {
-    el.innerHTML = dieSVG('tens', Math.floor((v % 100) / 10)) + dieSVG('units', v % 10);
-    el.classList.add('pair');
-  } else {
-    el.innerHTML = dieSVG(die, v);
-    el.classList.remove('pair');
-  }
+  el.innerHTML = dieParts(die, value ?? DIE_SIDES[die]).map(([k, n]) => dieSVG(k, n)).join('');
+  el.classList.toggle('pair', die === 'd100');
   el.setAttribute('aria-label', `${die}: ${value ?? 'not rolled'}`);
 }
 
-// Tumble with faces flicking past, then settle showing `final`. Instant when animations are off.
+// Only the front numbers change mid-roll — the SVGs stay put so their turn animation runs once
+function setFrontNumbers(faceId, die, value) {
+  const svgs = $(faceId).querySelectorAll('.die-shape');
+  dieParts(die, value).forEach(([k, n], i) => { svgs[i].querySelector('.n-main-g').innerHTML = mainMark(k, n); });
+}
+
+// One smooth, slowing turn; the front number ticks over like a slowing counter and lands on
+// `final`, then the side faces fade back in. Instant when animations are off.
+const ROLL_TICKS = [0, 55, 115, 185, 270, 370, 490]; // ms; gaps widen as the die slows
+const ROLL_LAND = 620, ROLL_DONE = 860;
+
 function rollDie(faceId, die, final, done) {
   if(!S.anim) { drawDie(faceId, die, final); done(); return; }
   const wrap = $(faceId).closest('.die');
   const sides = DIE_SIDES[die];
-  drawDie(faceId, die, 1 + Math.floor(Math.random() * sides));
-  wrap.classList.remove('rolling');
+  const rand = () => 1 + Math.floor(Math.random() * sides);
+  drawDie(faceId, die, rand());
+  wrap.classList.remove('rolling', 'landed');
   void wrap.offsetWidth;
   wrap.classList.add('rolling');
-  const t = setInterval(() => drawDie(faceId, die, 1 + Math.floor(Math.random() * sides)), 70);
-  setTimeout(() => { clearInterval(t); drawDie(faceId, die, final); }, 470); // lands on its face for the settle
-  setTimeout(() => { wrap.classList.remove('rolling'); done(); }, 760);
+  const timers = ROLL_TICKS.map(t => setTimeout(() => setFrontNumbers(faceId, die, rand()), t));
+  timers.push(setTimeout(() => setFrontNumbers(faceId, die, final), ROLL_LAND));
+  setTimeout(() => {
+    drawDie(faceId, die, final); // side faces now match the result
+    wrap.classList.remove('rolling');
+    wrap.classList.add('landed');
+    done();
+  }, ROLL_DONE);
 }

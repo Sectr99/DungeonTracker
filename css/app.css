@@ -124,17 +124,20 @@ code { font: 0.85em ui-monospace, Consolas, monospace; }
 .die.glow-enc .n-side, .die.glow-mon .n-side { opacity: 0.7; }
 .die-total { font-weight: 600; color: var(--ink); font-size: 14px; }
 .die-total:empty { display: none; }
-/* A tumble across the table: spin, squash as it turns over, settle on the result face */
-.die.rolling .die-shape { animation: tumble 0.76s cubic-bezier(.25,.7,.35,1); transform-origin: 50% 60%; }
-.die.rolling .die-shape + .die-shape { animation-delay: 0.06s; }
-@keyframes tumble {
-  0%   { transform: translate(-28px, -10px) rotate(-260deg) scale(0.8, 0.8); }
-  25%  { transform: translate(-8px, 2px) rotate(-140deg) scale(0.75, 0.95); }
-  50%  { transform: translate(4px, -4px) rotate(-40deg) scale(0.95, 0.8); }
-  68%  { transform: translate(2px, 0) rotate(10deg) scale(1.03, 0.97); }
-  84%  { transform: rotate(-4deg) scale(0.99, 1.01); }
-  100% { transform: none; }
+/* Roll: the body makes one decelerating turn and settles with a slight overshoot.
+   Numbers stay upright; side numbers hide mid-roll and fade back once it lands. */
+.die-shape .body { transform-box: view-box; transform-origin: 50px 52px; }
+.die.rolling .body { animation: turn 0.86s cubic-bezier(.22,.61,.36,1) both; }
+.die.rolling .die-shape + .die-shape .body { animation-delay: 0.08s; }
+@keyframes turn {
+  0%   { transform: rotate(-150deg) scale(0.94); }
+  72%  { transform: rotate(5deg) scale(1); }
+  100% { transform: rotate(0) scale(1); }
 }
+.die-shape .n-side { transition: opacity 0.3s ease-out; }
+.die.rolling .n-side { opacity: 0; transition: none; }
+.die.landed .n-main-g { animation: land 0.28s ease-out; transform-box: fill-box; transform-origin: center; }
+@keyframes land { from { transform: scale(1.18); } }
 .die--monster { display: none; }
 
 .result {
