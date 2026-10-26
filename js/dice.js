@@ -1,132 +1,259 @@
-// Flat SVG dice, drawn front-on with their visible faces numbered.
-// The face toward you shows the result; side faces show other numbers (never the opposite face).
-// d100 is a percentile pair: a tens d10 (00–90) and a units d10 (0–9); 00 + 0 reads as 100.
+// 3D dice in plain CSS 3D transforms — no library.
+// Each die is a real polyhedron (d6, d10, d12, d20) built from flat SVG faces, shaded per frame
+// against a fixed light. A roll picks the result first, then animates a throw that tumbles and
+// lands with that face toward the viewer, upright. d100 is a tens d10 (00–90) + units d10 (0–9).
 
-// Geometry in a 0–100 viewBox. faces[0] is the face toward the viewer; `at`/`size` place its number.
-const DIE_GEOM = {
-  d20: (() => {
-    const H = [[50,4],[90,27],[90,73],[50,96],[10,73],[10,27]];
-    const P1 = [50,26], P2 = [74,67], P3 = [26,67];
-    return {
-      outline: H, at: [50, 54], size: 24,
-      faces: [[P1,P2,P3], [P1,H[1],P2], [P2,H[3],P3], [P3,H[5],P1],
-              [H[5],H[0],P1], [H[0],H[1],P1], [H[1],H[2],P2], [H[2],H[3],P2], [H[3],H[4],P3], [H[4],H[5],P3]],
-    };
-  })(),
-  d10: (() => {
-    const T = [50,3], A = [6,40], L = [27,47], M = [50,61], R = [73,47], D = [94,40], E = [10,63], F = [90,63], B = [50,97];
-    return {
-      outline: [T,D,F,B,E,A], at: [50, 40], size: 22,
-      faces: [[T,L,M,R], [T,A,E,L], [T,R,F,D], [L,E,B,M], [M,B,F,R]],
-    };
-  })(),
-  d12: (() => {
-    const O = [[50,4],[94,36],[77,91],[23,91],[6,36]];
-    const I = [[50,24],[74,41],[65,70],[35,70],[26,41]];
-    return {
-      outline: O, at: [50, 51], size: 24,
-      faces: [I, ...O.map((o, i) => [I[i], o, O[(i + 1) % 5], I[(i + 1) % 5]])],
-    };
-  })(),
-  d6: {
-    outline: [[8,22],[22,8],[92,8],[92,78],[78,92],[8,92]], at: [43, 57], size: 0, // pips instead of a number
-    faces: [[[8,22],[78,22],[78,92],[8,92]], [[8,22],[22,8],[92,8],[78,22]], [[78,22],[92,8],[92,78],[78,92]]],
-  },
-};
+// ── Vector / quaternion helpers ────────────────────
+const PHI = (1 + Math.sqrt(5)) / 2;
+const vdot = (a, b) => a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
+const vsub = (a, b) => [a[0]-b[0], a[1]-b[1], a[2]-b[2]];
+const vadd = (a, b) => [a[0]+b[0], a[1]+b[1], a[2]+b[2]];
+const vmul = (a, k) => [a[0]*k, a[1]*k, a[2]*k];
+const vlen = a => Math.hypot(a[0], a[1], a[2]);
+const vnrm = a => vmul(a, 1 / vlen(a));
+const vcross = (a, b) => [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]];
+const vavg = ps => vmul(ps.reduce(vadd, [0, 0, 0]), 1 / ps.length);
+const randAxis = () => vnrm([Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5]);
 
-// Per die: shape, face values, opposite face, label
-const DIE_KIND = {
-  d20:   { geom: 'd20', values: range(1, 20), opp: n => 21 - n, label: mark69 },
-  d12:   { geom: 'd12', values: range(1, 12), opp: n => 13 - n, label: mark69 },
-  d6:    { geom: 'd6',  values: range(1, 6),  opp: n => 7 - n,  label: String },
-  units: { geom: 'd10', values: range(0, 9),  opp: n => 9 - n,  label: mark69 },
-  tens:  { geom: 'd10', values: range(0, 9),  opp: n => 9 - n,  label: n => String(n * 10).padStart(2, '0') },
-};
-
-function range(a, b) { return Array.from({ length: b - a + 1 }, (_, i) => a + i); }
-function mark69(n) { return n === 6 || n === 9 ? `${n}.` : String(n); } // like real dice: tell 6 from 9
-
-// Side-face numbers: stable per result, distinct, never the result or its opposite
-function sideValues(kind, value, count) {
-  const pool = kind.values.filter(v => v !== value && v !== kind.opp(value));
-  let seed = value * 7919 + 17;
-  for(let i = pool.length - 1; i > 0; i--) {
-    seed = (seed * 48271) % 2147483647;
-    const j = seed % (i + 1);
-    [pool[i], pool[j]] = [pool[j], pool[i]];
-  }
-  return pool.slice(0, count);
+const qmul = (a, b) => [
+  a[0]*b[0] - a[1]*b[1] - a[2]*b[2] - a[3]*b[3], a[0]*b[1] + a[1]*b[0] + a[2]*b[3] - a[3]*b[2],
+  a[0]*b[2] - a[1]*b[3] + a[2]*b[0] + a[3]*b[1], a[0]*b[3] + a[1]*b[2] - a[2]*b[1] + a[3]*b[0]];
+const qaxis = (ax, an) => { const s = Math.sin(an / 2); return [Math.cos(an / 2), ax[0]*s, ax[1]*s, ax[2]*s]; };
+function qslerp(a, b, t) {
+  let d = a[0]*b[0] + a[1]*b[1] + a[2]*b[2] + a[3]*b[3];
+  if(d < 0) { b = b.map(v => -v); d = -d; }
+  if(d > 0.9995) { const r = a.map((v, i) => v + (b[i] - v) * t), l = Math.hypot(...r); return r.map(v => v / l); }
+  const th = Math.acos(d), s = Math.sin(th);
+  return a.map((v, i) => (v * Math.sin((1 - t) * th) + b[i] * Math.sin(t * th)) / s);
 }
+const qmat = ([w, x, y, z]) => [
+  [1 - 2*(y*y + z*z), 2*(x*y - w*z), 2*(x*z + w*y)],
+  [2*(x*y + w*z), 1 - 2*(x*x + z*z), 2*(y*z - w*x)],
+  [2*(x*z - w*y), 2*(y*z + w*x), 1 - 2*(x*x + y*y)]];
+function matq(m) {
+  const t = m[0][0] + m[1][1] + m[2][2];
+  if(t > 0) { const s = Math.sqrt(t + 1) * 2; return [s/4, (m[2][1]-m[1][2])/s, (m[0][2]-m[2][0])/s, (m[1][0]-m[0][1])/s]; }
+  if(m[0][0] > m[1][1] && m[0][0] > m[2][2]) { const s = Math.sqrt(1 + m[0][0] - m[1][1] - m[2][2]) * 2; return [(m[2][1]-m[1][2])/s, s/4, (m[0][1]+m[1][0])/s, (m[0][2]+m[2][0])/s]; }
+  if(m[1][1] > m[2][2]) { const s = Math.sqrt(1 + m[1][1] - m[0][0] - m[2][2]) * 2; return [(m[0][2]-m[2][0])/s, (m[0][1]+m[1][0])/s, s/4, (m[1][2]+m[2][1])/s]; }
+  const s = Math.sqrt(1 + m[2][2] - m[0][0] - m[1][1]) * 2; return [(m[1][0]-m[0][1])/s, (m[0][2]+m[2][0])/s, (m[1][2]+m[2][1])/s, s/4];
+}
+const mmul = (a, b) => a.map(r => [0, 1, 2].map(j => r[0]*b[0][j] + r[1]*b[1][j] + r[2]*b[2][j]));
+const rotX = a => [[1, 0, 0], [0, Math.cos(a), -Math.sin(a)], [0, Math.sin(a), Math.cos(a)]];
+const rotY = a => [[Math.cos(a), 0, Math.sin(a)], [0, 1, 0], [-Math.sin(a), 0, Math.cos(a)]];
 
-const pts = poly => poly.map(p => p.join(',')).join(' ');
-const centroid = poly => poly.reduce((a, p) => [a[0] + p[0] / poly.length, a[1] + p[1] / poly.length], [0, 0]);
+// ── Geometry ───────────────────────────────────────
+function signs(base) {
+  let out = [[]];
+  base.forEach(v => { out = out.flatMap(p => v === 0 ? [[...p, 0]] : [[...p, v], [...p, -v]]); });
+  return out;
+}
+const CUBE = signs([1, 1, 1]);
+const ICO  = [...signs([0, 1, PHI]), ...signs([1, PHI, 0]), ...signs([PHI, 0, 1])];
+// The dodecahedron is the icosahedron's dual: its corners are the icosahedron's face centres
+// (triangles of edge length 2), so each solid's corners line up with the other's face normals.
+const DOD = (() => {
+  const out = [], close = (a, b) => Math.abs(vlen(vsub(a, b)) - 2) < 1e-6;
+  for(let i = 0; i < 12; i++) for(let j = i + 1; j < 12; j++) for(let k = j + 1; k < 12; k++)
+    if(close(ICO[i], ICO[j]) && close(ICO[j], ICO[k]) && close(ICO[i], ICO[k])) out.push(vavg([ICO[i], ICO[j], ICO[k]]));
+  return out;
+})();
 
-const PIPS = { 1: [[0,0]], 2: [[-1,-1],[1,1]], 3: [[-1,-1],[0,0],[1,1]], 4: [[-1,-1],[1,-1],[-1,1],[1,1]],
-               5: [[-1,-1],[1,-1],[0,0],[-1,1],[1,1]], 6: [[-1,-1],[1,-1],[-1,0],[1,0],[-1,1],[1,1]] };
-
-function dieSVG(kindName, value) {
-  const kind = DIE_KIND[kindName], g = DIE_GEOM[kind.geom];
-  const sides = sideValues(kind, value, g.faces.length - 1);
-  // Body (outline + faces) turns while rolling; numbers sit in their own group and stay upright
-  let body = `<polygon class="edge" points="${pts(g.outline)}"/>`;
-  g.faces.forEach((f, i) => { body += `<polygon class="${i ? 'face' : 'face face-main'}" points="${pts(f)}"/>`; });
-
-  let nums = `<g class="n-main-g">${mainMark(kindName, value)}</g>`;
-  if(kind.geom !== 'd6') g.faces.slice(1).forEach((f, i) => { // d6 sides stay plain (pips would be noise)
-    const [x, y] = centroid(f);
-    nums += `<text class="n-side" x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-size="${kind.geom === 'd10' ? 8 : 9}">${kind.label(sides[i])}</text>`;
+// A convex solid's faces: for each face normal, the vertices furthest along it, in winding order
+function facesByNormals(verts, normals) {
+  return normals.map(n => {
+    n = vnrm(n);
+    const ds = verts.map(p => vdot(p, n)), m = Math.max(...ds);
+    const fv = verts.filter((p, i) => ds[i] > m - 1e-6);
+    const c = vavg(fv), a = vnrm(vsub(fv[0], c)), b = vcross(n, a);
+    const ang = p => Math.atan2(vdot(vsub(p, c), b), vdot(vsub(p, c), a));
+    fv.sort((p, q) => ang(p) - ang(q));
+    return { verts: fv, n, up: fv[0] };
   });
-  return `<svg class="die-shape" viewBox="0 0 100 100" aria-hidden="true"><g class="body">${body}</g>${nums}</svg>`;
 }
 
-// The front-face mark: a number, or pips on a d6
-function mainMark(kindName, value) {
-  const kind = DIE_KIND[kindName], g = DIE_GEOM[kind.geom];
-  if(kind.geom === 'd6')
-    return PIPS[value].map(([x, y]) => `<circle class="pip" cx="${g.at[0] + x * 19}" cy="${g.at[1] + y * 19}" r="6.5"/>`).join('');
-  const label = kind.label(value);
-  return `<text class="n-main" x="${g.at[0]}" y="${g.at[1]}" font-size="${label.length > 2 ? g.size * 0.8 : g.size}">${label}</text>`;
+// Pentagonal trapezohedron; ring height chosen so every kite is planar
+function d10Faces() {
+  const c36 = Math.cos(Math.PI / 5), z = 0.1, h = z * (1 + c36) / (1 - c36);
+  const T = [0, -h, 0], B = [0, h, 0];
+  const U = k => [Math.cos(k * 2 * Math.PI / 5), -z, Math.sin(k * 2 * Math.PI / 5)];
+  const L = k => [Math.cos((k + 0.5) * 2 * Math.PI / 5), z, Math.sin((k + 0.5) * 2 * Math.PI / 5)];
+  const F = [];
+  for(let k = 0; k < 5; k++) { F.push([T, U(k), L(k), U(k + 1)]); F.push([B, L(k), U(k + 1), L(k + 1)]); }
+  return F.map(vs => {
+    let n = vnrm(vcross(vsub(vs[1], vs[0]), vsub(vs[3], vs[0])));
+    if(vdot(n, vavg(vs)) < 0) n = vmul(n, -1);
+    return { verts: vs, n, up: vs[0] }; // numbers read with their top toward the apex
+  });
 }
 
-// d100 → [['tens', 6], ['units', 6]]; other dice → [[die, value]]
-function dieParts(die, v) {
-  return die === 'd100' ? [['tens', Math.floor((v % 100) / 10)], ['units', v % 10]] : [[die, v]];
+function unitRadius(faces) {
+  const r = Math.max(...faces.flatMap(f => f.verts.map(vlen)));
+  faces.forEach(f => { f.verts = f.verts.map(p => vmul(p, 1 / r)); f.up = vmul(f.up, 1 / r); });
+  return faces;
 }
 
-// Draw `die` showing `value` (1..sides) into the .die-face element; null = at rest on its top value
-function drawDie(faceId, die, value) {
+const GEOMETRY = {
+  d6:  () => unitRadius(facesByNormals(CUBE, [[1,0,0], [-1,0,0], [0,1,0], [0,-1,0], [0,0,1], [0,0,-1]])),
+  d20: () => unitRadius(facesByNormals(ICO, DOD)),
+  d12: () => unitRadius(facesByNormals(DOD, ICO)),
+  d10: () => unitRadius(d10Faces()),
+};
+
+// Number the faces so opposite faces sum like real dice (d20: 21, d12: 13, d6: 7, d10: 9)
+function numberFaces(faces, isD10) {
+  const N = faces.length, half = isD10 ? [0, 1, 2, 3, 4] : [...Array(N / 2)].map((_, i) => i + 1);
+  const comp = isD10 ? v => 9 - v : v => N + 1 - v;
+  const done = new Set();
+  let k = 0;
+  faces.forEach((f, i) => {
+    if(done.has(i)) return;
+    const j = faces.findIndex((g, jj) => !done.has(jj) && jj !== i && vdot(g.n, f.n) < -0.999);
+    f.v = half[k++]; done.add(i);
+    if(j >= 0) { faces[j].v = comp(f.v); done.add(j); }
+  });
+}
+
+// Area centroid of a 2D polygon — the visual middle (corner averages sit low on kites)
+function areaCentroid(P) {
+  let a = 0, cx = 0, cy = 0;
+  for(let i = 0; i < P.length; i++) {
+    const [x0, y0] = P[i], [x1, y1] = P[(i + 1) % P.length], cr = x0 * y1 - x1 * y0;
+    a += cr; cx += (x0 + x1) * cr; cy += (y0 + y1) * cr;
+  }
+  return [cx / (3 * a), cy / (3 * a)];
+}
+
+// Digit height as a fraction of font size, so a number centres on its glyphs rather than the em box
+let DIGIT_HEIGHT = 0.72;
+function measureDigits() {
+  const ctx = document.createElement('canvas').getContext('2d');
+  ctx.font = "600 100px Oswald";
+  const m = ctx.measureText('0123456789');
+  if(m.actualBoundingBoxAscent) DIGIT_HEIGHT = (m.actualBoundingBoxAscent - (m.actualBoundingBoxDescent || 0)) / 100;
+  document.querySelectorAll('.die3 text').forEach(t => t.setAttribute('y', +t.dataset.cy + DIGIT_HEIGHT * t.dataset.fs / 2));
+}
+document.fonts?.load("600 40px Oswald").then(measureDigits).catch(() => {});
+
+// ── One die ────────────────────────────────────────
+const faceLabel = (kind, v) => kind === 'tens' ? String(v * 10).padStart(2, '0') : (v === 6 || v === 9) ? `${v}.` : String(v);
+
+function makeDie(kind, parent, S) {
+  const geom = kind === 'tens' || kind === 'units' ? 'd10' : kind;
+  const faces = GEOMETRY[geom]();
+  numberFaces(faces, geom === 'd10');
+
+  const el = document.createElement('div');
+  el.className = 'die3';
+  faces.forEach(f => {
+    // Face-local axes: z = outward normal, y = down the face (away from `up`), x = y × z
+    const c = vavg(f.verts), z = f.n;
+    let up = vsub(f.up, c);
+    up = vnrm(vsub(up, vmul(z, vdot(up, z))));
+    const y = vmul(up, -1), x = vcross(y, z);
+    Object.assign(f, { x, y, z });
+
+    const P = f.verts.map(p => [vdot(vsub(p, c), x) * S, vdot(vsub(p, c), y) * S]);
+    const [mx, my] = areaCentroid(P);
+    let inr = Infinity; // distance from the middle to the nearest edge bounds the number's size
+    for(let i = 0; i < P.length; i++) {
+      const a = P[i], b = P[(i + 1) % P.length], e = [b[0] - a[0], b[1] - a[1]];
+      inr = Math.min(inr, Math.abs((a[0] - mx) * e[1] - (a[1] - my) * e[0]) / Math.hypot(...e));
+    }
+    const txt = faceLabel(kind, f.v);
+    const fs  = inr * (txt.length > 1 ? 1.0 : 1.25) * (geom === 'd10' ? 1.15 : 1);
+    const W   = Math.ceil(2 * Math.max(...P.flat().map(Math.abs))) + 6;
+    const pts = P.map(p => p.map(n => n.toFixed(1)).join(',')).join(' ');
+
+    const d = document.createElement('div');
+    d.className = 'f';
+    d.style.cssText = `width:${W}px;height:${W}px;left:${-W / 2}px;top:${-W / 2}px;` +
+      `transform:matrix3d(${x},0,${y},0,${z},0,${c[0] * S},${c[1] * S},${c[2] * S},1)`;
+    d.innerHTML = `<svg width="${W}" height="${W}" viewBox="${-W / 2} ${-W / 2} ${W} ${W}" aria-hidden="true">` +
+      `<polygon class="base" points="${pts}"/><polygon class="shade" points="${pts}" opacity="0"/>` +
+      `<text x="${mx.toFixed(1)}" y="${(my + DIGIT_HEIGHT * fs / 2).toFixed(1)}" data-cy="${my.toFixed(1)}" data-fs="${fs.toFixed(1)}" style="font-size:${fs.toFixed(1)}px">${txt}</text></svg>`;
+    f.shade = d.querySelector('.shade');
+    el.appendChild(d);
+  });
+
+  const shadow = document.createElement('div');
+  shadow.className = 'die3-shadow';
+  parent.append(shadow, el);
+  return { el, shadow, faces, q: qaxis(randAxis(), Math.random() * 6), off: 0, S };
+}
+
+const LIGHT = vnrm([-0.45, -0.7, 0.75]);
+
+function poseDie(die, q, tx = die.off, ty = 0) {
+  const m = qmat(q);
+  die.el.style.transform = `translate3d(${tx}px,${ty}px,0) matrix3d(${m[0][0]},${m[1][0]},${m[2][0]},0,${m[0][1]},${m[1][1]},${m[2][1]},0,${m[0][2]},${m[1][2]},${m[2][2]},0,0,0,0,1)`;
+  die.faces.forEach(f => {
+    const wn = [vdot(m[0], f.z), vdot(m[1], f.z), vdot(m[2], f.z)];
+    f.shade.setAttribute('opacity', (0.42 * (1 - Math.max(0, vdot(wn, LIGHT)))).toFixed(3));
+  });
+  const lift = Math.min(0, ty);
+  die.shadow.style.transform = `translateX(${tx}px) scale(${(1 + lift / (die.S * 5)).toFixed(3)})`;
+  die.shadow.style.opacity = (1 + lift / (die.S * 4)).toFixed(2);
+}
+
+// Rest pose for a value: that face toward the viewer, upright, tilted a little to show depth
+function restQ(die, value) {
+  const f = die.faces.find(g => g.v === value) || die.faces[0];
+  return matq(mmul(mmul(rotX(0.2), rotY(0.12)), [f.x, f.y, f.z]));
+}
+
+// ── Public API (used by app.js) ────────────────────
+// Each .die-face element holds a set: one die, or the tens + units pair for d100.
+const DICE_SETS = {};
+const dieParts = (die, v) => die === 'd100' ? [['tens', Math.floor((v % 100) / 10)], ['units', v % 10]] : [[die, v]];
+
+function diceSet(faceId, die) {
   const el = $(faceId);
-  el.innerHTML = dieParts(die, value ?? DIE_SIDES[die]).map(([k, n]) => dieSVG(k, n)).join('');
+  if(DICE_SETS[faceId]?.die === die) return DICE_SETS[faceId];
+  el.innerHTML = '';
   el.classList.toggle('pair', die === 'd100');
-  el.setAttribute('aria-label', `${die}: ${value ?? 'not rolled'}`);
+  const S = (parseFloat(getComputedStyle(el).height) || 112) * 0.4; // works while hidden, unlike clientHeight
+  const parts = dieParts(die, DIE_SIDES[die]);
+  const dice = parts.map(([kind], i) => {
+    const d = makeDie(kind, el, S);
+    d.off = parts.length > 1 ? (i ? 1 : -1) * S * 1.2 : 0;
+    return d;
+  });
+  return (DICE_SETS[faceId] = { die, dice });
 }
 
-// Only the front numbers change mid-roll — the SVGs stay put so their turn animation runs once
-function setFrontNumbers(faceId, die, value) {
-  const svgs = $(faceId).querySelectorAll('.die-shape');
-  dieParts(die, value).forEach(([k, n], i) => { svgs[i].querySelector('.n-main-g').innerHTML = mainMark(k, n); });
+// Show `value` (1..sides) at rest; null = the die's top value
+function drawDie(faceId, die, value) {
+  const set = diceSet(faceId, die);
+  dieParts(die, value ?? DIE_SIDES[die]).forEach(([, v], i) => {
+    const d = set.dice[i];
+    d.q = restQ(d, v);
+    poseDie(d, d.q);
+  });
+  $(faceId).setAttribute('aria-label', `${die}: ${value ?? 'not rolled'}`);
 }
 
-// One smooth, slowing turn; the front number ticks over like a slowing counter and lands on
-// `final`, then the side faces fade back in. Instant when animations are off.
-const ROLL_TICKS = [0, 55, 115, 185, 270, 370, 490]; // ms; gaps widen as the die slows
-const ROLL_LAND = 620, ROLL_DONE = 860;
+// Throw: enters from the left, bounces, slides to a stop, tumbling the whole way and landing on `final`
+const THROW_MS = 1250;
+const easeOut = t => 1 - Math.pow(1 - t, 3);
 
 function rollDie(faceId, die, final, done) {
+  const set = diceSet(faceId, die);
+  const parts = dieParts(die, final);
   if(!S.anim) { drawDie(faceId, die, final); done(); return; }
-  const wrap = $(faceId).closest('.die');
-  const sides = DIE_SIDES[die];
-  const rand = () => 1 + Math.floor(Math.random() * sides);
-  drawDie(faceId, die, rand());
-  wrap.classList.remove('rolling', 'landed');
-  void wrap.offsetWidth;
-  wrap.classList.add('rolling');
-  const timers = ROLL_TICKS.map(t => setTimeout(() => setFrontNumbers(faceId, die, rand()), t));
-  timers.push(setTimeout(() => setFrontNumbers(faceId, die, final), ROLL_LAND));
-  setTimeout(() => {
-    drawDie(faceId, die, final); // side faces now match the result
-    wrap.classList.remove('rolling');
-    wrap.classList.add('landed');
-    done();
-  }, ROLL_DONE);
+  let left = parts.length;
+  parts.forEach(([, v], i) => {
+    const d = set.dice[i];
+    const q0 = d.q, qf = restQ(d, v), ax = randAxis(), spin = (2.2 + Math.random()) * 2 * Math.PI;
+    const start = performance.now() + i * 90;
+    const travel = d.S * 3.2, hop = d.S * 1.1;
+    const frame = now => {
+      const t = Math.min(1, Math.max(0, (now - start) / THROW_MS)), e = easeOut(t);
+      const q = qmul(qaxis(ax, spin * (1 - e)), qslerp(q0, qf, e));
+      poseDie(d, q, d.off - travel * (1 - e), -Math.abs(Math.sin(t * Math.PI * 3.2)) * hop * Math.pow(1 - t, 1.6));
+      if(t < 1) requestAnimationFrame(frame);
+      else { d.q = qf; if(--left === 0) done(); }
+    };
+    requestAnimationFrame(frame);
+  });
+  $(faceId).setAttribute('aria-label', `${die}: ${final}`);
 }

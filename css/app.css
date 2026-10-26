@@ -109,35 +109,23 @@ code { font: 0.85em ui-monospace, Consolas, monospace; }
 .dice { display: flex; gap: 20px; }
 .die { display: grid; justify-items: center; gap: 6px; }
 .die figcaption { font: 400 12px/1 var(--display); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }
-.die-face { display: flex; gap: 4px; }
-.die-shape { width: 112px; height: 112px; overflow: visible; }
-.die-shape .edge { fill: var(--paper); stroke: var(--ink); stroke-width: 4; stroke-linejoin: round; }
-.die-shape .face { fill: var(--paper-2); stroke: var(--ink); stroke-width: 1.5; stroke-linejoin: round; }
-.die-shape .face-main { fill: var(--paper); }
-.die-shape text { font-family: var(--display); font-weight: 600; text-anchor: middle; dominant-baseline: central; fill: var(--ink); }
-.die-shape .n-side { font-weight: 500; fill: var(--ink-3); }
-.die-shape .pip { fill: var(--ink); }
-.die.glow-enc .edge, .die.glow-mon .edge, .die.glow-enc .face-main, .die.glow-mon .face-main { fill: var(--red); stroke: var(--red); }
-.die.glow-enc .face, .die.glow-mon .face { stroke: var(--on-red); }
-.die.glow-enc .face:not(.face-main), .die.glow-mon .face:not(.face-main) { fill: color-mix(in srgb, var(--red) 78%, var(--ink)); }
-.die.glow-enc text, .die.glow-mon text, .die.glow-enc .pip, .die.glow-mon .pip { fill: var(--on-red); }
-.die.glow-enc .n-side, .die.glow-mon .n-side { opacity: 0.7; }
+/* 3D dice (js/dice.js): the face box is the stage; dice may fly in past its edges */
+.die-face { position: relative; width: var(--die, 112px); height: var(--die, 112px); perspective: 700px; }
+.die-face.pair { width: calc(var(--die, 112px) * 2); }
+.die3 { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform-style: preserve-3d; z-index: 2; }
+.die3 .f { position: absolute; backface-visibility: hidden; }
+.die3 svg { display: block; overflow: visible; }
+.die3 .base { fill: var(--die-face, var(--paper)); stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; }
+.die3 .shade { fill: #000; }
+.die3 text { font-family: var(--display); font-weight: 600; text-anchor: middle; fill: var(--die-ink, var(--ink)); }
+.die3-shadow {
+  position: absolute; left: 50%; top: 50%; width: calc(var(--die, 112px) * 0.8); height: calc(var(--die, 112px) * 0.2);
+  margin: calc(var(--die, 112px) * 0.36) 0 0 calc(var(--die, 112px) * -0.4);
+  border-radius: 50%; background: rgb(0 0 0 / 0.16); filter: blur(4px);
+}
+.die.glow-enc, .die.glow-mon { --die-face: var(--red); --die-ink: var(--on-red); }
 .die-total { font-weight: 600; color: var(--ink); font-size: 14px; }
 .die-total:empty { display: none; }
-/* Roll: the body makes one decelerating turn and settles with a slight overshoot.
-   Numbers stay upright; side numbers hide mid-roll and fade back once it lands. */
-.die-shape .body { transform-box: view-box; transform-origin: 50px 52px; }
-.die.rolling .body { animation: turn 0.86s cubic-bezier(.22,.61,.36,1) both; }
-.die.rolling .die-shape + .die-shape .body { animation-delay: 0.08s; }
-@keyframes turn {
-  0%   { transform: rotate(-150deg) scale(0.94); }
-  72%  { transform: rotate(5deg) scale(1); }
-  100% { transform: rotate(0) scale(1); }
-}
-.die-shape .n-side { transition: opacity 0.3s ease-out; }
-.die.rolling .n-side { opacity: 0; transition: none; }
-.die.landed .n-main-g { animation: land 0.28s ease-out; transform-box: fill-box; transform-origin: center; }
-@keyframes land { from { transform: scale(1.18); } }
 .die--monster { display: none; }
 
 .result {
@@ -327,7 +315,7 @@ input[type=range] { width: 100%; accent-color: var(--ink); }
   :root { --gutter: 16px; }
   .screen { grid-template-columns: minmax(0, 1fr); gap: 36px; padding-top: 20px; }
   .tagline { display: none; }
-  .die-shape { width: 88px; height: 88px; }
+  .die-face { --die: 92px; }
   /* Keep the one action in thumb reach */
   .actions {
     position: sticky; bottom: 0; z-index: 10; margin-inline: calc(-1 * var(--gutter)); padding: 12px var(--gutter);
@@ -340,7 +328,7 @@ input[type=range] { width: 100%; accent-color: var(--ink); }
   .turn-grid { flex-wrap: nowrap; gap: 12px; }
   .turn-num { font-size: 104px; }
   .dice { gap: 10px; }
-  .die-shape { width: 66px; height: 66px; }
+  .die-face { --die: 70px; }
   .result { margin-top: 16px; font-size: 20px; }
   .actions { gap: 8px 20px; padding-block: 10px; }
   .actions .btn-primary { min-height: 52px; }
