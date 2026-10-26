@@ -3,520 +3,138 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
+<meta name="color-scheme" content="light dark">
 <title>Dungeon Tracker</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIj4KICA8ZGVmcz4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0iYmciIGN4PSI1MCUiIGN5PSI1MCUiIHI9IjUwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMyYTEwMjAiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMGEwNjA4Ii8+CiAgICA8L3JhZGlhbEdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJnbG93IiBjeD0iNTAlIiBjeT0iNDAlIiByPSI1NSUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjYzRhMDQwIiBzdG9wLW9wYWNpdHk9IjAuMzUiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjYzRhMDQwIiBzdG9wLW9wYWNpdHk9IjAiLz4KICAgIDwvcmFkaWFsR3JhZGllbnQ+CiAgPC9kZWZzPgoKICA8IS0tIEJhY2tncm91bmQgLS0+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNCIgZmlsbD0idXJsKCNiZykiLz4KICA8IS0tIEFtYmllbnQgZ2xvdyAtLT4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI0IiBmaWxsPSJ1cmwoI2dsb3cpIi8+CgogIDwhLS0gU2t1bGwgY3Jhbml1bSAtLT4KICA8ZWxsaXBzZSBjeD0iMTYiIGN5PSIxMyIgcng9IjkiIHJ5PSI4LjUiIGZpbGw9IiNjOGI4OWEiLz4KCiAgPCEtLSBTa3VsbCBmYWNlIC8gamF3IGFyZWEg4oCUIGZsYXQgYm90dG9tIC0tPgogIDxyZWN0IHg9IjkiIHk9IjE3IiB3aWR0aD0iMTQiIGhlaWdodD0iNSIgcng9IjEiIGZpbGw9IiNjOGI4OWEiLz4KCiAgPCEtLSBKYXcgYm90dG9tIGVkZ2UgLS0+CiAgPHJlY3QgeD0iMTAiIHk9IjIxIiB3aWR0aD0iMTIiIGhlaWdodD0iMi41IiByeD0iMSIgZmlsbD0iI2IwYTA4OCIvPgoKICA8IS0tIENoZWVrYm9uZSBzaGFkb3cgLS0+CiAgPGVsbGlwc2UgY3g9IjE2IiBjeT0iMTQiIHJ4PSI3IiByeT0iNi41IiBmaWxsPSJub25lIiBzdHJva2U9IiM5YTdhNWEiIHN0cm9rZS13aWR0aD0iMC42IiBvcGFjaXR5PSIwLjQiLz4KCiAgPCEtLSBMZWZ0IGV5ZSBzb2NrZXQgLS0+CiAgPGVsbGlwc2UgY3g9IjEyIiBjeT0iMTQiIHJ4PSIyLjgiIHJ5PSIyLjUiIGZpbGw9IiMwYTA2MDgiLz4KICA8IS0tIExlZnQgZXllIHJlZCBnbGVhbSAtLT4KICA8ZWxsaXBzZSBjeD0iMTIuNiIgY3k9IjEzLjIiIHJ4PSIwLjgiIHJ5PSIwLjciIGZpbGw9IiNjYzMzMzMiIG9wYWNpdHk9IjAuODUiLz4KCiAgPCEtLSBSaWdodCBleWUgc29ja2V0IC0tPgogIDxlbGxpcHNlIGN4PSIyMCIgY3k9IjE0IiByeD0iMi44IiByeT0iMi41IiBmaWxsPSIjMGEwNjA4Ii8+CiAgPCEtLSBSaWdodCBleWUgcmVkIGdsZWFtIC0tPgogIDxlbGxpcHNlIGN4PSIyMC42IiBjeT0iMTMuMiIgcng9IjAuOCIgcnk9IjAuNyIgZmlsbD0iI2NjMzMzMyIgb3BhY2l0eT0iMC44NSIvPgoKICA8IS0tIE5vc2UgY2F2aXR5IC0tPgogIDxwYXRoIGQ9Ik0xNSAxNy41IEwxNiAxNS41IEwxNyAxNy41IFoiIGZpbGw9IiMwYTA2MDgiLz4KCiAgPCEtLSBUZWV0aCAtLT4KICA8cmVjdCB4PSIxMC41IiB5PSIyMS41IiB3aWR0aD0iMi4yIiBoZWlnaHQ9IjIuOCIgcng9IjAuNCIgZmlsbD0iI2U4ZGZjMCIvPgogIDxyZWN0IHg9IjEzLjQiIHk9IjIxLjUiIHdpZHRoPSIyLjIiIGhlaWdodD0iMy4yIiByeD0iMC40IiBmaWxsPSIjZThkZmMwIi8+CiAgPHJlY3QgeD0iMTYuNCIgeT0iMjEuNSIgd2lkdGg9IjIuMiIgaGVpZ2h0PSIzLjIiIHJ4PSIwLjQiIGZpbGw9IiNlOGRmYzAiLz4KICA8cmVjdCB4PSIxOS4zIiB5PSIyMS41IiB3aWR0aD0iMi4yIiBoZWlnaHQ9IjIuOCIgcng9IjAuNCIgZmlsbD0iI2U4ZGZjMCIvPgoKICA8IS0tIEdvbGQgY3Jvd24gZGV0YWlsIG9uIHRvcCAtLT4KICA8cGF0aCBkPSJNMTEgOCBMMTIuNSA1IEwxNCA3LjUgTDE2IDQuNSBMMTggNy41IEwxOS41IDUgTDIxIDgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Q4YjA1MCIgc3Ryb2tlLXdpZHRoPSIxLjIiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgoKICA8IS0tIEJvcmRlciByaW5nIC0tPgogIDxyZWN0IHg9IjAuNSIgeT0iMC41IiB3aWR0aD0iMzEiIGhlaWdodD0iMzEiIHJ4PSIzLjUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2M0YTA0MCIgc3Ryb2tlLXdpZHRoPSIxIiBvcGFjaXR5PSIwLjUiLz4KPC9zdmc+">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,600&family=Oswald:wght@400;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha512-dLxUelApnYxpLt6K2iomGngnHO83iUvZytA3YjDUCjT0HDOHKXnVYdf3hU4JjM8uEhxf9nD1/ey98U3t2vZ0qQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon points='50,4 90,27 90,73 50,96 10,73 10,27' fill='%23f1ece1' stroke='%231a1714' stroke-width='8' stroke-linejoin='round'/%3E%3Cpolygon points='50,24 75,66 25,66' fill='none' stroke='%23a8261b' stroke-width='7' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
+<div id="enc-flash" aria-hidden="true"></div>
 
-<!-- Animated canvas background -->
-<canvas id="bg-canvas"></canvas>
-
-<!-- Static background (shown when animations are disabled) -->
-<div id="bg-static" style="display:none"></div>
-
-<!-- Blood drip SVG top -->
-<svg class="drip-top" viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M0,0 L1200,0 L1200,8 Q900,8 800,28 Q750,40 730,55 Q720,62 710,55 Q690,40 670,28 Q600,8 500,15 Q450,18 430,35 Q420,45 410,35 Q400,18 380,15 Q300,8 200,22 Q170,28 155,42 Q148,50 140,42 Q130,28 110,22 Q60,8 0,8 Z" fill="var(--accent1)" opacity="0.6"/>
-  <path d="M0,0 L1200,0 L1200,5 Q1000,5 950,18 Q930,24 915,36 Q908,42 900,36 Q888,24 870,18 Q820,5 750,10 Q720,13 705,25 Q698,32 692,25 Q682,13 660,10 Q580,5 520,12 Q490,16 478,28 Q472,35 465,28 Q455,16 430,12 Q380,5 300,8 Q260,10 240,20 Q230,26 222,20 Q210,10 180,8 Q100,5 0,5 Z" fill="var(--accent1)" opacity="0.4"/>
-</svg>
-
-<!-- Encounter flash overlay -->
-<div id="enc-flash"></div>
-<div id="lvlup-overlay">
-  <div id="lvlup-bg"></div>
-  <div class="lvlup-star"></div>
-  <div class="lvlup-star"></div>
-  <div class="lvlup-star"></div>
-  <div id="lvlup-content">
-    <div id="lvlup-title">Level Up!</div>
-    <div id="lvlup-name"></div>
-    <div id="lvlup-num">2</div>
-    <div id="lvlup-sub">A new power awakens in the darkness.</div>
+<header class="bar">
+  <div class="brand">
+    <span class="mark">Dungeon Tracker</span>
+    <span class="tagline">Wandering monsters, 10-minute turns</span>
   </div>
-</div>
-<!-- Particle container -->
-<div id="particles"></div>
-
-<!-- SVG skull defs -->
-<svg width="0" height="0" style="position:absolute">
-  <defs>
-    <symbol id="sk" viewBox="0 0 40 40">
-      <ellipse cx="20" cy="17" rx="13" ry="12" fill="currentColor"/>
-      <rect x="12" y="26" width="16" height="8" rx="2" fill="currentColor"/>
-      <ellipse cx="15" cy="17" rx="4" ry="4.5" fill="var(--void)"/>
-      <ellipse cx="25" cy="17" rx="4" ry="4.5" fill="var(--void)"/>
-      <path d="M18.5 22 L20 24.5 L21.5 22 Z" fill="var(--void)"/>
-      <rect x="13" y="30" width="3.5" height="4" rx="0.5" fill="var(--void)"/>
-      <rect x="18.25" y="30" width="3.5" height="4" rx="0.5" fill="var(--void)"/>
-      <rect x="23.5" y="30" width="3.5" height="4" rx="0.5" fill="var(--void)"/>
-    </symbol>
-  </defs>
-</svg>
-
-<!-- SETTINGS OVERLAY -->
-<div class="settings-overlay" id="settingsOverlay" data-action="settings-backdrop">
-  <div class="settings-panel">
-    <div class="corner-bracket tl"></div>
-    <div class="corner-bracket tr"></div>
-    <div class="corner-bracket bl"></div>
-    <div class="corner-bracket br"></div>
-
-    <!-- Panel header -->
-    <div class="sp-header">
-      <div class="sp-header-rule"></div>
-      <div class="sp-header-text">
-        <div class="sp-eyebrow">Dungeon Tracker</div>
-        <div class="sp-title">Configuration</div>
-      </div>
-      <div class="sp-header-rule"></div>
-    </div>
-
-    <!-- Theme -->
-    <div class="s-section-label">Visual Theme</div>
-    <div class="theme-grid" id="themeGrid">
-      <button class="theme-btn active" data-action="theme" data-arg="default">
-        <div class="th-swatch-large" style="background:linear-gradient(150deg,#1a0a1a 0%,#200818 40%,#3a1010 100%)">
-          <span class="th-accent" style="background:#e04040"></span>
-          <span class="th-accent" style="background:#d8b050"></span>
-        </div>
-        <span class="th-name">Default</span>
-        <span class="th-sub">Crimson &amp; Gold</span>
-      </button>
-      <button class="theme-btn" data-action="theme" data-arg="castlevania">
-        <div class="th-swatch-large" style="background:linear-gradient(150deg,#060408 0%,#0c0818 40%,#1c1640 100%)">
-          <span class="th-accent" style="background:#c070f8"></span>
-          <span class="th-accent" style="background:#70b8f8"></span>
-        </div>
-        <span class="th-name">Castle</span>
-        <span class="th-sub">Violet &amp; Ice</span>
-      </button>
-      <button class="theme-btn" data-action="theme" data-arg="vampire">
-        <div class="th-swatch-large" style="background:linear-gradient(150deg,#080204 0%,#180410 40%,#280010 100%)">
-          <span class="th-accent" style="background:#ff3860"></span>
-          <span class="th-accent" style="background:#f8c848"></span>
-        </div>
-        <span class="th-name">Vampire</span>
-        <span class="th-sub">Blood &amp; Amber</span>
-      </button>
-      <button class="theme-btn" data-action="theme" data-arg="dungeon">
-        <div class="th-swatch-large" style="background:linear-gradient(150deg,#040608 0%,#091008 40%,#121e18 100%)">
-          <span class="th-accent" style="background:#48b870"></span>
-          <span class="th-accent" style="background:#90c878"></span>
-        </div>
-        <span class="th-name">Deep Dungeon</span>
-        <span class="th-sub">Toxic Green</span>
-      </button>
-      <button class="theme-btn" data-action="theme" data-arg="escape">
-        <div class="th-swatch-large" style="background:linear-gradient(150deg,#000 0%,#0a0a0a 40%,#141414 100%)">
-          <span class="th-accent" style="background:#c8c8c8"></span>
-          <span class="th-accent" style="background:#808080"></span>
-        </div>
-        <span class="th-name">Escape</span>
-        <span class="th-sub">Ink &amp; Chalk</span>
-      </button>
-      <button class="theme-btn" data-action="theme" data-arg="torchlight">
-        <div class="th-swatch-large" style="background:linear-gradient(150deg,#000 0%,#000 45%,#f2eee4 45%,#f2eee4 100%)">
-          <span class="th-accent" style="background:#141210"></span>
-          <span class="th-accent" style="background:#e0a040"></span>
-        </div>
-        <span class="th-name">Torchlight</span>
-        <span class="th-sub">Paper &amp; Ink</span>
-      </button>
-    </div>
-
-    <div class="s-divider"></div>
-
-    <!-- Volume -->
-    <div class="s-section-label">Sound</div>
-    <div class="s-control-row">
-      <span class="s-control-label">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
-        SFX Volume
-      </span>
-      <div class="s-slider-wrap">
-        <input type="range" id="volSfx" min="0" max="100" value="80" data-action="volume">
-        <span class="slider-val" id="volSfxVal">80</span>
-      </div>
-    </div>
-
-    <div class="s-divider"></div>
-
-    <!-- Animations -->
-    <div class="s-section-label">Animations</div>
-    <div class="s-control-row">
-      <span class="s-control-label">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-        Background &amp; Effects
-      </span>
-      <button class="sp-toggle-btn" id="animToggle" data-action="toggle-anim">
-        <span id="animLabel">On</span>
-      </button>
-    </div>
-    <div class="s-control-row">
-      <span class="s-control-label">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-        3D Dice
-      </span>
-      <button class="sp-toggle-btn" id="diceAnimToggle" data-action="toggle-dice-anim">
-        <span id="diceAnimLabel">On</span>
-      </button>
-    </div>
-
-    <div class="s-divider"></div>
-
-    <!-- Difficulty -->
-    <div class="s-section-label">Difficulty</div>
-    <div class="preset-grid">
-      <button class="preset-btn" data-action="preset" data-arg="10">
-        <span class="preset-pct">10%</span>
-        <span class="preset-name">Forgiving</span>
-        <span class="preset-desc">A gentle stroll</span>
-      </button>
-      <button class="preset-btn active" data-action="preset" data-arg="35">
-        <span class="preset-pct">35%</span>
-        <span class="preset-name">Standard</span>
-        <span class="preset-desc">By the book</span>
-      </button>
-      <button class="preset-btn" data-action="preset" data-arg="50">
-        <span class="preset-pct">50%</span>
-        <span class="preset-name">Grim</span>
-        <span class="preset-desc">Danger lurks</span>
-      </button>
-      <button class="preset-btn" data-action="preset" data-arg="75">
-        <span class="preset-pct">75%</span>
-        <span class="preset-name">Doomed</span>
-        <span class="preset-desc">No mercy</span>
-      </button>
-    </div>
-
-    <div class="s-divider"></div>
-
-    <!-- Monster Table -->
-    <div class="s-section-label">Monster Table</div>
-    <div class="monster-table-row">
-      <button class="monster-table-btn active" id="mtbBtn0" data-action="table" data-arg="0">
-        <span class="mtb-name">Shallow Dungeon</span>
-        <span class="mtb-tier">CR ⅛ – 5</span>
-      </button>
-      <button class="monster-table-btn tier-deep" id="mtbBtn1" data-action="table" data-arg="1">
-        <span class="mtb-name">Deep Dungeon</span>
-        <span class="mtb-tier">CR 3 – 17</span>
-      </button>
-      <button class="monster-table-btn tier-abyss" id="mtbBtn2" data-action="table" data-arg="2">
-        <span class="mtb-name">The Abyss</span>
-        <span class="mtb-tier">CR 9 – 30</span>
-      </button>
-    </div>
-    <!-- Upload panel — one per tier, shown below the buttons -->
-    <div class="mtb-upload-panel" id="mtbUploadPanel" style="padding-left:0;padding-right:0;margin-left:2rem;margin-right:2rem;">
-      <div class="mtb-upload-header">
-        <span class="mtb-upload-title" id="mtbUploadTitle">Custom Table — Shallow Dungeon</span>
-        <span class="mtb-upload-status" id="mtbUploadStatus">Using built-in table</span>
-      </div>
-      <div class="mtb-drop-zone" id="mtbDropZone"
-          >
-        <input type="file" id="mtbFileInput" accept=".csv,.json,.txt"
-               data-action="upload">
-        <span class="mtb-drop-label"><strong>Choose file</strong> or drag &amp; drop — CSV or JSON</span>
-      </div>
-      <div class="mtb-actions">
-        <button class="mtb-btn" data-action="download-template">⬇ Download template</button>
-        <button class="mtb-btn reset" id="mtbResetBtn" data-action="reset-table" style="display:none">✕ Remove custom</button>
-      </div>
-      <div class="mtb-format-hint">
-        CSV columns: <code>roll, name, cr, count, desc</code> — 20 rows, roll 1–20.<br>
-        JSON: array of <code>{roll, name, cr, count, desc}</code> objects. Extra fields (lore, tactics, etc.) are preserved if present.
-      </div>
-    </div>
-    <p class="s-hint" style="margin-top:0.55rem;">Which d20 table is rolled when an encounter is triggered.</p>
-
-    <div class="s-divider"></div>
-
-    <!-- Die type + threshold side by side on wide screens -->
-    <div class="s-two-col">
-      <div class="s-col">
-        <div class="s-section-label">Check Die</div>
-        <div class="die-type-row" id="dieTypeRow">
-          <button class="die-type-btn active" data-action="die" data-arg="d100">d100</button>
-          <button class="die-type-btn" data-action="die" data-arg="d20">d20</button>
-          <button class="die-type-btn" data-action="die" data-arg="d12">d12</button>
-          <button class="die-type-btn" data-action="die" data-arg="d6">d6</button>
-        </div>
-        <p class="s-hint">Die rolled each turn for encounter check.</p>
-      </div>
-      <div class="s-col">
-        <div class="s-section-label">Threshold</div>
-        <div class="s-control-row">
-          <span class="s-control-label s-control-label--sm">Roll ≤</span>
-          <div class="s-slider-wrap">
-            <input type="range" id="threshSlider" min="1" max="100" value="35" data-action="threshold">
-            <span class="slider-val" id="threshVal">35</span>
-          </div>
-        </div>
-        <div class="threshold-display">
-          <div>
-            <div class="threshold-big" id="tdBig">≤ 35</div>
-            <div class="threshold-desc" id="tdPct">35% per turn</div>
-          </div>
-          <div class="threshold-right">
-            <div class="threshold-pct" id="tdExpected">~1 per 2.9 turns</div>
-            <div class="slider-hint" id="sliderHint" style="padding-left:0;margin:0;font-size:0.75rem;">35 in 100</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="settings-footer">
-      <button class="s-btn-cancel" data-action="settings-cancel">Cancel</button>
-      <button class="s-btn-save" data-action="settings-save">Apply Changes</button>
-    </div>
-  </div>
-</div>
-
-<!-- HEADER -->
-<header>
-  <div class="header-skulls">
-    <div class="h-rule"></div>
-    <svg width="22" height="22" style="color:var(--gold);opacity:0.7;"><use href="#sk"/></svg>
-    <svg width="28" height="28" style="color:var(--gold);opacity:0.9;"><use href="#sk"/></svg>
-    <svg width="22" height="22" style="color:var(--gold);opacity:0.7;"><use href="#sk"/></svg>
-    <div class="h-rule"></div>
-  </div>
-  <h1>Dungeon <span class="t-tracker">Tracker</span></h1>
-  <div class="header-skulls" style="margin-top:0.4rem;margin-bottom:0;">
-    <div class="h-rule"></div>
-    <svg width="13" height="13" style="color:var(--bone-dim);opacity:0.5;"><use href="#sk"/></svg>
-    <div class="h-rule"></div>
-  </div>
-  <p class="subtitle">D&amp;D 5th Edition &nbsp;·&nbsp; 10-Minute Turns</p>
-  <div class="header-btns">
-    <button class="hdr-btn" id="soundToggle" data-action="toggle-sound">
-      <span class="hdr-btn-icon">
-        <!-- speaker on -->
-        <svg id="iconSoundOn" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-        </svg>
-        <!-- speaker off -->
-        <svg id="iconSoundOff" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
-          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-          <line x1="23" y1="9" x2="17" y2="15"/>
-          <line x1="17" y1="9" x2="23" y2="15"/>
-        </svg>
-      </span>
-      <span class="hdr-btn-label" id="soundLabel">Sound</span>
+  <nav class="bar-tools">
+    <button class="tool" id="soundToggle" data-action="toggle-sound" aria-label="Toggle sound">
+      <svg id="iconSoundOn" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none"/></svg>
+      <svg id="iconSoundOff" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 9l5 6M21 9l-5 6" fill="none"/></svg>
+      <span id="soundLabel">Sound</span>
     </button>
-    <button class="hdr-btn" data-action="settings-open">
-      <span class="hdr-btn-icon">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="3"/>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-        </svg>
-      </span>
-      <span class="hdr-btn-label">Settings</span>
-    </button>
-  </div>
+    <button class="tool" data-action="settings-open">Settings</button>
+  </nav>
 </header>
 
-<div class="main-panel">
-  <!-- Turn Counter -->
-  <div class="card turn-section">
-    <div class="corner-bracket tl"></div>
-    <div class="corner-bracket tr"></div>
-    <div class="corner-bracket bl"></div>
-    <div class="corner-bracket br"></div>
-    <div class="card-label">Current Turn</div>
-    <div class="turn-display">
-      <div class="torch-wrap">
-        <div class="torch-flame-wrap">
-          <div class="flame-layer flame-outer"></div>
-          <div class="flame-layer flame-mid"></div>
-          <div class="flame-layer flame-core"></div>
-          <div class="flame-glow"></div>
-        </div>
-        <div class="torch-stick"></div>
-        <div class="torch-base"></div>
-      </div>
-      <div class="counter-number" id="turnCounter">0</div>
-      <div class="torch-wrap">
-        <div class="torch-flame-wrap">
-          <div class="flame-layer flame-outer" style="animation-delay:0.4s"></div>
-          <div class="flame-layer flame-mid"   style="animation-delay:0.65s"></div>
-          <div class="flame-layer flame-core"  style="animation-delay:0.22s"></div>
-          <div class="flame-glow" style="animation-delay:0.55s"></div>
-        </div>
-        <div class="torch-stick"></div>
-        <div class="torch-base"></div>
-      </div>
-    </div>
-    <button class="advance-btn" id="advBtn" data-action="advance">⚔ Advance Turn</button>
-    <div class="combat-locked-label" id="combatLockedLabel">⚔ Defeat the monster first</div>
-    <div class="freq-badge">Encounter on <strong id="freqThresh">35</strong> or below on a <strong id="freqDie">d100</strong> &nbsp;·&nbsp; <strong id="freqPct">35%</strong> chance per turn<span id="freqBadgeExtra"></span></div>
-    <div class="torch-timer" id="torchTimer">
-      <span class="tt-label">Torch</span>
-      <span class="tt-time" id="torchTime" role="timer" aria-live="off">60:00</span>
-      <div class="tt-bar" aria-hidden="true"><div id="torchBar"></div></div>
-      <button class="tt-btn" id="torchBtn" data-action="torch-toggle">Light</button>
-      <button class="tt-btn" data-action="torch-reset" title="New torch" aria-label="New torch">↺</button>
-    </div>
-    <div class="turn-action-row">
-      <button class="undo-btn" id="undoBtn" data-action="undo" disabled>↩ Undo</button>
-      <button class="reset-btn" data-action="abandon">Abandon Session</button>
-    </div>
-  </div>
+<main class="screen">
+  <section class="col-main">
 
-  <!-- Dice + Encounter -->
-  <div class="card">
-    <div class="corner-bracket tl"></div>
-    <div class="corner-bracket tr"></div>
-    <div class="corner-bracket bl"></div>
-    <div class="corner-bracket br"></div>
-    <div class="card-label" id="checkDieLabel">d100 Roll — Wandering Monsters</div>
-    <div class="dice-row">
-      <div class="die-block">
-        <div class="die-block-label">Encounter Check</div>
-        <div class="die-canvas-wrap" id="checkDieWrap">
-          <div class="flat-die" id="checkFlatDie" style="display:none"><span class="flat-die-num" id="checkFlatNum">—</span></div>
-          <div class="die-overlay" id="checkDieOverlay"></div>
-          <div class="die-result-label die-result-label--inset" id="d100label">No roll yet</div>
+    <section class="turn" aria-label="Current turn">
+      <div class="turn-grid">
+        <div class="turn-count">
+          <span class="eyebrow">Turn</span>
+          <output id="turnCounter" class="turn-num">0</output>
+          <span class="turn-time" id="timeLabel"></span>
         </div>
-      </div>
-      <div class="die-block" id="d20block" style="display:none;">
-        <div class="die-block-label">Monster Table</div>
-        <div class="die-canvas-wrap" id="monsterDieWrap">
-          <div class="flat-die" id="monsterFlatDie" style="display:none"><span class="flat-die-num" id="monsterFlatNum">—</span></div>
-          <div class="die-overlay" id="monsterDieOverlay"></div>
-          <div class="die-result-label die-result-label--inset" id="d20label"></div>
-        </div>
-      </div>
-    </div>
-    <div class="encounter-card" id="encCard">
-      <div class="enc-header">
-        <svg width="18" height="18" style="color:var(--accent1);flex-shrink:0;"><use href="#sk"/></svg>
-        <span class="enc-title">Wandering Monster!</span>
-        <svg width="18" height="18" style="color:var(--accent1);flex-shrink:0;"><use href="#sk"/></svg>
-      </div>
-      <div class="enc-body">
-        <div class="enc-badge" id="encBadge">
-          <span class="enc-badge-roll" id="encBadgeRoll"></span>
-          <span class="enc-badge-label">Roll</span>
-        </div>
-        <div class="enc-info">
-          <div class="enc-name" id="encName"></div>
-          <div class="enc-count-row" id="encCountRow">
-            <span class="enc-count-num"   id="encCountNum"></span>
-            <span class="enc-count-label" id="encCountLabel"></span>
-            <span class="enc-count-roll"  id="encCountRoll"></span>
-          </div>
-          <div class="enc-cr" id="encCR"></div>
-          <div class="enc-desc" id="encDesc"></div>
-        </div>
-      </div>
-      <div class="stat-block" id="statBlock"></div>
-      <div class="defeat-btn-wrap" id="defeatWrap" style="display:none;">
-        <button class="defeat-btn" data-action="defeat">⚔ Monster Defeated</button>
-      </div>
-    </div>
-  </div>
 
-  <!-- XP Tracker -->
-  <div class="card" id="xpCard" tabindex="-1">
-    <div class="corner-bracket tl"></div>
-    <div class="corner-bracket tr"></div>
-    <div class="corner-bracket bl"></div>
-    <div class="corner-bracket br"></div>
-    <div class="card-label">⚔ Experience Tracker</div>
-    <div class="xp-section">
-
-      <!-- Party size + level controls -->
-      <div class="xp-party-row">
-        <span class="xp-party-label">Players</span>
-        <div class="xp-party-btns">
-          <button class="xp-count-btn" data-action="party" data-arg="-1">−</button>
-          <span class="xp-player-count" id="xpPartyCount">4</span>
-          <button class="xp-count-btn" data-action="party" data-arg="1">+</button>
+        <div class="dice">
+          <figure class="die" id="checkDieWrap">
+            <div class="die-face"><svg class="die-shape" id="checkDieShape" viewBox="0 0 100 100" aria-hidden="true"></svg><span class="die-num" id="checkFlatNum">—</span></div>
+            <figcaption><span id="checkDieLabel">d100</span> check</figcaption>
+          </figure>
+          <figure class="die die--monster" id="d20block">
+            <div class="die-face"><svg class="die-shape" id="monsterDieShape" viewBox="0 0 100 100" aria-hidden="true"></svg><span class="die-num" id="monsterFlatNum">—</span></div>
+            <figcaption>d20 table</figcaption>
+          </figure>
         </div>
-        <div style="flex:1"></div>
-        <button class="xp-reset-btn" data-action="xp-reset">Reset XP</button>
       </div>
 
-      <!-- Per-player cards -->
-      <div class="xp-level-grid" id="xpPlayerGrid"></div>
+      <p class="result" aria-live="polite"><span id="d100label">No roll yet</span> <span id="d20label"></span></p>
 
-      <!-- Session summary -->
-      <div class="xp-summary" id="xpSummary">
-        <div class="xp-summary-row">
-          <span class="xp-summary-label">Session XP Earned</span>
-          <span class="xp-summary-val" id="xpTotal">0 XP</span>
+      <div class="actions">
+        <button class="btn btn-primary" id="advBtn" data-action="advance">Advance turn <kbd>Space</kbd></button>
+        <div class="actions-quiet">
+          <button class="btn-link" id="undoBtn" data-action="undo" disabled>Undo</button>
+          <button class="btn-link" data-action="abandon">Abandon session</button>
         </div>
-        <div class="xp-summary-row" style="margin-top:0.35rem;">
-          <span class="xp-summary-label">XP per Player</span>
-          <span class="xp-summary-val" id="xpPerPlayer">0 XP</span>
-        </div>
-        <div class="xp-summary-divider"></div>
-        <div class="xp-summary-row">
-          <span class="xp-summary-label">Encounters Defeated</span>
-          <span class="xp-summary-val" id="xpDefeatedCount" style="color:var(--accent1);">0</span>
-        </div>
-        <div class="xp-summary-sub" id="xpNextNote"></div>
       </div>
+      <p class="locked" id="combatLockedLabel"></p>
 
-      <!-- Encounter XP log -->
-      <div class="xp-enc-log" id="xpEncLog">
-        <div class="xp-empty">No encounters yet — XP will appear here.</div>
+      <div class="turn-foot">
+        <p class="odds">Encounter on <b id="freqThresh">35</b> or less on a <b id="freqDie">d100</b> — <b id="freqPct">35%</b> a turn<span id="freqBadgeExtra"></span></p>
+        <div class="torch" id="torchTimer">
+          <span class="torch-label">Torch</span>
+          <span class="torch-time" id="torchTime" role="timer">60:00</span>
+          <div class="torch-bar" aria-hidden="true"><div id="torchBar"></div></div>
+          <button class="btn-small" id="torchBtn" data-action="torch-toggle">Light</button>
+          <button class="btn-small" data-action="torch-reset" aria-label="New torch" title="New torch">New</button>
+        </div>
       </div>
+    </section>
 
-    </div>
-  </div>  <!-- Monster Table -->
-  <div class="card">
-    <div class="corner-bracket tl"></div>
-    <div class="corner-bracket tr"></div>
-    <div class="corner-bracket bl"></div>
-    <div class="corner-bracket br"></div>
-    <div class="table-toggle" data-action="toggle-table">
-      <div class="card-label" style="margin-bottom:0;">Wandering Monster Table (d20)</div>
-      <span class="toggle-caret" id="caret">▼</span>
-    </div>
-    <div class="table-wrap" id="tableWrap">
-      <table><thead><tr><th>d20</th><th>Monster</th><th>CR</th><th>Description</th></tr></thead>
-      <tbody id="tBody"></tbody></table>
-      <p style="font-size:0.68rem;font-style:italic;color:var(--bone-faint);margin-top:0.6rem;text-align:center;">Highlighted row shows the current roll.</p>
-    </div>
-  </div>
+    <article class="encounter" id="encCard" aria-live="polite">
+      <header class="enc-head">
+        <span class="enc-roll" id="encBadgeRoll"></span>
+        <div>
+          <span class="eyebrow">Wandering monster</span>
+          <h2 class="enc-name" id="encName"></h2>
+          <p class="enc-meta"><span id="encCR"></span><span id="encCountRow"> · <b id="encCountNum"></b> <span id="encCountLabel"></span> <span class="dim" id="encCountRoll"></span></span></p>
+        </div>
+      </header>
+      <p class="enc-desc" id="encDesc"></p>
+      <div id="statBlock"></div>
+      <div id="defeatWrap"><button class="btn btn-primary defeat-btn" data-action="defeat">Monster defeated</button></div>
+    </article>
 
-  <!-- History -->
-  <div class="card">
-    <div class="corner-bracket tl"></div>
-    <div class="corner-bracket tr"></div>
-    <div class="corner-bracket bl"></div>
-    <div class="corner-bracket br"></div>
-    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.75rem;">
-      <div class="card-label" style="margin-bottom:0;">Turn History</div>
-      <span style="font-size:0.68rem;font-style:italic;color:var(--bone-faint);" id="timeLabel"></span>
-    </div>
-    <div class="log-wrap"><div class="log-entries" id="logEntries"></div></div>
-  </div>
-</div>
+  </section>
 
-<script src="js/data.js"></script>
-<script src="js/rules.js"></script>
-<script src="js/state.js"></script>
-<script src="js/tables.js"></script>
-<script src="js/dice3d.js"></script>
-<script src="js/audio.js"></script>
-<script src="js/app.js"></script>
-<script src="js/bg.js"></script>
+  <aside class="col-side">
+    <section class="panel">
+      <button class="panel-head table-toggle" data-action="toggle-table" aria-controls="tableWrap">
+        <h2 class="card-label">Encounter table</h2><span class="caret" id="caret" aria-hidden="true"></span>
+      </button>
+      <div class="table-wrap" id="tableWrap">
+        <table class="mtable">
+          <thead><tr><th class="num">d20</th><th>Monster</th><th>CR</th><th>Notes</th></tr></thead>
+          <tbody id="tBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Turn log</h2></div>
+      <ol class="log" id="logEntries"></ol>
+    </section>
+
+    <section class="panel" id="xpCard" tabindex="-1">
+      <div class="panel-head">
+        <h2>Party</h2>
+        <div class="stepper" aria-label="Party size">
+          <button class="btn-small" data-action="party" data-arg="-1" aria-label="Fewer players">−</button>
+          <span id="xpPartyCount">4</span>
+          <button class="btn-small" data-action="party" data-arg="1" aria-label="More players">+</button>
+        </div>
+      </div>
+      <ul class="players" id="xpPlayerGrid"></ul>
+      <p class="xp-note" id="xpNextNote"></p>
+      <dl class="xp-sum">
+        <div><dt>Session XP</dt><dd id="xpTotal">0 XP</dd></div>
+        <div><dt>Each</dt><dd id="xpPerPlayer">0 XP</dd></div>
+        <div><dt>Defeated</dt><dd id="xpDefeatedCount">0</dd></div>
+      </dl>
+      <ol class="log xp-log" id="xpEncLog"></ol>
+      <button class="btn-link" data-action="xp-reset">Reset XP</button>
+    </section>
+  </aside>
+</main>
 
 <footer class="site-footer">
-  <div class="footer-creator">Created by <span>Sectr99</span></div>
-  <div class="footer-divider"></div>
-  <div class="footer-ogl">
+  <p class="credit">Created by Sectr99</p>
+  <p class="ogl">
     This application uses game mechanics and statistics derived from the
     <em>System Reference Document 5.1</em> (&ldquo;SRD 5.1&rdquo;), available at
     <a href="https://dnd.wizards.com/resources/systems-reference-document" target="_blank" rel="noopener">dnd.wizards.com</a>.
@@ -534,7 +152,102 @@
     System Reference Document 5.1 &copy; 2016 Wizards of the Coast Inc.
     Authors: Jonathan Tweet, Monte Cook, Skip Williams, Bruce R. Cordell, based on original
     material by E. Gary Gygax and Dave Arneson.
-  </div>
+  </p>
 </footer>
+
+<!-- Settings -->
+<div class="overlay" id="settingsOverlay" data-action="settings-backdrop">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <header class="sheet-head">
+      <h2 id="settingsTitle">Settings</h2>
+    </header>
+
+    <section class="sheet-sec">
+      <h3>Encounter chance</h3>
+      <div class="seg" role="group" aria-label="Difficulty presets">
+        <button class="preset-btn" data-action="preset" data-arg="10">Forgiving <small>10%</small></button>
+        <button class="preset-btn" data-action="preset" data-arg="35">Standard <small>35%</small></button>
+        <button class="preset-btn" data-action="preset" data-arg="50">Grim <small>50%</small></button>
+        <button class="preset-btn" data-action="preset" data-arg="75">Doomed <small>75%</small></button>
+      </div>
+      <div class="thresh">
+        <div class="seg seg--small" role="group" aria-label="Check die">
+          <button class="die-type-btn" data-action="die" data-arg="d100">d100</button>
+          <button class="die-type-btn" data-action="die" data-arg="d20">d20</button>
+          <button class="die-type-btn" data-action="die" data-arg="d12">d12</button>
+          <button class="die-type-btn" data-action="die" data-arg="d6">d6</button>
+        </div>
+        <label class="slider">
+          <span>Encounter on <b id="threshVal">35</b> or less</span>
+          <input type="range" id="threshSlider" min="1" max="100" value="35" data-action="threshold">
+        </label>
+        <p class="thresh-read"><b id="tdBig">≤ 35</b> <span id="tdPct">35% chance per turn</span> · <span id="tdExpected"></span></p>
+        <p class="hint" id="sliderHint"></p>
+      </div>
+    </section>
+
+    <section class="sheet-sec">
+      <h3>Encounter table</h3>
+      <div class="seg" role="group" aria-label="Encounter table">
+        <button class="monster-table-btn" data-action="table" data-arg="0">Shallow <small>CR ⅛–3</small></button>
+        <button class="monster-table-btn" data-action="table" data-arg="1">Deep <small>CR 3–17</small></button>
+        <button class="monster-table-btn" data-action="table" data-arg="2">Abyss <small>CR 5–30</small></button>
+      </div>
+      <div class="upload" id="mtbDropZone">
+        <p class="upload-title" id="mtbUploadTitle">Custom table</p>
+        <p class="upload-status" id="mtbUploadStatus">Using built-in table</p>
+        <div class="upload-actions">
+          <label class="btn-small">Choose CSV or JSON<input type="file" accept=".csv,.json,.txt" data-action="upload" hidden></label>
+          <button class="btn-small" data-action="download-template">Download template</button>
+          <button class="btn-small" id="mtbResetBtn" data-action="reset-table">Remove custom</button>
+        </div>
+        <p class="hint">Or drop a file here. CSV columns: <code>roll, name, cr, count, desc</code>, rolls 1–20. JSON: an array of those objects; <code>stats</code>, <code>lore</code>, <code>tactics</code> and <code>habitat</code> are kept.</p>
+      </div>
+    </section>
+
+    <section class="sheet-sec">
+      <h3>Display and sound</h3>
+      <div class="row">
+        <span>Appearance</span>
+        <div class="seg seg--small" role="group" aria-label="Appearance">
+          <button class="theme-btn" data-action="theme" data-arg="auto">Auto</button>
+          <button class="theme-btn" data-action="theme" data-arg="light">Light</button>
+          <button class="theme-btn" data-action="theme" data-arg="dark">Dark</button>
+        </div>
+      </div>
+      <div class="row">
+        <span>Animations</span>
+        <button class="btn-small" id="animToggle" data-action="toggle-anim"><span id="animLabel">On</span></button>
+      </div>
+      <label class="row">
+        <span>Volume <b id="volSfxVal">80</b></span>
+        <input type="range" id="volSfx" min="0" max="100" value="80" data-action="volume">
+      </label>
+    </section>
+
+    <footer class="sheet-foot">
+      <button class="btn-link" data-action="settings-cancel">Cancel</button>
+      <button class="btn btn-primary" data-action="settings-save">Apply</button>
+    </footer>
+  </div>
+</div>
+
+<!-- Level up -->
+<div class="lvlup" id="lvlup-overlay" role="status">
+  <div class="lvlup-card" id="lvlup-content">
+    <span class="eyebrow">Level up</span>
+    <p class="lvlup-name" id="lvlup-name"></p>
+    <p class="lvlup-num">Level <span id="lvlup-num"></span></p>
+    <p class="lvlup-sub" id="lvlup-sub"></p>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/rules.js"></script>
+<script src="js/state.js"></script>
+<script src="js/tables.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/dice.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>

@@ -38,11 +38,10 @@ test('migrate: v1 flat save maps onto v2', () => {
   assert.equal(s.v, S.SAVE_VERSION);
   assert.equal(s.turn, 7);
   assert.equal(s.sound, false);
-  assert.equal(s.diceAnim, false);
   assert.equal(s.tableIndex, 2);
   assert.equal(s.die, 'd20');
   assert.equal(s.threshold, 7);
-  assert.equal(s.theme, 'torchlight');
+  assert.equal(s.theme, 'auto'); // retired colour themes fall back to auto
   assert.equal(s.party.size, 3);
   assert.deepEqual(s.party.players.map(p => p.name), ['Brak', 'Player 2', 'Player 3']);
   assert.equal(s.xpLog.length, 1);
@@ -55,7 +54,7 @@ test('migrate: clamps hostile values', () => {
   assert.equal(s.die, 'd100');
   assert.equal(s.threshold, 100);
   assert.equal(s.tableIndex, 2);
-  assert.equal(s.theme, 'default');
+  assert.equal(s.theme, 'auto');
   assert.equal(s.volume, 1);
   assert.equal(s.party.size, 8);
   assert.deepEqual(s.party.players[0], { name: 'x'.repeat(12), level: 20, xp: 0 });

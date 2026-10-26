@@ -83,11 +83,9 @@ function showSaveIndicator(msg) {
     ind = document.createElement('div');
     ind.id = 'saveIndicator';
     Object.assign(ind.style, {
-      position: 'fixed', bottom: '1.2rem', right: '1.2rem', zIndex: '300',
-      fontFamily: "'EB Garamond',Georgia,serif", fontSize: '0.65rem',
-      letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--gold-hi)',
-      background: 'rgba(7,5,10,0.88)', border: '1px solid var(--bone-faint)',
-      padding: '0.35rem 0.8rem', borderRadius: '1px', pointerEvents: 'none',
+      position: 'fixed', top: '12px', left: '50%', transform: 'translateX(-50%)', zIndex: '300',
+      font: '500 13px/1 var(--display)', letterSpacing: '0.12em', textTransform: 'uppercase',
+      color: 'var(--paper)', background: 'var(--ink)', padding: '10px 14px', pointerEvents: 'none',
       opacity: '0', transition: 'opacity 0.3s',
     });
     document.body.appendChild(ind);
@@ -101,7 +99,7 @@ function showSaveIndicator(msg) {
 // ══════════════════════════════════════════════════
 // RENDER — derive the page from S + ui. Safe to call any time.
 // ══════════════════════════════════════════════════
-const applied = {}; // last values of expensive side effects (theme rebuild, animation pause, table rows)
+const applied = {}; // last-applied values for work worth skipping (die shapes, table rows)
 
 function render() {
   renderTheme();
@@ -118,10 +116,8 @@ function render() {
 
 function renderTheme() {
   document.querySelectorAll('.theme-btn').forEach(b => b.classList.toggle('active', b.dataset.arg === S.theme));
-  if(applied.theme === S.theme) return;
-  applied.theme = S.theme;
-  document.documentElement.setAttribute('data-theme', S.theme === 'default' ? '' : S.theme);
-  if(checkDie) rebuildDiceForTheme();
+  if(S.theme === 'auto') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.dataset.theme = S.theme;
 }
 
 function renderToggles() {
@@ -129,57 +125,44 @@ function renderToggles() {
   EL.iconSoundOn().style.display  = S.sound ? '' : 'none';
   EL.iconSoundOff().style.display = S.sound ? 'none' : '';
   EL.soundToggle().classList.toggle('hdr-btn--muted', !S.sound);
+  EL.soundToggle().setAttribute('aria-pressed', S.sound);
 
   $('animLabel').textContent = S.anim ? 'On' : 'Off';
-  $('animToggle').classList.toggle('active', !S.anim);
-  $('diceAnimLabel').textContent = S.diceAnim ? 'On' : 'Off';
-  $('diceAnimToggle').classList.toggle('active', !S.diceAnim);
-  _applyDiceAnimState();
+  $('animToggle').classList.toggle('active', S.anim);
+  document.documentElement.classList.toggle('no-motion', !S.anim);
 
   const vol = Math.round(S.volume * 100);
   EL.volSfx().value = vol;
   EL.volSfxVal().textContent = vol;
-
-  if(applied.anim === S.anim) return;
-  applied.anim = S.anim;
-  $('bg-canvas').style.display = S.anim ? '' : 'none';
-  $('bg-static').style.display = S.anim ? 'none' : '';
-  document.querySelectorAll('*').forEach(el => { el.style.animationPlayState = S.anim ? '' : 'paused'; });
 }
 
 function renderTurn() {
   if(!ui.rolling) EL.turnCounter().textContent = S.turn;
-  EL.timeLabel().textContent = S.turn ? `${S.turn * 10} min in-game` : '';
+  EL.timeLabel().textContent = S.turn ? `${S.turn * 10} minutes in` : 'The delve begins';
   EL.undoBtn().disabled = !S.history.length;
   EL.advBtn().classList.toggle('rolling', ui.rolling);
 
   const c = S.combat;
   EL.advBtn().classList.toggle('combat-locked', !!c);
   EL.combatLockedLabel().classList.toggle('visible', !!c);
-  if(c) EL.combatLockedLabel().textContent = `☠ Defeat the ${c.monster.name} first`;
+  if(c) EL.combatLockedLabel().textContent = `Resolve the ${c.monster.name} before the next turn.`;
   EL.defeatWrap().style.display = c ? 'block' : 'none';
+  if(!ui.defeating) EL.defeatWrap().querySelector('.defeat-btn').textContent = 'Monster defeated';
 
-  if(!ui.defeating) { // undo the "Slain!" feedback once the next encounter shows
-    const btn = EL.defeatWrap().querySelector('.defeat-btn');
-    btn.textContent = '⚔ Monster Defeated';
-    btn.style.cssText = '';
-  }
-
-  const pct = (S.threshold / DIE_SIDES[S.die] * 100).toFixed(0);
   EL.freqThresh().textContent = S.threshold;
   EL.freqDie().textContent    = S.die;
-  EL.freqPct().textContent    = pct + '%';
-  EL.checkDieLabel().textContent = `${S.die} Roll — Wandering Monsters`;
+  EL.freqPct().textContent    = (S.threshold / DIE_SIDES[S.die] * 100).toFixed(0) + '%';
+  EL.checkDieLabel().textContent = S.die;
+  if(applied.die !== S.die) { applied.die = S.die; setDieShape('checkDieShape', S.die); }
 }
 
-// Roll display shows the latest turn, unless that turn's encounter is already resolved
+// The dice show the latest turn, unless that turn's encounter is already resolved
 function renderRoll() {
-  if(ui.rolling) return; // the dice animation owns the display mid-roll
+  if(ui.rolling) return; // the roll animation owns the dice mid-roll
   const last = S.history[0];
-  const show = last && (!last.enc || S.combat);
-  if(!show) { clearRollDisplay(); return; }
+  if(!last || (last.enc && !S.combat)) { clearRollDisplay(); return; }
   setCheckRoll(last.roll, last.enc);
-  EL.d20block().style.display = last.enc ? 'block' : 'none';
+  EL.d20block().style.display = last.enc ? 'grid' : 'none';
   if(last.enc) setMonsterRoll(last.mroll, last.monster?.name || '');
 }
 
@@ -204,35 +187,32 @@ function renderCombat() {
 }
 
 function renderLog() {
-  const c = EL.logEntries();
-  c.innerHTML = !S.history.length
-    ? '<div class="log-empty">The dungeon awaits... no turns have passed.</div>'
+  EL.logEntries().innerHTML = !S.history.length
+    ? '<li class="log-empty">No turns yet. Press Space to take the first one.</li>'
     : S.history.slice(0, 40).map((e, i) => `
-    <div class="log-row ${e.enc ? 'enc' : ''}">
+    <li class="${e.enc ? 'enc' : ''}">
       <span class="log-turn">T${esc(e.turn)}</span>
-      <span class="log-d100 ${e.enc ? 'enc' : ''}">${esc(e.roll)}</span>
-      <span class="log-note ${e.enc ? 'enc' : ''}">${e.enc ? `[d20·${esc(e.mroll)}] ${esc(e.monster?.name)}` : quietFlavor(e.roll)}</span>
-      <span class="log-tag">${e.enc ? 'ENC' : ''}</span>
-      ${i === 0 ? '<button class="log-undo-btn" data-action="undo" title="Undo">↩</button>' : '<span></span>'}
-    </div>`).join('');
+      <span class="log-roll">${esc(e.roll)}</span>
+      <span class="log-note">${e.enc ? `${esc(e.monster?.name)} <span class="dim">(d20 ${esc(e.mroll)})</span>` : quietFlavor(e.roll)}</span>
+      ${i === 0 ? '<button class="btn-link log-undo" data-action="undo">Undo</button>' : '<span></span>'}
+    </li>`).join('');
 
   const encCount = S.history.filter(e => e.enc).length;
-  $('freqBadgeExtra').innerHTML = S.turn > 0
-    ? ` &nbsp;·&nbsp; <strong style="color:var(--bone-dim)">${encCount}/${S.turn}</strong> this session`
-    : '';
+  $('freqBadgeExtra').textContent = S.turn > 0 ? ` · ${encCount} of ${S.turn} so far` : '';
 }
 
 function quietFlavor(roll) {
   const x = roll / DIE_SIDES[S.die];
-  if(x <= 0.42) return 'distant sounds — nothing emerges';
-  if(x <= 0.62) return 'dripping water, nothing more';
-  if(x <= 0.82) return 'cold silence';
-  return 'all is still';
+  if(x <= 0.42) return 'Distant sounds. Nothing emerges.';
+  if(x <= 0.62) return 'Dripping water, nothing more.';
+  if(x <= 0.82) return 'Cold silence.';
+  return 'All is still.';
 }
 
 function renderTable() {
   EL.tableWrap().classList.toggle('open', ui.tableOpen);
   EL.caret().classList.toggle('open', ui.tableOpen);
+  document.querySelector('.table-toggle').setAttribute('aria-expanded', ui.tableOpen);
 
   const table = activeTable();
   if(applied.table !== table) {
@@ -248,7 +228,7 @@ function renderTable() {
   }
   const isCustom = !!customTables[S.tableIndex];
   document.querySelector('.table-toggle .card-label').textContent =
-    `Wandering Monster Table — ${TIER_NAMES[S.tableIndex]}${isCustom ? ' ✦ Custom' : ''} (d20)`;
+    `Encounters — ${TIER_NAMES[S.tableIndex]}${isCustom ? ' (custom)' : ''}`;
 }
 
 function renderTorch() {
@@ -269,40 +249,34 @@ function renderXP() {
     const needed = xpToNextLevel(p.level);
     const prevXP = xpForLevel(p.level);
     const pct    = needed ? Math.min(100, Math.round((p.xp - prevXP) / (needed - prevXP) * 100)) : 100;
-    const nextXP = needed ? (needed - p.xp).toLocaleString() + ' to next' : 'Max Level';
-    return `<div class="xp-player-card" id="xpPCard${i}">
-      <button class="xp-player-edit" data-action="edit-name" data-arg="${i}" title="Edit name">✎</button>
-      <div class="xp-player-name" id="xpName${i}">${esc(p.name)}</div>
-      <div style="display:flex;align-items:center;justify-content:center;gap:0.3rem;">
-        <button class="xp-count-btn" style="width:20px;height:20px;font-size:0.65rem;" data-action="level" data-arg="${i},-1">−</button>
-        <div class="xp-player-level">${p.level}</div>
-        <button class="xp-count-btn" style="width:20px;height:20px;font-size:0.65rem;" data-action="level" data-arg="${i},1">+</button>
+    return `<li class="player" id="xpPCard${i}">
+      <div id="xpName${i}"><button class="player-name" data-action="edit-name" data-arg="${i}" title="Rename">${esc(p.name)}</button></div>
+      <div class="player-level">
+        <button class="btn-small" data-action="level" data-arg="${i},-1" aria-label="Level down ${esc(p.name)}">−</button>
+        Lv <b>${p.level}</b>
+        <button class="btn-small" data-action="level" data-arg="${i},1" aria-label="Level up ${esc(p.name)}">+</button>
       </div>
-      <div class="xp-player-xp">${p.xp.toLocaleString()} XP</div>
-      <div class="xp-player-bar-wrap"><div class="xp-player-bar" style="width:${pct}%"></div></div>
-      <div class="xp-player-xp" style="margin-top:0.2rem;font-size:0.52rem;">${nextXP}</div>
-    </div>`;
+      <div class="player-bar" aria-hidden="true"><div style="width:${pct}%"></div></div>
+      <div class="player-xp"><span>${p.xp.toLocaleString()} XP</span><span>${needed ? (needed - p.xp).toLocaleString() + ' to next' : 'Max level'}</span></div>
+    </li>`;
   }).join('');
 
-  EL.xpTotal().textContent     = S.xpLog.reduce((s, e) => s + (+e.adjustedXP || 0), 0).toLocaleString() + ' XP';
-  EL.xpPerPlayer().textContent = S.xpLog.reduce((s, e) => s + (+e.perPlayer || 0), 0).toLocaleString() + ' XP';
+  EL.xpTotal().textContent     = S.xpLog.reduce((s, e) => s + (+e.adjustedXP || 0), 0).toLocaleString();
+  EL.xpPerPlayer().textContent = S.xpLog.reduce((s, e) => s + (+e.perPlayer || 0), 0).toLocaleString();
   EL.xpDefeated().textContent  = S.xpLog.length;
 
   const closest = players.slice(0, size).filter(p => p.level < 20)
     .map(p => ({ p, rem: xpToNextLevel(p.level) - p.xp })).sort((a, b) => a.rem - b.rem)[0];
   EL.xpNextNote().textContent = closest
-    ? `${closest.p.name} needs ${closest.rem.toLocaleString()} XP to reach level ${closest.p.level + 1}`
-    : 'All players at maximum level';
+    ? `${closest.p.name} is ${closest.rem.toLocaleString()} XP from level ${closest.p.level + 1}.`
+    : 'The whole party is at level 20.';
 
-  EL.xpEncLog().innerHTML = !S.xpLog.length
-    ? '<div class="xp-empty">No encounters yet — XP will appear here.</div>'
-    : S.xpLog.map(e => `
-    <div class="xp-enc-row">
-      <span class="xp-enc-turn">T${esc(e.turn)}</span>
-      <span class="xp-enc-name">${esc(e.monsterName)} <span style="font-size:0.62rem;color:var(--bone-faint);font-style:normal;">(${esc(e.cr)})</span></span>
-      <span class="xp-enc-xp">+${(+e.perPlayer || 0).toLocaleString()} ea.</span>
-      <span class="xp-enc-total">${(+e.adjustedXP || 0).toLocaleString()} total</span>
-    </div>`).join('');
+  EL.xpEncLog().innerHTML = S.xpLog.map(e => `
+    <li>
+      <span class="log-turn">T${esc(e.turn)}</span>
+      <span>${esc(e.monsterName)} <span class="dim">${esc(e.cr)}${e.count > 1 ? ` × ${esc(e.count)}` : ''}</span></span>
+      <span class="log-xp">+${(+e.perPlayer || 0).toLocaleString()} each</span>
+    </li>`).join('');
 }
 
 function renderSettings() {
@@ -312,17 +286,17 @@ function renderSettings() {
     b.classList.toggle('active', i === S.tableIndex);
     b.classList.toggle('has-custom', !!customTables[i]);
   });
-  $('mtbUploadTitle').textContent = `Custom Table — ${TIER_NAMES[S.tableIndex]}`;
+  $('mtbUploadTitle').textContent = `Custom table for ${TIER_NAMES[S.tableIndex]}`;
   const custom = customTables[S.tableIndex];
   const status = $('mtbUploadStatus');
-  status.textContent = custom ? `✦ Custom — ${custom.length} entr${custom.length === 1 ? 'y' : 'ies'} loaded` : 'Using built-in table';
-  status.className   = 'mtb-upload-status' + (custom ? ' ok' : '');
+  status.textContent = custom ? `Custom table loaded: ${custom.length} entr${custom.length === 1 ? 'y' : 'ies'}.` : 'Using the built-in table.';
+  status.className   = 'upload-status' + (custom ? ' ok' : '');
   $('mtbResetBtn').style.display = custom ? '' : 'none';
 
   const d = ui.draft;
   if(!d) return;
   const sides = DIE_SIDES[d.die];
-  const pct   = (d.threshold / sides * 100).toFixed(1);
+  const pct   = (d.threshold / sides * 100).toFixed(1).replace(/\.0$/, '');
   const slider = EL.threshSlider();
   slider.max   = sides;
   slider.value = d.threshold;
@@ -330,96 +304,65 @@ function renderSettings() {
   document.querySelectorAll('.preset-btn').forEach(b =>
     b.classList.toggle('active', d.die === 'd100' && Math.abs(d.threshold - +b.dataset.arg) < 1));
   EL.threshVal().textContent  = d.threshold;
-  EL.tdBig().textContent      = `≤ ${d.threshold}`;
-  EL.tdPct().textContent      = `${pct}% chance per turn`;
-  EL.tdExpected().textContent = `~1 encounter every ${(sides / d.threshold).toFixed(1)} turns`;
-  EL.sliderHint().textContent = `${d.threshold} in ${sides} chance per turn (${pct}%)`;
+  EL.tdBig().textContent      = `${pct}%`;
+  EL.tdPct().textContent      = 'chance per turn';
+  const every = (sides / d.threshold).toFixed(1).replace(/\.0$/, '');
+  EL.tdExpected().textContent = every === '1' ? 'an encounter every turn' : `about one encounter every ${every} turns`;
+  EL.sliderHint().textContent = `${d.threshold} in ${sides} on a ${d.die}.`;
 }
 
 // ── Render helpers ─────────────────────────────────
 function renderStatBlock(monster) {
   const s       = monster.stats;
-  const lore    = monster.lore    ? `<div class="stat-lore">${esc(monster.lore)}</div>` : '';
-  const tactics = monster.tactics ? `<div class="stat-tactics"><strong>Tactics:</strong> ${esc(monster.tactics)}</div>` : '';
-  const habitat = monster.habitat ? `<div class="stat-habitat"><strong>Habitat:</strong> ${esc(monster.habitat)}</div>` : '';
+  const lore    = monster.lore    ? `<p class="sb-lore">${esc(monster.lore)}</p>` : '';
+  const tactics = monster.tactics ? `<p class="sb-note"><b>Tactics</b> ${esc(monster.tactics)}</p>` : '';
+  const habitat = monster.habitat ? `<p class="sb-note"><b>Habitat</b> ${esc(monster.habitat)}</p>` : '';
   // CSV / partial JSON uploads have no stat block
   if(!s || typeof s !== 'object') return lore + tactics + habitat;
 
   const ATTRS = ['STR','DEX','CON','INT','WIS','CHA'];
   const vals  = [s.str, s.dex, s.con, s.int, s.wis, s.cha];
-  const statItems = ATTRS.map((attr, i) => {
+  const abilities = ATTRS.map((attr, i) => {
     const [base, mod = '—)'] = String(vals[i] ?? '—').split('(');
-    return `<div class="stat-item">
-      <div class="stat-name">${attr}</div>
-      <div class="stat-val">${esc(base)}</div>
-      <div class="stat-mod">(${esc(mod)}</div>
-    </div>`;
+    return `<div><dt>${attr}</dt><dd>${esc(base.trim())}<small>(${esc(mod)}</small></dd></div>`;
   }).join('');
+  const props = (Array.isArray(s.props) ? s.props : []).map(p => `<li>${esc(p)}</li>`).join('');
 
-  const pills = [
-    `<span class="stat-pill"><strong>AC</strong> ${esc(s.ac)}</span>`,
-    `<span class="stat-pill"><strong>HP</strong> ${esc(s.hp)}</span>`,
-    `<span class="stat-pill"><strong>Spd</strong> ${esc(s.spd)}</span>`,
-    ...(Array.isArray(s.props) ? s.props : []).map(p => `<span class="stat-pill">${esc(p)}</span>`),
-  ].join('');
-
-  return `<div class="stat-block-title">☠ Stat Block</div>
-    <div class="stat-grid">${statItems}</div>
-    <div class="stat-props">${pills}</div>
+  return `<div class="sb">
+      <p class="sb-line"><b>AC</b> ${esc(s.ac)} &nbsp; <b>HP</b> ${esc(s.hp)} &nbsp; <b>Speed</b> ${esc(s.spd)}</p>
+      <dl class="sb-abilities">${abilities}</dl>
+      ${props ? `<ul class="sb-props">${props}</ul>` : ''}
+    </div>
     ${lore}${tactics}${habitat}`;
-}
-
-function setDieWrap(id, cls) {
-  const w = $(id);
-  w.classList.remove('glow-normal', 'glow-enc', 'glow-mon');
-  if(cls) w.classList.add(cls);
 }
 
 function setCheckRoll(roll, isEnc) {
   const lbl = EL.d100label();
-  lbl.textContent = isEnc ? '☠ Encounter!' : 'No encounter';
-  lbl.className   = 'die-result-label' + (isEnc ? ' enc' : '');
-  const n = $('checkFlatNum');
-  n.textContent = roll;
-  n.className   = 'flat-die-num' + (isEnc ? ' enc' : '');
-  setDieWrap('checkDieWrap', isEnc ? 'glow-enc' : 'glow-normal');
+  lbl.textContent = isEnc ? 'Encounter' : 'Quiet turn';
+  lbl.className   = isEnc ? 'enc' : '';
+  $('checkFlatNum').textContent = roll;
+  $('checkDieWrap').classList.toggle('glow-enc', isEnc);
 }
 
 function setMonsterRoll(mroll, monsterName) {
-  const lbl = EL.d20label();
-  lbl.textContent = monsterName;
-  lbl.className   = 'die-result-label mon';
-  const n = $('monsterFlatNum');
-  n.textContent = mroll;
-  n.className   = 'flat-die-num mon';
-  setDieWrap('monsterDieWrap', 'glow-mon');
+  EL.d20label().textContent = monsterName;
+  $('monsterFlatNum').textContent = mroll;
+  $('d20block').classList.add('glow-mon');
 }
 
 function clearRollDisplay() {
   EL.d100label().textContent = 'No roll yet';
-  EL.d100label().className   = 'die-result-label';
+  EL.d100label().className   = '';
   EL.d20label().textContent  = '';
-  EL.d20label().className    = 'die-result-label';
   EL.d20block().style.display = 'none';
-  for(const id of ['checkFlatNum', 'monsterFlatNum']) { $(id).textContent = '—'; $(id).className = 'flat-die-num'; }
-  for(const id of ['checkDieOverlay', 'monsterDieOverlay']) { $(id).classList.remove('show'); $(id).innerHTML = ''; }
-  setDieWrap('checkDieWrap', null);
-  setDieWrap('monsterDieWrap', null);
+  $('checkFlatNum').textContent = '—';
+  $('monsterFlatNum').textContent = '—';
+  $('checkDieWrap').classList.remove('glow-enc');
 }
 
 // ══════════════════════════════════════════════════
 // EFFECTS — one-shot animations fired by actions
 // ══════════════════════════════════════════════════
-function flashDieOverlay(id, number, variant) {
-  if(!S.diceAnim) return;
-  const overlay = $(id);
-  const v = variant ? ' ' + variant : '';
-  overlay.innerHTML = `<div class="die-overlay-card${v}"><span class="die-overlay-num${v}">${esc(number)}</span></div>`;
-  overlay.classList.remove('show');
-  void overlay.offsetWidth;
-  overlay.classList.add('show');
-}
-
 function popCounter(n) {
   const ctr = EL.turnCounter();
   ctr.textContent = n;
@@ -433,33 +376,10 @@ function triggerEncounterFX() {
   flash.classList.remove('enc-flashing');
   void flash.offsetWidth;
   flash.classList.add('enc-flashing');
-
-  const container = EL.particles();
-  const colors = ['#cc1122','#991010','#dd2233','#aa0818'];
-  for(let i = 0; i < 22; i++) {
-    const p    = document.createElement('div');
-    const size = 4 + Math.random() * 8;
-    const dur  = 0.6 + Math.random() * 1.0;
-    p.className = 'particle';
-    Object.assign(p.style, {
-      left: `${10 + Math.random() * 80}%`, top: `${-size}px`,
-      width: `${size}px`, height: `${size * 1.5}px`,
-      background: colors[Math.floor(Math.random() * colors.length)],
-      animationDuration: `${dur}s`, animationDelay: `${Math.random() * 0.3}s`,
-    });
-    container.appendChild(p);
-    setTimeout(() => p.remove(), (dur + 0.3) * 1000);
-  }
-
-  let shakes = 0;
-  const shakeInt = setInterval(() => {
-    document.body.style.transform = `translateX(${(Math.random() - 0.5) * 6}px) translateY(${(Math.random() - 0.5) * 3}px)`;
-    if(++shakes > 6) { clearInterval(shakeInt); document.body.style.transform = ''; }
-  }, 40);
 }
 
 function xpFlashLevelUp(playerIndexes) {
-  playLevelUpFanfare();
+  if(S.sound) playLevelUpFanfare();
   playerIndexes.forEach(i => {
     const card = $('xpPCard' + i);
     if(!card) return;
@@ -491,24 +411,8 @@ function showLevelUpOverlay(playerName, newLevel) {
   EL.lvlupName().textContent = playerName;
   EL.lvlupNum().textContent  = newLevel;
   EL.lvlupSub().textContent  = LEVEL_FLAVOUR[newLevel] || 'A new power awakens in the darkness.';
-
-  for(let i = 0; i < 28; i++) {
-    const p = document.createElement('div');
-    p.className = 'lvlup-particle';
-    const angle = (i / 28) * Math.PI * 2;
-    const dist  = 120 + Math.random() * 180;
-    p.style.setProperty('--px', Math.cos(angle) * dist + 'px');
-    p.style.setProperty('--py', Math.sin(angle) * dist + 'px');
-    p.style.setProperty('--pd', (Math.random() * 0.3) + 's');
-    p.style.background = Math.random() > 0.3 ? 'var(--gold-hi)' : '#fff';
-    p.style.width = p.style.height = (4 + Math.random() * 5) + 'px';
-    overlay.appendChild(p);
-    setTimeout(() => p.remove(), 1800);
-  }
-
   overlay.classList.add('active');
-  overlay.style.animation = 'none';
-  const dismiss = () => { overlay.classList.remove('active'); overlay.style.opacity = '0'; };
+  const dismiss = () => overlay.classList.remove('active');
   overlay.onclick = dismiss;
   setTimeout(dismiss, 3300);
 }
@@ -526,10 +430,15 @@ function advanceTurn() {
   const isEnc = roll <= S.threshold;
   const turn  = S.turn + 1;
 
-  checkDie.roll(dieRollToFace(S.die, roll), () => {
+  EL.d20block().style.display = 'none';
+  $('checkDieWrap').classList.remove('glow-enc');
+  EL.d100label().textContent = 'Rolling…';
+  EL.d100label().className = '';
+  EL.d20label().textContent = '';
+
+  rollDie('checkDieWrap', 'checkFlatNum', DIE_SIDES[S.die], roll, () => {
     popCounter(turn);
     setCheckRoll(roll, isEnc);
-    flashDieOverlay('checkDieOverlay', roll, isEnc ? 'enc' : '');
 
     if(!isEnc) {
       if(S.sound) playTurnTock();
@@ -544,12 +453,11 @@ function advanceTurn() {
     const mroll   = r20();
     // Custom tables needn't cover 1–20; fall back to a random entry
     const monster = table.find(m => m.roll === mroll) || table[Math.floor(Math.random() * table.length)];
-    EL.d20block().style.display = 'block';
-    _applyDiceAnimState();
+    EL.d20block().style.display = 'grid';
+    $('d20block').classList.remove('glow-mon');
 
-    monsterDie.roll(mroll - 1, () => {
+    rollDie('d20block', 'monsterFlatNum', 20, mroll, () => {
       setMonsterRoll(mroll, monster.name);
-      flashDieOverlay('monsterDieOverlay', mroll, 'mon');
       ui.tableOpen = true;
       finishTurn({ turn, roll, enc: true, monster, mroll, count: rollCountExpr(monster.count || '1') });
 
@@ -592,15 +500,7 @@ function monsterDefeated() {
   });
   if(levelUps.length) xpFlashLevelUp(levelUps);
 
-  const btn = EL.defeatWrap().querySelector('.defeat-btn');
-  btn.textContent = '✦ Slain!';
-  Object.assign(btn.style, {
-    background: 'linear-gradient(180deg,rgba(60,120,30,0.6) 0%,rgba(20,60,10,0.6) 100%)',
-    borderColor: '#4a9a2a', animation: 'none',
-  });
-  const card = EL.encCard();
-  Object.assign(card.style, { transition: 'border-color 0.2s, box-shadow 0.2s', borderColor: '#4a9a2a', boxShadow: '0 0 24px rgba(74,154,42,0.4)' });
-  setTimeout(() => { card.style.borderColor = ''; card.style.boxShadow = ''; }, 700);
+  EL.defeatWrap().querySelector('.defeat-btn').textContent = 'Slain';
 
   setTimeout(() => {
     ui.defeating = false;
@@ -695,7 +595,7 @@ function loadTableFile(file) {
       customTables[S.tableIndex] = parseTableFile(file.name, e.target.result);
       saveCustomTables();
       render();
-      showSaveIndicator('✦ Custom table loaded');
+      showSaveIndicator('Custom table loaded');
     } catch(err) { fail(err.message); }
   };
   reader.onerror = () => fail('Could not read file');
@@ -726,7 +626,6 @@ const ACTIONS = {
   'toggle-table':     () => { ui.tableOpen = !ui.tableOpen; render(); },
   'toggle-sound':     () => commit(s => { s.sound = !s.sound; }),
   'toggle-anim':      () => commit(s => { s.anim = !s.anim; }),
-  'toggle-dice-anim': () => commit(s => { s.diceAnim = !s.diceAnim; }),
   'settings-open':    () => openSettings(),
   'settings-cancel':  () => cancelSettings(),
   'settings-save':    () => saveSettings(),
@@ -794,12 +693,9 @@ document.addEventListener('keydown', e => {
 // ══════════════════════════════════════════════════
 // BOOT
 // ══════════════════════════════════════════════════
+// Scripts sit at the end of <body>, so the DOM is ready: load before the first paint
+setDieShape('monsterDieShape', 'd20');
+const saved = load();
+if(saved) { S = saved; save(); } // re-save in the current shape
 render();
-window.addEventListener('load', () => {
-  initDice();
-  const saved = load();
-  if(saved) S = saved;
-  applied.theme = null; // dice now exist — rebuild them for the theme
-  render();
-  if(saved) { save(); showSaveIndicator('Session restored'); } // re-save in the v2 shape
-});
+if(saved) showSaveIndicator('Session restored');

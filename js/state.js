@@ -3,7 +3,7 @@
 const SAVE_KEY     = 'dungeonTracker_v1';
 const SAVE_VERSION = 2;
 const TORCH_MS     = 60 * 60 * 1000;
-const THEMES       = ['default', 'castlevania', 'vampire', 'dungeon', 'escape', 'torchlight'];
+const THEMES       = ['auto', 'light', 'dark'];
 const MAX_PARTY    = 8;
 
 const defaultPlayer = i => ({ name: `Player ${i + 1}`, level: 1, xp: 0 });
@@ -16,8 +16,8 @@ function defaultState() {
     combat: null,       // { monster, mroll, count, turn } while an encounter is unresolved
     threshold: 35, die: 'd100',
     tableIndex: 0,
-    theme: 'default',
-    sound: true, anim: true, diceAnim: true, volume: 0.8,
+    theme: 'auto',
+    sound: true, anim: true, volume: 0.8,
     party: { size: 4, players: [0, 1, 2, 3].map(defaultPlayer) },
     xpLog: [],          // newest first: { turn, monsterName, cr, count, rawXP, adjustedXP, perPlayer }
     torch: { left: TORCH_MS, endsAt: null }, // endsAt set only while burning (real time)
@@ -58,10 +58,9 @@ function migrate(raw) {
     threshold:  int(g('threshold', 'THRESHOLD'), 1, DIE_SIDES[die], d.threshold),
     die,
     tableIndex: int(g('tableIndex', 'MONSTER_TABLE_INDEX'), 0, 2, 0),
-    theme:      THEMES.includes(raw.theme) ? raw.theme : d.theme,
+    theme:      THEMES.includes(raw.theme) ? raw.theme : d.theme, // old colour themes → auto
     sound:      bool(g('sound', 'soundOn'), d.sound),
     anim:       bool(g('anim', 'animOn'), d.anim),
-    diceAnim:   bool(g('diceAnim', 'diceAnimOn'), d.diceAnim),
     volume:     Number.isFinite(raw.volume) ? Math.min(1, Math.max(0, raw.volume)) : d.volume,
     party:      { size, players },
     xpLog:      arr(g('xpLog', 'xpSessionLog')).slice(0, 100).filter(e => e && typeof e === 'object'),
